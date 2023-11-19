@@ -16,7 +16,6 @@ import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.I
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
-import java.util.Optional
 import java.util.UUID.randomUUID
 
 @ExtendWith(MockKExtension::class)
@@ -58,8 +57,7 @@ class IdentityServiceTest {
 
         @Test
         fun `When output port returns empty then returns null` () {
-
-            every { identityOutputPort.loadIdentityById(any()) } answers { Optional.empty() }
+            every { identityOutputPort.loadIdentityById(any()) } answers { null }
 
             val result = identityService.loadIdentity(LoadIdentityCommand(randomUUID()))
 
@@ -69,13 +67,13 @@ class IdentityServiceTest {
         @Test
         fun `When output port returns present then returns Identity` () {
             val id = randomUUID()
-            val expectedIdentity = Identity("John", "Doe")
+            val identity = Identity("John", "Doe")
 
-            every { identityOutputPort.loadIdentityById(eq(id)) } answers { Optional.of(expectedIdentity) }
+            every { identityOutputPort.loadIdentityById(eq(id)) } answers { identity }
 
             val result = identityService.loadIdentity(LoadIdentityCommand(id))
 
-            assertThat(result).isEqualTo(expectedIdentity)
+            assertThat(result).isEqualTo(identity)
         }
 
     }

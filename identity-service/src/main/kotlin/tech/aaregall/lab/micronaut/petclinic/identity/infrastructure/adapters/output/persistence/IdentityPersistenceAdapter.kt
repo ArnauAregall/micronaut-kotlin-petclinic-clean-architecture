@@ -1,6 +1,7 @@
 package tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.output.persistence
 
 import jakarta.inject.Singleton
+import jakarta.persistence.EntityNotFoundException
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
 import java.util.*
@@ -17,9 +18,10 @@ internal class IdentityPersistenceAdapter(
         return identityPersistenceMapper.mapToDomain(jpaEntity)
     }
 
-    override fun loadIdentityById(id: UUID): Optional<Identity> {
+    override fun loadIdentityById(id: UUID): Identity? {
         return identityJpaRepository.findById(id)
             .map(identityPersistenceMapper::mapToDomain)
+            .orElseThrow { EntityNotFoundException("Identity with id '$id' not found") }
     }
 
 }

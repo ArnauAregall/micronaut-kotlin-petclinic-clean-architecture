@@ -23,6 +23,6 @@ class IdentityService(
     }
 
     override fun loadIdentity(loadIdentityCommand: LoadIdentityCommand): Identity? {
-        return identityOutputPort.loadIdentityById(loadIdentityCommand.id).orElse(null)
+        return identityOutputPort.loadIdentityById(loadIdentityCommand.id)
     }
 }
