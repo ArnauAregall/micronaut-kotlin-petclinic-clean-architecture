@@ -1,14 +1,9 @@
 plugins {
-    id("java")
-    kotlin("jvm") version "1.9.20"
+    kotlin("jvm")
 }
 
 group = "tech.aaregall.lab.micronaut.petclinic"
 version = "unspecified"
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
@@ -18,7 +13,4 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(21)
 }

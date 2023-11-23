@@ -1,19 +1,11 @@
 plugins {
-    kotlin("jvm") version "1.9.20"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.20"
-    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.micronaut.application") version "4.2.0"
-    id("io.micronaut.aot") version "4.2.0"
+    kotlin("jvm")
+    id("io.micronaut.application")
+    id("io.micronaut.aot")
 }
 
 version = "0.1"
 group = "tech.aaregall.lab.micronaut.petclinic"
-
-val kotlinVersion=project.properties.get("kotlinVersion")
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     ksp("io.micronaut:micronaut-http-validation")
@@ -25,14 +17,14 @@ dependencies {
     implementation("io.micronaut.kafka:micronaut-kafka")
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
     compileOnly("io.micronaut:micronaut-http-client")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
-    testImplementation("io.mockk:mockk:1.13.8") // TODO extract version outside
+    testImplementation("io.mockk:mockk:${project.properties.get("mockkVersion")}")
     testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("io.micronaut.data:micronaut-data-jdbc")
     testImplementation("org.assertj:assertj-core")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
@@ -40,12 +32,14 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers")
 }
 
-
 application {
     mainClass.set("tech.aaregall.lab.micronaut.petclinic.identity.IdentityApp")
 }
 
-graalvmNative.toolchainDetection.set(false)
+graalvmNative {
+    toolchainDetection = false
+}
+
 micronaut {
     runtime("netty")
     testRuntime("junit5")
@@ -65,10 +59,5 @@ micronaut {
         optimizeNetty.set(true)
     }
 }
-kotlin {
-    jvmToolchain(21)
-}
 
-allOpen {
-    annotation("jakarta.persistence.Entity")
-}
+
