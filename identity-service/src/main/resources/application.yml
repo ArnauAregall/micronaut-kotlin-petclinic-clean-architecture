@@ -1,0 +1,19 @@
+micronaut:
+  application:
+    name: identity-service
+
+jpa:
+  default:
+    entity-scan:
+      packages:
+        - tech.aaregall.lab.micronaut.petclinic.identity.infrastructure
+    properties:
+      hibernate:
+        hbm2ddl.auto: update
+
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
