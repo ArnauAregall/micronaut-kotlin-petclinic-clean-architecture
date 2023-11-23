@@ -11,19 +11,22 @@ import java.util.UUID
 
 @Entity
 @Table(name = "identity")
-internal class IdentityJpaEntity (
+internal class IdentityJpaEntity() {
 
-    @NotNull
-    @Column(name = "first_name")
-    var firstName: String,
-
-    @NotNull
-    @Column(name = "last_name")
-    var lastName: String
-
-) {
+    constructor(firstName: String, lastName: String) : this() {
+        this.firstName = firstName
+        this.lastName = lastName
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID? = null
+    val id: UUID? = null
+
+    @NotNull
+    @Column(name = "first_name")
+    lateinit var firstName: String
+
+    @NotNull
+    @Column(name = "last_name")
+    lateinit var lastName: String
 }
