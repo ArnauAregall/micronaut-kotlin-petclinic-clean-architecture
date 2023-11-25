@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     id("io.micronaut.application")
     id("io.micronaut.aot")
+    id("io.micronaut.test-resources")
 }
 
 version = "0.1"

@@ -1,3 +1,8 @@
+test-resources:
+  containers:
+    kafka:
+      image-name: "confluentinc/cp-kafka:latest"
+
 datasources:
   default:
     url: jdbc:tc:postgresql:latest://postgres
