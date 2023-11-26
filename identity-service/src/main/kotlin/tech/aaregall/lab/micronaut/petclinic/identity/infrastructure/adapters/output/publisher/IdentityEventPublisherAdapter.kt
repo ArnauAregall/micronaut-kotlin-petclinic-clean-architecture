@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
-import java.util.UUID
 
 @Singleton
 internal class IdentityEventPublisherAdapter(private val identityKafkaClient: IdentityKafkaClient): IdentityEventPublisher {
@@ -21,7 +20,7 @@ internal class IdentityEventPublisherAdapter(private val identityKafkaClient: Id
 
     override fun publishIdentityCreatedEvent(identityCreatedEvent: IdentityCreatedEvent) {
         logger.info("Publishing Identity Created Event [identity={}, time={}]", identityCreatedEvent.identity, identityCreatedEvent.date)
-        identityKafkaClient.sendIdentityCreated(UUID.randomUUID().toString(), // TODO aggregate id
+        identityKafkaClient.sendIdentityCreated(identityCreatedEvent.identity.id.toString(),
             toKafkaEvent(identityCreatedEvent.identity))
     }
 }

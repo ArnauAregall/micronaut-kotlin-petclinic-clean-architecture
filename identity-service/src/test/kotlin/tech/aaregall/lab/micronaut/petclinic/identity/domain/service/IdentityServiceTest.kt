@@ -16,7 +16,7 @@ import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.I
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
-import java.util.UUID.randomUUID
+import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 
 @ExtendWith(MockKExtension::class)
 class IdentityServiceTest {
@@ -36,7 +36,7 @@ class IdentityServiceTest {
 
         @Test
         fun `Creates Identity` () {
-            val expectedIdentity = Identity("Foo", "Bar")
+            val expectedIdentity = Identity(id = IdentityId.create(), firstName = "Foo", lastName = "Bar")
 
             every { identityOutputPort.createIdentity(any(Identity::class)) } answers { expectedIdentity }
             every { identityEventPublisher.publishIdentityCreatedEvent(any()) } answers { callOriginal() }
@@ -45,7 +45,6 @@ class IdentityServiceTest {
 
             assertThat(result).isEqualTo(expectedIdentity)
 
-            verify { identityOutputPort.createIdentity(result) }
             verify { identityEventPublisher.publishIdentityCreatedEvent(IdentityCreatedEvent(result)) }
         }
 
@@ -59,19 +58,18 @@ class IdentityServiceTest {
         fun `When output port returns empty then returns null` () {
             every { identityOutputPort.loadIdentityById(any()) } answers { null }
 
-            val result = identityService.loadIdentity(LoadIdentityCommand(randomUUID()))
+            val result = identityService.loadIdentity(LoadIdentityCommand(IdentityId.create()))
 
             assertThat(result).isNull()
         }
 
         @Test
         fun `When output port returns present then returns Identity` () {
-            val id = randomUUID()
-            val identity = Identity("John", "Doe")
+            val identity = Identity(id = IdentityId.create(), firstName =  "John", lastName = "Doe")
 
-            every { identityOutputPort.loadIdentityById(eq(id)) } answers { identity }
+            every { identityOutputPort.loadIdentityById(eq(identity.id)) } answers { identity }
 
-            val result = identityService.loadIdentity(LoadIdentityCommand(id))
+            val result = identityService.loadIdentity(LoadIdentityCommand(identity.id))
 
             assertThat(result).isEqualTo(identity)
         }

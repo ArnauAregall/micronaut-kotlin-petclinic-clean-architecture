@@ -2,16 +2,18 @@ package tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.o
 
 import jakarta.inject.Singleton
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
+import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
+import java.util.UUID
 
 @Singleton
 internal class IdentityPersistenceMapper {
 
     fun mapToDomain(entity: IdentityJpaEntity): Identity {
-        return Identity(entity.firstName, entity.lastName)
+        return Identity(IdentityId.of(entity.id), entity.firstName, entity.lastName)
     }
 
     fun mapToEntity(identity: Identity): IdentityJpaEntity {
-        return IdentityJpaEntity(identity.firstName, identity.lastName)
+        return IdentityJpaEntity(UUID.fromString(identity.id.toString()), identity.firstName, identity.lastName)
     }
 
 }

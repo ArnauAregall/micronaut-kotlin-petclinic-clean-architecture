@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
+import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
@@ -32,7 +33,7 @@ class IdentityPersistenceAdapterIT {
 
         @Test
         fun `It should create an Identity`() {
-            identityOutputPort.createIdentity(Identity(firstName = "John", lastName = "Doe"))
+            identityOutputPort.createIdentity(Identity(id = IdentityId.create(), firstName = "John", lastName = "Doe"))
 
             jdbc.execute { conn ->
                 val resultSet = conn.prepareStatement("select count(*) as identity_count from identity").executeQuery()
@@ -52,7 +53,7 @@ class IdentityPersistenceAdapterIT {
             val id = randomUUID()
             jdbc.execute { conn -> conn.prepareCall("insert into identity(id, first_name, last_name) values ('${id}', 'John', 'Doe')").execute() }
 
-            val identity = identityOutputPort.loadIdentityById(id)
+            val identity = identityOutputPort.loadIdentityById(IdentityId.of(id))
 
             assertThat(identity)
                 .isNotNull
@@ -64,7 +65,7 @@ class IdentityPersistenceAdapterIT {
         fun `It should throw a exception when entity is not found`() {
             val id = randomUUID()
 
-            assertThatCode { identityOutputPort.loadIdentityById(id) }
+            assertThatCode { identityOutputPort.loadIdentityById(IdentityId.of(id)) }
                 .isInstanceOf(EntityNotFoundException::class.java)
                 .extracting(Throwable::message)
                 .isEqualTo("Identity with id '$id' not found")

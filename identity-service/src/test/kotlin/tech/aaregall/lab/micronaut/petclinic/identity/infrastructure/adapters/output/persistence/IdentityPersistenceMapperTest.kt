@@ -3,6 +3,8 @@ package tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.o
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
+import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
+import java.util.UUID
 
 internal class IdentityPersistenceMapperTest {
 
@@ -10,7 +12,7 @@ internal class IdentityPersistenceMapperTest {
 
     @Test
     fun `Maps entity to domain`() {
-        val jpaEntity = IdentityJpaEntity(firstName = "John", lastName = "Doe")
+        val jpaEntity = IdentityJpaEntity(id = UUID.randomUUID(), firstName = "John", lastName = "Doe")
 
         val domain = identityPersistenceMapper.mapToDomain(jpaEntity)
 
@@ -22,7 +24,7 @@ internal class IdentityPersistenceMapperTest {
 
     @Test
     fun `Maps domain to entity`() {
-        val domain = Identity(firstName = "Bob", lastName = "Builder")
+        val domain = Identity(id = IdentityId.create(), firstName = "Bob", lastName = "Builder")
 
         val jpaEntity = identityPersistenceMapper.mapToEntity(domain)
 

@@ -9,6 +9,7 @@ import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.I
 import tech.aaregall.lab.micronaut.petclinic.identity.common.UseCase
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
+import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 
 @UseCase
 class IdentityService(
@@ -17,12 +18,12 @@ class IdentityService(
 
     override fun createIdentity(createIdentityCommand: CreateIdentityCommand): Identity {
         val identity = identityOutputPort.createIdentity(
-            Identity(createIdentityCommand.firstName, createIdentityCommand.lastName))
+            Identity(IdentityId.create(), createIdentityCommand.firstName, createIdentityCommand.lastName))
         identityEventPublisher.publishIdentityCreatedEvent(IdentityCreatedEvent(identity))
         return identity
     }
 
     override fun loadIdentity(loadIdentityCommand: LoadIdentityCommand): Identity? {
-        return identityOutputPort.loadIdentityById(loadIdentityCommand.id)
+        return identityOutputPort.loadIdentityById(loadIdentityCommand.identityId)
     }
 }
