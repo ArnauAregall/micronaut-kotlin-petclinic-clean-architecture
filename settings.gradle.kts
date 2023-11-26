@@ -10,6 +10,7 @@ pluginManagement {
 
     plugins {
         kotlin("jvm") version kotlinVersion
+        kotlin("plugin.jpa") version kotlinVersion
         id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
         id("com.google.devtools.ksp") version kspVersion
         id("io.micronaut.application") version micronautVersion
