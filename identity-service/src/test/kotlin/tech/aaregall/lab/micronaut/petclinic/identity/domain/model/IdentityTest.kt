@@ -1,0 +1,28 @@
+package tech.aaregall.lab.micronaut.petclinic.identity.domain.model
+
+import org.assertj.core.api.Assertions.assertThatCode
+import org.junit.jupiter.api.Test
+
+class IdentityTest {
+
+    @Test
+    fun `Should create Identity with not blank first and last name`() {
+        assertThatCode { Identity(id = IdentityId.create(), firstName = "Foo", lastName = "Bar") }
+            .doesNotThrowAnyException()
+    }
+
+    @Test
+    fun `First name cannot be blank`() {
+        assertThatCode { Identity(id = IdentityId.create(), firstName = "", lastName = "Bar") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessage("firstName cannot be blank")
+    }
+
+    @Test
+    fun `Last name cannot be blank`() {
+        assertThatCode { Identity(id = IdentityId.create(), firstName = "Foo", lastName = "") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessage("lastName cannot be blank")
+    }
+
+}
