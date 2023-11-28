@@ -3,9 +3,7 @@ package tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.o
 import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
-import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -62,13 +60,12 @@ class IdentityPersistenceAdapterIT {
         }
 
         @Test
-        fun `It should throw a exception when entity is not found`() {
+        fun `It should return null when identity is not found`() {
             val id = randomUUID()
 
-            assertThatCode { identityOutputPort.loadIdentityById(IdentityId.of(id)) }
-                .isInstanceOf(EntityNotFoundException::class.java)
-                .extracting(Throwable::message)
-                .isEqualTo("Identity with id '$id' not found")
+            val identity = identityOutputPort.loadIdentityById(IdentityId.of(id))
+
+            assertThat(identity).isNull()
         }
 
     }
