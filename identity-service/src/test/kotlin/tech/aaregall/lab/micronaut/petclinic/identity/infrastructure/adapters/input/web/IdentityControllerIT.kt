@@ -9,15 +9,18 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import jakarta.inject.Inject
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
-import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EmptySource
+import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.CreateIdentityCommand
+import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.CreateIdentityUseCase
+import java.util.UUID
 
-@MicronautTest
+@MicronautTest(transactional = false)
 class IdentityControllerIT {
 
     @Inject
@@ -72,6 +75,41 @@ class IdentityControllerIT {
                         containsString("firstName"), containsString("must not be blank")),
                     "_embedded.errors[1].message", allOf(
                         containsString("lastName"), containsString("must not be blank"))
+                )
+            }
+        }
+
+    }
+
+    @Nested
+    inner class LoadIdentity {
+
+        @Test
+        fun `Should return Not Found when Identity does not exist`() {
+            Given {
+              pathParam("id", UUID.randomUUID())
+            } When {
+                port(embeddedServer.port)
+                get("/api/identities/{id}")
+            } Then {
+                statusCode(HttpStatus.NOT_FOUND.code)
+            }
+        }
+
+        @Test
+        fun `Should return OK when Identity exists`(createIdentityUseCase: CreateIdentityUseCase) {
+            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+            Given {
+                pathParam("id", identity.id.toString())
+            } When {
+                port(embeddedServer.port)
+                get("/api/identities/{id}")
+            } Then {
+                statusCode(HttpStatus.OK.code)
+                body(
+                    "id", equalTo(identity.id.toString()) ,
+                    "first_name", equalTo(identity.firstName),
+                    "last_name", equalTo(identity.lastName)
                 )
             }
         }
