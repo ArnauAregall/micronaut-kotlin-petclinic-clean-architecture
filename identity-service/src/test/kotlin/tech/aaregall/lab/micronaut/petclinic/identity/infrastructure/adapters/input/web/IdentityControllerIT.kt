@@ -85,6 +85,24 @@ class IdentityControllerIT {
     inner class LoadIdentity {
 
         @Test
+        fun `Should return Bad Request when ID is not a UUID`() {
+            Given {
+                pathParam("id", "something")
+            } When {
+                port(embeddedServer.port)
+                get("/api/identities/{id}")
+            } Then {
+                log().all()
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
         fun `Should return Not Found when Identity does not exist`() {
             Given {
               pathParam("id", UUID.randomUUID())
