@@ -1,0 +1,9 @@
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+
+kafka:
+  bootstrap:
+    servers: localhost:9092
