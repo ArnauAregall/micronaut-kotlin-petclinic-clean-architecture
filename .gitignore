@@ -1,7 +1,6 @@
 Thumbs.db
 .DS_Store
 .gradle
-gradle/wrapper/gradle-wrapper.jar
 build/
 target/
 out/
