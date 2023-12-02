@@ -36,6 +36,18 @@ services:
               properties:
                 bootstrap.servers: "kafka:29092"
 
+  keycloak:
+    image: 'quay.io/keycloak/keycloak:latest'
+    depends_on:
+      - postgres
+    command: ['start-dev']
+    hostname: keycloak
+    ports:
+      - '8082:8080'
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
   postgres:
     image: 'postgres:latest'
     ports:
@@ -43,3 +55,8 @@ services:
     environment:
       POSTGRES_DB: postgres
       POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
