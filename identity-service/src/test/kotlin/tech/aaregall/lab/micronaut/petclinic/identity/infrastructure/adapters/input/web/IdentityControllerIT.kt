@@ -3,6 +3,7 @@ package tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.i
 import io.micronaut.http.HttpStatus
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import io.micronaut.test.extensions.testresources.annotation.TestResourcesProperties
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
@@ -14,13 +15,14 @@ import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EmptySource
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.CreateIdentityCommand
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.CreateIdentityUseCase
+import tech.aaregall.lab.micronaut.petclinic.identity.spec.KeycloakSpec
+import tech.aaregall.lab.micronaut.petclinic.identity.spec.KeycloakSpec.Companion.getAuthorizationBearer
 import java.util.UUID
 
 @MicronautTest(transactional = false)
+@TestResourcesProperties(providers = [KeycloakSpec::class])
 class IdentityControllerIT {
 
     @Inject
@@ -39,6 +41,7 @@ class IdentityControllerIT {
                         "last_name": "Doe"
                     }
                 """.trimIndent())
+                header(getAuthorizationBearer())
             } When {
                 port(embeddedServer.port)
                 post("/api/identities")
@@ -52,17 +55,17 @@ class IdentityControllerIT {
             }
         }
 
-        @ParameterizedTest
-        @EmptySource
-        fun `Should not allow blank fields`(value: String?) {
+        @Test
+        fun `Should not allow blank fields`() {
             Given {
                 contentType(ContentType.JSON)
                 body("""
                     {
-                        "first_name": "$value",
-                        "last_name": "$value"
+                        "first_name": "",
+                        "last_name": ""
                     }
                 """.trimIndent())
+                header(getAuthorizationBearer())
             } When {
                 port(embeddedServer.port)
                 post("/api/identities")
@@ -88,6 +91,7 @@ class IdentityControllerIT {
         fun `Should return Bad Request when ID is not a UUID`() {
             Given {
                 pathParam("id", "something")
+                header(getAuthorizationBearer())
             } When {
                 port(embeddedServer.port)
                 get("/api/identities/{id}")
@@ -105,7 +109,8 @@ class IdentityControllerIT {
         @Test
         fun `Should return Not Found when Identity does not exist`() {
             Given {
-              pathParam("id", UUID.randomUUID())
+                pathParam("id", UUID.randomUUID())
+                header(getAuthorizationBearer())
             } When {
                 port(embeddedServer.port)
                 get("/api/identities/{id}")
@@ -119,6 +124,7 @@ class IdentityControllerIT {
             val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
             Given {
                 pathParam("id", identity.id.toString())
+                header(getAuthorizationBearer())
             } When {
                 port(embeddedServer.port)
                 get("/api/identities/{id}")
