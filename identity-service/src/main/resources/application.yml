@@ -1,6 +1,17 @@
 micronaut:
   application:
     name: identity-service
+  security:
+    intercept-url-map:
+      - pattern: /api/**
+        access:
+          - isAuthenticated()
+    authentication: idtoken
+    oauth2:
+      clients:
+        keycloak:
+          client-id: '${micronaut.application.name}'
+          client-secret: '${OAUTH2_CLIENT_SECRET:changeme}'
 
 jpa:
   default:
