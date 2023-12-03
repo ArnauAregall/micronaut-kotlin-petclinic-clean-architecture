@@ -32,6 +32,25 @@ class IdentityControllerIT {
     inner class CreateIdentity {
 
         @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                contentType(ContentType.JSON)
+                body("""
+                    {
+                        "first_name": "John",
+                        "last_name": "Doe"
+                    }
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                post("/api/identities")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
         fun `Should create and Identity`() {
             Given {
                 contentType(ContentType.JSON)
@@ -86,6 +105,19 @@ class IdentityControllerIT {
 
     @Nested
     inner class LoadIdentity {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                pathParam("id", UUID.randomUUID())
+            } When {
+                port(embeddedServer.port)
+                get("/api/identities/{id}")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
 
         @Test
         fun `Should return Bad Request when ID is not a UUID`() {
