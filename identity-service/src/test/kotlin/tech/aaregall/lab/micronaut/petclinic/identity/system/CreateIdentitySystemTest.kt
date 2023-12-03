@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import tech.aaregall.lab.micronaut.petclinic.identity.config.IdentityKafkaConsumer
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
+import tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.output.persistence.SYSTEM_ACCOUNT_AUDIT_ID
 import tech.aaregall.lab.micronaut.petclinic.identity.spec.KeycloakSpec
 import tech.aaregall.lab.micronaut.petclinic.identity.spec.KeycloakSpec.Companion.getAuthorizationBearer
 import java.time.Duration
@@ -60,11 +61,14 @@ class CreateIdentitySystemTest {
 
         jdbc.execute {
             val resultSet = it.prepareStatement(
-                "select first_name, last_name from identity where id = '$identityId'")
+                "select first_name, last_name, created_by from identity where id = '$identityId'")
                 .executeQuery()
             resultSet.next()
             assertThat(resultSet.getString("first_name")).isEqualTo("Foo")
             assertThat(resultSet.getString("last_name")).isEqualTo("Bar")
+            assertThat(resultSet.getString("created_by"))
+                .isNotNull
+                .isNotEqualTo(SYSTEM_ACCOUNT_AUDIT_ID.toString())
         }
 
         await().atMost(Duration.ofSeconds(5)).until { identityKafkaConsumer.hasConsumedRecords() }

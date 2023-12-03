@@ -40,6 +40,16 @@ class IdentityPersistenceAdapterIT {
             }
         }
 
+        @Test
+        fun `The default createdBy should be the System Account Audit ID`() {
+            identityOutputPort.createIdentity(Identity(id = IdentityId.create(), firstName = "Bob", lastName = "Builder"))
+
+            jdbc.execute { conn ->
+                val resultSet = conn.prepareStatement("select created_by from identity").executeQuery()
+                resultSet.next()
+                assertThat(resultSet.getString("created_by")).isEqualTo(SYSTEM_ACCOUNT_AUDIT_ID.toString())
+            }
+        }
 
     }
 

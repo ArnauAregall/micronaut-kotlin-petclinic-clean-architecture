@@ -4,7 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.jetbrains.annotations.NotNull
+import jakarta.validation.constraints.NotNull
 import java.util.UUID
 
 @Entity
@@ -20,6 +20,10 @@ internal class IdentityJpaEntity(
 
     @NotNull
     @Column(name = "last_name")
-    var lastName: String
+    var lastName: String,
+
+    @NotNull
+    @Column(name = "created_by")
+    var createdBy: UUID = SYSTEM_ACCOUNT_AUDIT_ID
 
 )
