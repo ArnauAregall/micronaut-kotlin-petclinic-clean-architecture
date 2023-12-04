@@ -3,7 +3,7 @@ package tech.aaregall.lab.micronaut.petclinic.identity.domain.model
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Test
 
-class IdentityTest {
+internal class IdentityTest {
 
     @Test
     fun `Should create Identity with not blank first and last name`() {

@@ -19,7 +19,7 @@ import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 
 @ExtendWith(MockKExtension::class)
-class IdentityServiceTest {
+internal class IdentityServiceTest {
 
     @MockK
     lateinit var identityOutputPort: IdentityOutputPort
