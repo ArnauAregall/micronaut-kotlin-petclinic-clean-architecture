@@ -8,7 +8,6 @@ import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import jakarta.inject.Inject
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
@@ -23,10 +22,7 @@ import java.util.UUID
 
 @MicronautTest(transactional = false)
 @TestResourcesProperties(providers = [KeycloakSpec::class])
-class IdentityControllerIT {
-
-    @Inject
-    lateinit var embeddedServer: EmbeddedServer
+internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) {
 
     @Nested
     inner class CreateIdentity {

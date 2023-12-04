@@ -10,30 +10,23 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import jakarta.inject.Inject
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import tech.aaregall.lab.micronaut.petclinic.identity.spec.KafkaConsumerSpec
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.output.persistence.SYSTEM_ACCOUNT_AUDIT_ID
+import tech.aaregall.lab.micronaut.petclinic.identity.spec.KafkaConsumerSpec
 import tech.aaregall.lab.micronaut.petclinic.identity.spec.KeycloakSpec
 import tech.aaregall.lab.micronaut.petclinic.identity.spec.KeycloakSpec.Companion.getAuthorizationBearer
 import java.time.Duration
 
 @MicronautTest(transactional = false)
 @TestResourcesProperties(providers = [KeycloakSpec::class])
-class CreateIdentitySystemTest {
-
-    @Inject
-    lateinit var embeddedServer: EmbeddedServer
-
-    @Inject
-    lateinit var jdbc: JdbcOperations
-
-    @Inject
-    lateinit var kafkaConsumerSpec: KafkaConsumerSpec
+internal class CreateIdentitySystemTest(
+    private val embeddedServer: EmbeddedServer,
+    private val jdbc: JdbcOperations,
+    private val kafkaConsumerSpec: KafkaConsumerSpec) {
 
     @AfterEach
     fun tearDown() = kafkaConsumerSpec.clear().also { jdbc.execute { it.prepareStatement("truncate table identity")} }

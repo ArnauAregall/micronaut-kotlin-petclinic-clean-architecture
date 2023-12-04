@@ -1,7 +1,6 @@
 package tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.output.publisher
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import jakarta.inject.Inject
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
@@ -14,13 +13,9 @@ import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 import java.time.Duration
 
 @MicronautTest
-class IdentityEventPublisherAdapterIT {
-
-    @Inject
-    internal lateinit var identityEventPublisherAdapter: IdentityEventPublisherAdapter
-
-    @Inject
-    internal lateinit var kafkaConsumerSpec: KafkaConsumerSpec
+internal class IdentityEventPublisherAdapterIT(
+    private val identityEventPublisherAdapter: IdentityEventPublisherAdapter,
+    private val kafkaConsumerSpec: KafkaConsumerSpec) {
 
     @AfterEach
     fun tearDown() = kafkaConsumerSpec.clear()

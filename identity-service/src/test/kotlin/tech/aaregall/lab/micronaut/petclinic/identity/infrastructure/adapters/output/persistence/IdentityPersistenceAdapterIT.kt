@@ -2,7 +2,6 @@ package tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.o
 
 import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import jakarta.inject.Inject
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
@@ -13,13 +12,9 @@ import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
-class IdentityPersistenceAdapterIT {
-
-    @Inject
-    private lateinit var identityOutputPort: IdentityOutputPort
-
-    @Inject
-    private lateinit var jdbc: JdbcOperations
+internal class IdentityPersistenceAdapterIT(
+    private val identityOutputPort: IdentityOutputPort,
+    private val jdbc: JdbcOperations) {
 
     @AfterEach
     fun tearDown() {
