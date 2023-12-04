@@ -15,7 +15,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import tech.aaregall.lab.micronaut.petclinic.identity.config.IdentityKafkaConsumer
+import tech.aaregall.lab.micronaut.petclinic.identity.spec.KafkaConsumerSpec
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.micronaut.petclinic.identity.infrastructure.adapters.output.persistence.SYSTEM_ACCOUNT_AUDIT_ID
 import tech.aaregall.lab.micronaut.petclinic.identity.spec.KeycloakSpec
@@ -33,10 +33,10 @@ class CreateIdentitySystemTest {
     lateinit var jdbc: JdbcOperations
 
     @Inject
-    lateinit var identityKafkaConsumer: IdentityKafkaConsumer
+    lateinit var kafkaConsumerSpec: KafkaConsumerSpec
 
     @AfterEach
-    fun tearDown() = identityKafkaConsumer.clear().also { jdbc.execute { it.prepareStatement("truncate table identity")} }
+    fun tearDown() = kafkaConsumerSpec.clear().also { jdbc.execute { it.prepareStatement("truncate table identity")} }
 
     @Test
     fun `Given an authenticated HTTP POST request to the API, it should persist an Identity in the DB and publish a Kafka event`() {
@@ -71,9 +71,9 @@ class CreateIdentitySystemTest {
                 .isNotEqualTo(SYSTEM_ACCOUNT_AUDIT_ID.toString())
         }
 
-        await().atMost(Duration.ofSeconds(5)).until { identityKafkaConsumer.hasConsumedRecords() }
+        await().atMost(Duration.ofSeconds(5)).until { kafkaConsumerSpec.hasConsumedRecords() }
 
-        assertThat(identityKafkaConsumer.get(IdentityId.of(identityId)))
+        assertThat(kafkaConsumerSpec.get(IdentityId.of(identityId)))
             .isNotNull
             .extracting("firstName", "lastName")
             .containsExactly("Foo", "Bar")

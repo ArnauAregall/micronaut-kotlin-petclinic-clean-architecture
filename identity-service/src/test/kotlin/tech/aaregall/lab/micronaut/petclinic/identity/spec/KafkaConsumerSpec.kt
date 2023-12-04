@@ -1,4 +1,4 @@
-package tech.aaregall.lab.micronaut.petclinic.identity.config
+package tech.aaregall.lab.micronaut.petclinic.identity.spec
 
 import io.micronaut.configuration.kafka.annotation.KafkaKey
 import io.micronaut.configuration.kafka.annotation.KafkaListener
@@ -9,10 +9,10 @@ import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
 import java.util.concurrent.ConcurrentHashMap
 
 @KafkaListener(offsetReset = OffsetReset.EARLIEST)
-class IdentityKafkaConsumer {
+class KafkaConsumerSpec {
 
     companion object {
-        private val logger = LoggerFactory.getLogger(IdentityKafkaConsumer::class.java)
+        private val logger = LoggerFactory.getLogger(KafkaConsumerSpec::class.java)
         private val consumedRecordsMap: MutableMap<IdentityId, Any> = ConcurrentHashMap()
     }
 

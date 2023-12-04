@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import tech.aaregall.lab.micronaut.petclinic.identity.config.IdentityKafkaConsumer
+import tech.aaregall.lab.micronaut.petclinic.identity.spec.KafkaConsumerSpec
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId
@@ -20,10 +20,10 @@ class IdentityEventPublisherAdapterIT {
     internal lateinit var identityEventPublisherAdapter: IdentityEventPublisherAdapter
 
     @Inject
-    internal lateinit var identityKafkaConsumer: IdentityKafkaConsumer
+    internal lateinit var kafkaConsumerSpec: KafkaConsumerSpec
 
     @AfterEach
-    fun tearDown() = identityKafkaConsumer.clear()
+    fun tearDown() = kafkaConsumerSpec.clear()
 
     @Nested
     inner class PublishIdentityCreatedEvent {
@@ -34,9 +34,9 @@ class IdentityEventPublisherAdapterIT {
 
             identityEventPublisherAdapter.publishIdentityCreatedEvent(domainEvent)
 
-            await().atMost(Duration.ofSeconds(5)).until { identityKafkaConsumer.hasConsumedRecords() }
+            await().atMost(Duration.ofSeconds(5)).until { kafkaConsumerSpec.hasConsumedRecords() }
 
-            assertThat(identityKafkaConsumer.get(domainEvent.identity.id))
+            assertThat(kafkaConsumerSpec.get(domainEvent.identity.id))
                 .isNotNull
                 .extracting("firstName", "lastName")
                 .containsExactly("John", "Doe")
