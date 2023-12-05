@@ -8,12 +8,11 @@ import java.util.UUID
 @Singleton
 internal class IdentityPersistenceMapper {
 
-    fun mapToDomain(entity: IdentityJpaEntity): Identity {
-        return Identity(IdentityId.of(entity.id), entity.firstName, entity.lastName)
-    }
+    fun mapToDomain(entity: IdentityJpaEntity): Identity =
+        Identity(IdentityId.of(entity.id), entity.firstName, entity.lastName)
 
-    fun mapToEntity(identity: Identity): IdentityJpaEntity {
-        return IdentityJpaEntity(UUID.fromString(identity.id.toString()), identity.firstName, identity.lastName)
-    }
+
+    fun mapToEntity(identity: Identity): IdentityJpaEntity =
+        IdentityJpaEntity(UUID.fromString(identity.id.toString()), identity.firstName, identity.lastName)
 
 }

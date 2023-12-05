@@ -15,7 +15,7 @@ import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
 internal class IdentityEventPublisherAdapter(private val identityKafkaClient: IdentityKafkaClient): IdentityEventPublisher {
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(IdentityEventPublisherAdapter::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(IdentityEventPublisherAdapter::class.java)
     }
 
     override fun publishIdentityCreatedEvent(identityCreatedEvent: IdentityCreatedEvent) {
@@ -23,6 +23,9 @@ internal class IdentityEventPublisherAdapter(private val identityKafkaClient: Id
         identityKafkaClient.sendIdentityCreated(identityCreatedEvent.identity.id.toString(),
             toKafkaEvent(identityCreatedEvent.identity))
     }
+
+    private fun toKafkaEvent(identity: Identity): IdentityCreatedKafkaEvent =
+        IdentityCreatedKafkaEvent(firstName = identity.firstName, lastName = identity.lastName)
 }
 
 @Serdeable
@@ -35,8 +38,3 @@ internal fun interface IdentityKafkaClient {
     fun sendIdentityCreated(@KafkaKey id: String, identityCreatedKafkaEvent: IdentityCreatedKafkaEvent)
 
 }
-
-private fun toKafkaEvent(identity: Identity): IdentityCreatedKafkaEvent = IdentityCreatedKafkaEvent(
-    firstName = identity.firstName,
-    lastName = identity.lastName
-)
