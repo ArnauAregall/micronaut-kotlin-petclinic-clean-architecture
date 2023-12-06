@@ -2,7 +2,7 @@ package tech.aaregall.lab.micronaut.petclinic.identity.domain.model
 
 import java.util.UUID
 
-data class Identity(val id: IdentityId, val firstName: String, val lastName: String) {
+data class Identity(val id: IdentityId, val firstName: String, val lastName: String, val contactDetails: ContactDetails? = null) {
     init {
         require(firstName.isNotBlank()) { "firstName cannot be blank" }
         require(lastName.isNotBlank()) { "lastName cannot be blank" }
