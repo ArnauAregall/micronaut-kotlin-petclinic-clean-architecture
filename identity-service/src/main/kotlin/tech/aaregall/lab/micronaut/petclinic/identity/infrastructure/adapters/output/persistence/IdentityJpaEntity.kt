@@ -24,6 +24,6 @@ internal class IdentityJpaEntity(
 
     @NotNull
     @Column(name = "created_by")
-    var createdBy: UUID = SYSTEM_ACCOUNT_AUDIT_ID
+    internal var createdBy: UUID = SYSTEM_ACCOUNT_AUDIT_ID
 
 )
