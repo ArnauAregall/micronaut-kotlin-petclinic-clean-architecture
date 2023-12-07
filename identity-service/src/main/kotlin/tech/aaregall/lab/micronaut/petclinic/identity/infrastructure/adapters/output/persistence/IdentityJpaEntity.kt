@@ -16,11 +16,11 @@ internal class IdentityJpaEntity(
 
     @NotNull
     @Column(name = "first_name")
-    var firstName: String,
+    val firstName: String,
 
     @NotNull
     @Column(name = "last_name")
-    var lastName: String,
+    val lastName: String,
 
     @NotNull
     @Column(name = "created_by")
