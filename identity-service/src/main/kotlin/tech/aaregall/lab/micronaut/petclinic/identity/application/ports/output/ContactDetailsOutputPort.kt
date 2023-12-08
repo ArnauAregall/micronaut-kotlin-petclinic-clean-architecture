@@ -5,6 +5,6 @@ import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
 
 fun interface ContactDetailsOutputPort {
 
-    fun updateIdentityContactDetails(identity: Identity, contactDetails: ContactDetails)
+    fun updateIdentityContactDetails(identity: Identity, contactDetails: ContactDetails): ContactDetails
 
 }

@@ -14,12 +14,12 @@ class ContactDetailsService(
     private val loadIdentityUseCase: LoadIdentityUseCase
 ) : UpdateIdentityContactDetailsUseCase {
 
-    override fun updateIdentityContactDetails(updateIdentityContactDetailsCommand: UpdateIdentityContactDetailsCommand) {
+    override fun updateIdentityContactDetails(updateIdentityContactDetailsCommand: UpdateIdentityContactDetailsCommand): ContactDetails {
         val identity = loadIdentityUseCase.loadIdentity(LoadIdentityCommand(updateIdentityContactDetailsCommand.identityId))
 
         require(identity != null) { "Cannot update ContactDetails for a non existing Identity" }
 
-        contactDetailsOutputPort.updateIdentityContactDetails(
+        return contactDetailsOutputPort.updateIdentityContactDetails(
             identity,
             ContactDetails(
                 updateIdentityContactDetailsCommand.email,

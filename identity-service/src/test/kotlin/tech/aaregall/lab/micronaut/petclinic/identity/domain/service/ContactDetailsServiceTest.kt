@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -40,11 +41,21 @@ internal class ContactDetailsServiceTest {
             val identity = Identity(id = identityId, firstName = "Foo", lastName = "Bar")
 
             every { loadIdentityUseCase.loadIdentity(LoadIdentityCommand(identityId)) } answers { identity }
-            every { contactDetailsOutputPort.updateIdentityContactDetails(any(), any()) } answers { callOriginal() }
+            every {
+                contactDetailsOutputPort.updateIdentityContactDetails(
+                    eq(identity),
+                    any(ContactDetails::class)
+                )
+            } answers { it.invocation.args.last() as ContactDetails }
 
-            contactDetailsService.updateIdentityContactDetails(UpdateIdentityContactDetailsCommand(
+            val result = contactDetailsService.updateIdentityContactDetails(UpdateIdentityContactDetailsCommand(
                 identityId = identityId, email = "foo.bar@test.com", phoneNumber = "123 456 789"
             ))
+
+            assertThat(result)
+                .isNotNull
+                .extracting(ContactDetails::email, ContactDetails::phoneNumber)
+                .containsExactly("foo.bar@test.com", "123 456 789")
 
             verify {
                 contactDetailsOutputPort.updateIdentityContactDetails(identity,
