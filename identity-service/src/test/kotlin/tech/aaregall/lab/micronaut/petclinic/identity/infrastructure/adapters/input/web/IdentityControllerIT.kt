@@ -12,6 +12,7 @@ import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
+import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.CreateIdentityCommand
@@ -65,7 +66,8 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
                 body(
                     "id", notNullValue(),
                     "first_name", equalTo("John"),
-                    "last_name", equalTo("Doe")
+                    "last_name", equalTo("Doe"),
+                    "contact_details", nullValue()
                 )
             }
         }
@@ -161,7 +163,8 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
                 body(
                     "id", equalTo(identity.id.toString()) ,
                     "first_name", equalTo(identity.firstName),
-                    "last_name", equalTo(identity.lastName)
+                    "last_name", equalTo(identity.lastName),
+                    "contact_details", nullValue()
                 )
             }
         }

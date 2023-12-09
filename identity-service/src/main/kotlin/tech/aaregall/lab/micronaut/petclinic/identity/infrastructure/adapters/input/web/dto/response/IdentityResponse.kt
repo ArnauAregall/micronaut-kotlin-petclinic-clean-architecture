@@ -13,5 +13,18 @@ data class IdentityResponse(
     val firstName: String,
 
     @JsonProperty("last_name")
-    val lastName: String
+    val lastName: String,
+
+    @JsonProperty("contact_details")
+    val contactDetailsDTO: ContactDetailsDTO? = null
+)
+
+@Serdeable
+data class ContactDetailsDTO(
+
+    @JsonProperty("email")
+    val email: String,
+
+    @JsonProperty("phone_number")
+    val phoneNumber: String
 )
