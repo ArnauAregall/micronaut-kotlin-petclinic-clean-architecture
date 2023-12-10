@@ -8,6 +8,8 @@ import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
+import org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric
+import org.apache.commons.lang3.RandomStringUtils.randomNumeric
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
@@ -126,7 +128,6 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
                 port(embeddedServer.port)
                 get("/api/identities/{id}")
             } Then {
-                log().all()
                 statusCode(HttpStatus.BAD_REQUEST.code)
                 body(
                     "message", equalTo("Bad Request"),
@@ -166,6 +167,158 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
                     "last_name", equalTo(identity.lastName),
                     "contact_details", nullValue()
                 )
+            }
+        }
+
+    }
+
+    @Nested
+    inner class UpdateIdentityContactDetails(private val createIdentityUseCase: CreateIdentityUseCase) {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                pathParam("id", UUID.randomUUID())
+                contentType(ContentType.JSON)
+                body("""
+                    {
+                        "email": "foo.bar@test.com",
+                        "phone_number": "+34 123 456 789"
+                    }
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/identities/{id}/contact-details")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when ID is not a UUID`() {
+            Given {
+                pathParam("id", "something")
+                contentType(ContentType.JSON)
+                body("""
+                    {
+                        "email": "foo.bar@test.com",
+                        "phone_number": "+34 123 456 789"
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/identities/{id}/contact-details")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when Identity does not exist`() {
+            Given {
+                pathParam("id", UUID.randomUUID())
+                contentType(ContentType.JSON)
+                body("""
+                    {
+                        "email": "foo.bar@test.com",
+                        "phone_number": "+34 123 456 789"
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/identities/{id}/contact-details")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+            }
+        }
+
+        @Test
+        fun `Should not allow blank fields`() {
+            val identityId = createIdentityUseCase.createIdentity(CreateIdentityCommand("Foo", "Bar")).id
+
+            Given {
+                pathParam("id", identityId.toString())
+                contentType(ContentType.JSON)
+                body("""
+                    {
+                        "email": "",
+                        "phone_number": ""
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/identities/{id}/contact-details")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(2),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("email"), containsString("must not be blank")),
+                    "_embedded.errors[1].message", allOf(
+                        containsString("phoneNumber"), containsString("must not be blank"))
+                )
+            }
+        }
+
+        @Test
+        fun `Should not allow over-sized length fields`() {
+            val identityId = createIdentityUseCase.createIdentity(CreateIdentityCommand("Foo", "Bar")).id
+
+            Given {
+                pathParam("id", identityId.toString())
+                contentType(ContentType.JSON)
+                body("""
+                    {
+                        "email": "${randomAlphanumeric(101)}",
+                        "phone_number": "${randomNumeric(21)}"
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/identities/{id}/contact-details")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(2),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("email"), containsString("too long"), containsString("max 100 characters")),
+                    "_embedded.errors[1].message", allOf(
+                        containsString("phoneNumber"), containsString("too long"), containsString("max 20 characters"))
+                )
+            }
+        }
+
+        @Test
+        fun `Should return No Content when Contact Details are successfully updated`() {
+            val identityId = createIdentityUseCase.createIdentity(CreateIdentityCommand("John", "Doe")).id
+
+            Given {
+                pathParam("id", identityId.toString())
+                contentType(ContentType.JSON)
+                body("""
+                    {
+                        "email": "john.doe@company.test",
+                        "phone_number": "+34 111 222 333"
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/identities/{id}/contact-details")
+            } Then {
+                statusCode(HttpStatus.NO_CONTENT.code)
             }
         }
 
