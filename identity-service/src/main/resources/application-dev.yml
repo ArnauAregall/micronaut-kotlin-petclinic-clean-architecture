@@ -5,6 +5,7 @@ micronaut:
         keycloak:
           openid:
             issuer: 'http://localhost:8082/realms/petclinic'
+          client-secret: '${OAUTH_CLIENT_SECRET}'
 
 datasources:
   default:
