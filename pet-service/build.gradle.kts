@@ -1,14 +1,14 @@
 plugins {
     kotlin("jvm")
+    id("io.micronaut.application")
 }
 
+version = "0.1"
 group = "tech.aaregall.lab.micronaut.petclinic"
-version = "unspecified"
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    implementation(kotlin("stdlib-jdk8"))
+    testImplementation("org.assertj:assertj-core")
 }
 
 tasks.test {
