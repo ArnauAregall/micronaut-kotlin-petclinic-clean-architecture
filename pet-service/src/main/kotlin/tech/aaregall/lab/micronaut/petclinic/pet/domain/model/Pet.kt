@@ -2,7 +2,11 @@ package tech.aaregall.lab.micronaut.petclinic.pet.domain.model
 
 import java.util.UUID
 
-data class Pet(val id: PetId, val name: String) {
+enum class PetType {
+    DOG, CAT, RABBIT, BIRD, OTHER
+}
+
+data class Pet(val id: PetId, val type: PetType, val name: String) {
     init {
         require(name.isNotBlank()) { "name cannot be blank" }
     }
