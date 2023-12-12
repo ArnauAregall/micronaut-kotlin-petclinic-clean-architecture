@@ -7,7 +7,7 @@ enum class PetType {
     DOG, CAT, RABBIT, BIRD, OTHER
 }
 
-data class Pet(val id: PetId, val type: PetType, val name: String, val birthDate: LocalDate) {
+data class Pet(val id: PetId, val type: PetType, val name: String, val birthDate: LocalDate, val owner: PetOwner? = null) {
     init {
         require(name.isNotBlank()) { "name cannot be blank" }
         require(birthDate.isBefore(LocalDate.now().plusDays(1))) { "birthDate cannot be a future date" }
