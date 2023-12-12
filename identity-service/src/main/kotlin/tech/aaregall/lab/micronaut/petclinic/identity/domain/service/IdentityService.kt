@@ -1,12 +1,12 @@
 package tech.aaregall.lab.micronaut.petclinic.identity.domain.service
 
+import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.CreateIdentityCommand
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.CreateIdentityUseCase
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.input.LoadIdentityUseCase
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.micronaut.petclinic.identity.application.ports.output.IdentityOutputPort
-import tech.aaregall.lab.micronaut.petclinic.identity.common.UseCase
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.micronaut.petclinic.identity.domain.model.IdentityId

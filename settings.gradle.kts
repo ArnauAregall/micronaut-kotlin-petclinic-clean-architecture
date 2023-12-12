@@ -1,7 +1,6 @@
 rootProject.name="micronaut-kotlin-kafka-petclinic"
 
-include("pet-service")
-include("identity-service")
+include(":common", ":identity-service", ":pet-service")
 
 pluginManagement {
     val kotlinVersion: String by settings
