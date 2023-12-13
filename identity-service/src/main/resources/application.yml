@@ -17,7 +17,7 @@ jpa:
   default:
     entity-scan:
       packages:
-        - tech.aaregall.lab.micronaut.petclinic.identity.infrastructure
+        - tech.aaregall.lab.petclinic.identity.infrastructure
     properties:
       hibernate:
         hbm2ddl.auto: update

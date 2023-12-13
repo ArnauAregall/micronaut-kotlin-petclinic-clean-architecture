@@ -7,7 +7,7 @@ plugins {
 }
 
 version = "0.1"
-group = "tech.aaregall.lab.micronaut.petclinic"
+group = "tech.aaregall.lab.petclinic"
 
 dependencies {
     ksp("io.micronaut:micronaut-http-validation")
@@ -45,7 +45,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("tech.aaregall.lab.micronaut.petclinic.identity.IdentityApp")
+    mainClass.set("tech.aaregall.lab.petclinic.identity.IdentityApp")
 }
 
 graalvmNative {
