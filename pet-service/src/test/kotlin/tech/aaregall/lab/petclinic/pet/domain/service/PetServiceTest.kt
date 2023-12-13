@@ -36,12 +36,21 @@ internal class PetServiceTest {
     @Nested
     inner class CreatePet {
 
-        @Test
-        fun `Creates a Pet without Owner`() {
+        private fun mockCreatePetOutputPort() =
             every { petOutputPort.createPet(any(Pet::class)) } answers {
                 val argPet = it.invocation.args.first() as Pet
-                Pet(id = PetId.create(), type = argPet.type, name = argPet.name, birthDate = argPet.birthDate, owner = argPet.owner)
+                Pet(
+                    id = PetId.create(),
+                    type = argPet.type,
+                    name = argPet.name,
+                    birthDate = argPet.birthDate,
+                    owner = argPet.owner
+                )
             }
+
+        @Test
+        fun `Creates a Pet without Owner`() {
+            mockCreatePetOutputPort()
 
             val result = petService.createPet(
                 CreatePetCommand(
@@ -59,16 +68,7 @@ internal class PetServiceTest {
 
         @Test
         fun `Creates a Pet with Owner`() {
-            every { petOutputPort.createPet(any(Pet::class)) } answers {
-                val argPet = it.invocation.args.first() as Pet
-                Pet(
-                    id = PetId.create(),
-                    type = argPet.type,
-                    name = argPet.name,
-                    birthDate = argPet.birthDate,
-                    owner = argPet.owner
-                )
-            }
+            mockCreatePetOutputPort()
 
             every { petOwnerOutputPort.loadPetOwner(any(LoadPetOwnerCommand::class)) } answers {
                 PetOwner((it.invocation.args.first() as LoadPetOwnerCommand).ownerIdentityId)
