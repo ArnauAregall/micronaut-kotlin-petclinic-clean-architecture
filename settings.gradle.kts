@@ -1,4 +1,4 @@
-rootProject.name="micronaut-kotlin-kafka-petclinic"
+rootProject.name="micronaut-kotlin-petclinic-clean-architecture"
 
 include(":common", ":identity-service", ":pet-service")
 
