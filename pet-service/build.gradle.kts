@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":common"))
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
+    runtimeOnly("org.yaml:snakeyaml")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("io.mockk:mockk:${project.properties["mockkVersion"]}")
