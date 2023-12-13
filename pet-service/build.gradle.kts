@@ -4,7 +4,7 @@ plugins {
 }
 
 version = "0.1"
-group = "tech.aaregall.lab.micronaut.petclinic"
+group = "tech.aaregall.lab.petclinic"
 
 dependencies {
     implementation(project(":common"))

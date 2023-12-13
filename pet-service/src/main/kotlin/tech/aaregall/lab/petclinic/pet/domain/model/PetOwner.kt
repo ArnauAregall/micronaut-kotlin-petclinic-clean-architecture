@@ -1,4 +1,4 @@
-package tech.aaregall.lab.micronaut.petclinic.pet.domain.model
+package tech.aaregall.lab.petclinic.pet.domain.model
 
 import java.util.UUID
 

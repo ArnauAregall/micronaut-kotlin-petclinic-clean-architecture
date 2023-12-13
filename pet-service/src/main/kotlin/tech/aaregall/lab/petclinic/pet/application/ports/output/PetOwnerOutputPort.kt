@@ -1,6 +1,6 @@
-package tech.aaregall.lab.micronaut.petclinic.pet.application.ports.output
+package tech.aaregall.lab.petclinic.pet.application.ports.output
 
-import tech.aaregall.lab.micronaut.petclinic.pet.domain.model.PetOwner
+import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import java.util.UUID
 
 fun interface PetOwnerOutputPort {

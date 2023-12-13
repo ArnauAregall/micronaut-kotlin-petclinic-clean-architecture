@@ -1,7 +1,7 @@
-package tech.aaregall.lab.micronaut.petclinic.pet.application.ports.input
+package tech.aaregall.lab.petclinic.pet.application.ports.input
 
-import tech.aaregall.lab.micronaut.petclinic.pet.domain.model.Pet
-import tech.aaregall.lab.micronaut.petclinic.pet.domain.model.PetType
+import tech.aaregall.lab.petclinic.pet.domain.model.Pet
+import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import java.time.LocalDate
 import java.util.UUID
 
