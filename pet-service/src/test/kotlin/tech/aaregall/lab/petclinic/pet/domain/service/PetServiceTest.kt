@@ -1,4 +1,4 @@
-package tech.aaregall.lab.micronaut.petclinic.pet.domain.service
+package tech.aaregall.lab.petclinic.pet.domain.service
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -18,7 +18,6 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.CAT
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.DOG
-import tech.aaregall.lab.petclinic.pet.domain.service.PetService
 import java.time.LocalDate
 import java.util.UUID.randomUUID
 

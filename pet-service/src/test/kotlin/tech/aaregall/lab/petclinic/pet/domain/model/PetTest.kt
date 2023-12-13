@@ -1,13 +1,9 @@
-package tech.aaregall.lab.micronaut.petclinic.pet.domain.model
+package tech.aaregall.lab.petclinic.pet.domain.model
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import tech.aaregall.lab.petclinic.pet.domain.model.Pet
-import tech.aaregall.lab.petclinic.pet.domain.model.PetId
-import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
-import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import java.time.LocalDate
 import java.util.UUID.randomUUID
 
