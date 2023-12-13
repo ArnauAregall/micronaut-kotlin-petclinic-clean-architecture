@@ -4,12 +4,15 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.micronaut.petclinic.pet.application.ports.input.CreatePetCommand
+import tech.aaregall.lab.micronaut.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.micronaut.petclinic.pet.application.ports.output.PetOutputPort
+import tech.aaregall.lab.micronaut.petclinic.pet.application.ports.output.PetOwnerOutputPort
 import tech.aaregall.lab.micronaut.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.micronaut.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.micronaut.petclinic.pet.domain.model.PetOwner
@@ -23,6 +26,9 @@ internal class PetServiceTest {
 
     @MockK
     lateinit var petOutputPort: PetOutputPort
+
+    @MockK
+    lateinit var petOwnerOutputPort: PetOwnerOutputPort
 
     @InjectMockKs
     lateinit var petService: PetService
@@ -43,6 +49,8 @@ internal class PetServiceTest {
                 )
             )
 
+            verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
+
             assertThat(result)
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
@@ -62,12 +70,18 @@ internal class PetServiceTest {
                 )
             }
 
+            every { petOwnerOutputPort.loadPetOwner(any(LoadPetOwnerCommand::class)) } answers {
+                PetOwner((it.invocation.args.first() as LoadPetOwnerCommand).ownerIdentityId)
+            }
+
             val ownerIdentityId = randomUUID()
             val result = petService.createPet(
                 CreatePetCommand(
                     type = DOG, name = "Bimo", birthDate = LocalDate.now(), ownerIdentityId = ownerIdentityId
                 )
             )
+
+            verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
 
             assertThat(result)
                 .isNotNull
