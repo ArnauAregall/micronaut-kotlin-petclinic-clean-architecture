@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web
+package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpResponse.created
@@ -19,10 +19,10 @@ import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentity
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
-import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web.dto.request.CreateIdentityRequest
-import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web.dto.request.UpdateIdentityContactDetailsRequest
-import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web.dto.response.IdentityResponse
-import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web.mapper.IdentityWebMapper
+import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.request.CreateIdentityRequest
+import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.request.UpdateIdentityContactDetailsRequest
+import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.response.IdentityResponse
+import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.mapper.IdentityHttpMapper
 import java.util.UUID
 
 @Controller("/api/identities")
@@ -30,17 +30,17 @@ private open class IdentityController(
     private val createIdentityUseCase: CreateIdentityUseCase,
     private val loadIdentityUseCase: LoadIdentityUseCase,
     private val updateIdentityContactDetailsUseCase: UpdateIdentityContactDetailsUseCase,
-    private val identityWebMapper: IdentityWebMapper) {
+    private val identityHttpMapper: IdentityHttpMapper) {
 
     @Post
     open fun createIdentity(@Body @Valid createIdentityRequest: CreateIdentityRequest): HttpResponse<IdentityResponse> =
-        created(identityWebMapper.mapToResponse(
-            createIdentityUseCase.createIdentity(identityWebMapper.mapCreateRequestToCommand(createIdentityRequest))))
+        created(identityHttpMapper.mapToResponse(
+            createIdentityUseCase.createIdentity(identityHttpMapper.mapCreateRequestToCommand(createIdentityRequest))))
 
     @Get("/{id}")
     open fun loadIdentity(@PathVariable id: UUID): HttpResponse<IdentityResponse> =
         loadIdentityUseCase.loadIdentity(LoadIdentityCommand(IdentityId.of(id)))
-            ?.let { ok(identityWebMapper.mapToResponse(it)) }
+            ?.let { ok(identityHttpMapper.mapToResponse(it)) }
             ?: notFound()
 
     @Patch("/{id}/contact-details")

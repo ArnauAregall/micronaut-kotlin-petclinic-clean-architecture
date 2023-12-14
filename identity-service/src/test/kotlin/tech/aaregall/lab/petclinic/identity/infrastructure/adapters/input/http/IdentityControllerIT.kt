@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web
+package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http
 
 import io.micronaut.http.HttpStatus
 import io.micronaut.runtime.server.EmbeddedServer

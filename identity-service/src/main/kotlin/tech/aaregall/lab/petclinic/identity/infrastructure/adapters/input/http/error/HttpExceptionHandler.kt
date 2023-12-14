@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web.error
+package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.error
 
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -10,7 +10,7 @@ import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 
 @Singleton
-class WebExceptionHandler: ExceptionHandler<Exception, HttpResponse<Any>> {
+internal class HttpExceptionHandler: ExceptionHandler<Exception, HttpResponse<Any>> {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 

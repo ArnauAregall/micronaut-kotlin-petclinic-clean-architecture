@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.web.dto.response
+package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micronaut.serde.annotation.Serdeable
