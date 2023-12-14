@@ -5,8 +5,10 @@ import java.util.UUID
 
 fun interface PetOwnerOutputPort {
 
-    fun loadPetOwner(loadPetOwnerCommand: LoadPetOwnerCommand): PetOwner
+    fun loadPetOwner(loadPetOwnerCommand: LoadPetOwnerCommand): PetOwner?
 
 }
 
 data class LoadPetOwnerCommand(val ownerIdentityId: UUID)
+
+class LoadPetOwnerCommandException(message: String, cause: Throwable? = null) : IllegalStateException("Failed loading PetOwner: $message", cause)
