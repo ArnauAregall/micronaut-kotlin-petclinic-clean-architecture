@@ -1,3 +1,7 @@
 micronaut:
   application:
     name: pet-service
+  http:
+    services:
+      identity-service:
+        url: "http://identity-service"

@@ -11,10 +11,14 @@ dependencies {
     implementation(project(":common"))
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
+    implementation("io.micronaut:micronaut-http-client")
     runtimeOnly("org.yaml:snakeyaml")
+    testImplementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("io.mockk:mockk:${project.properties["mockkVersion"]}")
+    testImplementation("org.mock-server:mockserver-client-java:${project.properties["testcontainersMockserverVersion"]}")
+    testImplementation("org.testcontainers:mockserver")
 }
 
 application {
