@@ -21,7 +21,6 @@ import org.mockserver.model.JsonBody.json
 import org.mockserver.verify.VerificationTimes.once
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommandException
-import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.http.PetOwnerHttpAdapter
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
 import java.util.UUID

@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.http
+package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.http
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micronaut.core.annotation.Introspected
