@@ -11,7 +11,7 @@ dependencies {
     implementation(project(":common"))
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
-    implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut.reactor:micronaut-reactor-http-client")
     runtimeOnly("org.yaml:snakeyaml")
     testImplementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
     testImplementation("org.junit.jupiter:junit-jupiter")

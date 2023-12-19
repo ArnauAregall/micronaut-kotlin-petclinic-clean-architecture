@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
@@ -39,13 +40,13 @@ internal class PetServiceTest {
         private fun mockCreatePetOutputPort() =
             every { petOutputPort.createPet(any(Pet::class)) } answers {
                 val argPet = it.invocation.args.first() as Pet
-                Pet(
+                UnitReactive(Pet(
                     id = PetId.create(),
                     type = argPet.type,
                     name = argPet.name,
                     birthDate = argPet.birthDate,
                     owner = argPet.owner
-                )
+                ))
             }
 
         @Test
@@ -60,7 +61,7 @@ internal class PetServiceTest {
 
             verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
 
-            assertThat(result)
+            assertThat(result.toMono().block())
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                 .containsExactly(CAT, "Peebles", LocalDate.now(), null)
@@ -71,7 +72,7 @@ internal class PetServiceTest {
             mockCreatePetOutputPort()
 
             every { petOwnerOutputPort.loadPetOwner(any(LoadPetOwnerCommand::class)) } answers {
-                PetOwner((it.invocation.args.first() as LoadPetOwnerCommand).ownerIdentityId)
+                UnitReactive(PetOwner((it.invocation.args.first() as LoadPetOwnerCommand).ownerIdentityId))
             }
 
             val ownerIdentityId = randomUUID()
@@ -83,7 +84,7 @@ internal class PetServiceTest {
 
             verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
 
-            assertThat(result)
+            assertThat(result.toMono().block())
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                 .containsExactly(DOG, "Bimo", LocalDate.now(), PetOwner(ownerIdentityId))

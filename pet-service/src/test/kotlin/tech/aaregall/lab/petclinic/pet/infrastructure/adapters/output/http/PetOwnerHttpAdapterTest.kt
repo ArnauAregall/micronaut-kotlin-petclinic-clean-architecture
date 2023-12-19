@@ -62,7 +62,7 @@ internal class PetOwnerHttpAdapterTest {
 
             val petOwner = petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId))
 
-            assertThat(petOwner)
+            assertThat(petOwner.toMono().block())
                 .isNotNull
                 .extracting("identityId")
                 .isEqualTo(identityId)
@@ -83,7 +83,7 @@ internal class PetOwnerHttpAdapterTest {
 
             val petOwner = petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId))
 
-            assertThat(petOwner).isNull()
+            assertThat(petOwner.toMono().block()).isNull()
 
             getMockServerClient()
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
@@ -102,7 +102,7 @@ internal class PetOwnerHttpAdapterTest {
                     response().withStatusCode(httpStatus.code)
                 )
 
-            assertThatCode { petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId)) }
+            assertThatCode { petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId)).toMono().block() }
                 .isInstanceOf(LoadPetOwnerCommandException::class.java)
                 .hasMessageContaining("Failed loading PetOwner")
                 .hasMessageContaining("HTTP call to Identity Service returned not expected response status")
