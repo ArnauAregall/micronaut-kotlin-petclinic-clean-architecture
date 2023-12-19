@@ -12,6 +12,23 @@ internal class UnitReactiveTest {
     data class Bar(val name: String)
 
     @Test
+    fun `Value constructor should build a Mono`() {
+        val result = UnitReactive(Foo("Alice"))
+
+        assertThat(result)
+            .isInstanceOf(UnitReactive::class.java)
+
+        assertThat(result.toMono())
+            .isInstanceOf(Mono::class.java)
+            .satisfies( {
+                assertThat(it.block())
+                    .isInstanceOf(Foo::class.java)
+                    .extracting("name")
+                    .isEqualTo("Alice")
+            })
+    }
+
+    @Test
     fun `toMono should return a reactor Mono`() {
         val fooUnitReactive = UnitReactive(Mono.just(Foo("Alice")))
 
@@ -22,7 +39,7 @@ internal class UnitReactiveTest {
             .satisfies( {
                 assertThat(it.block())
                     .isInstanceOf(Foo::class.java)
-                    .extracting("name")
+                    .extracting(Foo::name)
                     .isEqualTo("Alice")
             })
     }
@@ -38,7 +55,7 @@ internal class UnitReactiveTest {
             .satisfies( {
                 assertThat(it.toMono().block())
                     .isInstanceOf(Bar::class.java)
-                    .extracting("name")
+                    .extracting(Bar::name)
                     .isEqualTo("Bob")
             })
     }

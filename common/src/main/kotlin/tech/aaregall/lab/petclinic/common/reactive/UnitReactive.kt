@@ -4,6 +4,8 @@ import reactor.core.publisher.Mono
 
 class UnitReactive<T>(private val mono: Mono<T>) {
 
+    constructor(value: T & Any): this(Mono.just(value))
+
     companion object {
         fun <O> error(throwable: Throwable): UnitReactive<O> = UnitReactive(Mono.error(throwable))
     }
