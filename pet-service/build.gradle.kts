@@ -12,13 +12,20 @@ dependencies {
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     implementation("io.micronaut.reactor:micronaut-reactor-http-client")
+    implementation("io.micronaut.flyway:micronaut-flyway")
+    implementation("io.micronaut.data:micronaut-data-r2dbc")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     runtimeOnly("org.yaml:snakeyaml")
+    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.postgresql:r2dbc-postgresql")
     testImplementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("io.mockk:mockk:${project.properties["mockkVersion"]}")
     testImplementation("org.mock-server:mockserver-client-java:${project.properties["testcontainersMockserverVersion"]}")
     testImplementation("org.testcontainers:mockserver")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:r2dbc")
 }
 
 application {
