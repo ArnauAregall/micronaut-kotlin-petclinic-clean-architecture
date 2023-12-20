@@ -5,3 +5,18 @@ micronaut:
     services:
       identity-service:
         url: "http://identity-service"
+
+r2dbc:
+  datasources:
+    default:
+      dialect: postgres
+      options:
+        currentSchema: pet_service
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+      locations:
+        - db/migrations
+      default-schema: ${r2dbc.datasources.default.options.currentSchema}
