@@ -23,10 +23,11 @@ import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerComm
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommandException
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
+import tech.aaregall.lab.petclinic.pet.spec.R2dbcFlywaySpec
 import java.util.UUID
 
 @MicronautTest
-@TestResourcesProperties(providers = [MockServerSpec::class])
+@TestResourcesProperties(providers = [MockServerSpec::class, R2dbcFlywaySpec::class]) // TODO Make the test does not require R2DBC spec
 internal class PetOwnerHttpAdapterTest {
 
     @Inject
