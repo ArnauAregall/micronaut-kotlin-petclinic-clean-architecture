@@ -1,0 +1,6 @@
+test-resources:
+  containers:
+    postgres:
+      image-name: "postgres:latest"
+      username: "test"
+      password: "test"

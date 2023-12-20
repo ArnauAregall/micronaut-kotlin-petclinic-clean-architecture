@@ -6,6 +6,10 @@ micronaut:
       identity-service:
         url: "http://identity-service"
 
+datasources:
+  default:
+    db-type: postgres # required for flyway to run with JDBC driver
+
 r2dbc:
   datasources:
     default:

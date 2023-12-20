@@ -2,7 +2,6 @@ package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.persisten
 
 import io.micronaut.data.r2dbc.operations.R2dbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import io.micronaut.test.extensions.testresources.annotation.TestResourcesProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
@@ -11,11 +10,9 @@ import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.DOG
-import tech.aaregall.lab.petclinic.pet.spec.R2dbcFlywaySpec
 import java.time.LocalDate
 
 @MicronautTest(transactional = false)
-@TestResourcesProperties(providers = [R2dbcFlywaySpec::class])
 internal class PetPersistenceAdapterIT(
     private val petPersistenceAdapter: PetPersistenceAdapter,
     private val r2dbc: R2dbcOperations) {
