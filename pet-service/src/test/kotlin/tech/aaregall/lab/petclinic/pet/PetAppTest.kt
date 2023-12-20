@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.pet.domain
+package tech.aaregall.lab.petclinic.pet
 
 import io.micronaut.runtime.EmbeddedApplication
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
