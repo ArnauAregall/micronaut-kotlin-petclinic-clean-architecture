@@ -20,6 +20,8 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     testImplementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
+    testImplementation("io.micronaut.test:micronaut-test-rest-assured")
+    testImplementation("io.rest-assured:kotlin-extensions:${project.properties["restAssuredKotlinExtensionsVersion"]}")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("io.mockk:mockk:${project.properties["mockkVersion"]}")
