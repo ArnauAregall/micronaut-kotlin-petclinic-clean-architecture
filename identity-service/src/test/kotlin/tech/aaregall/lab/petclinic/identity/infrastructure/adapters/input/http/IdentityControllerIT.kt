@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
 import tech.aaregall.lab.petclinic.identity.spec.KeycloakSpec
 import tech.aaregall.lab.petclinic.identity.spec.KeycloakSpec.Companion.getAuthorizationBearer
 import java.util.UUID
@@ -104,7 +106,9 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
     }
 
     @Nested
-    inner class LoadIdentity {
+    inner class LoadIdentity(
+        private val createIdentityUseCase: CreateIdentityUseCase,
+        private val updateIdentityContactDetailsUseCase: UpdateIdentityContactDetailsUseCase) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -151,7 +155,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
         }
 
         @Test
-        fun `Should return OK when Identity exists`(createIdentityUseCase: CreateIdentityUseCase) {
+        fun `Should return OK with null ContactDetails when Identity exists and does not have ContactDetails`() {
             val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
             Given {
                 pathParam("id", identity.id.toString())
@@ -166,6 +170,32 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
                     "first_name", equalTo(identity.firstName),
                     "last_name", equalTo(identity.lastName),
                     "contact_details", nullValue()
+                )
+            }
+        }
+
+        @Test
+        fun `Should return OK with ContactDetails when Identity exists and has ContactDetails`() {
+            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+            val contactDetails = updateIdentityContactDetailsUseCase.updateIdentityContactDetails(
+                UpdateIdentityContactDetailsCommand(identityId = identity.id, email = "foo.bar@test.com", phoneNumber = "123 456 789")
+            )
+
+            Given {
+                pathParam("id", identity.id.toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                get("/api/identities/{id}")
+            } Then {
+                statusCode(HttpStatus.OK.code)
+                body(
+                    "id", equalTo(identity.id.toString()) ,
+                    "first_name", equalTo(identity.firstName),
+                    "last_name", equalTo(identity.lastName),
+                    "contact_details", notNullValue(),
+                    "contact_details.email", equalTo(contactDetails.email),
+                    "contact_details.phone_number", equalTo(contactDetails.phoneNumber)
                 )
             }
         }
