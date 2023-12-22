@@ -1,5 +1,9 @@
 test-resources:
   containers:
+    postgres:
+      image-name: "postgres:latest"
+      username: "test"
+      password: "test"
     kafka:
       image-name: "confluentinc/cp-kafka:latest"
 
@@ -13,10 +17,3 @@ micronaut:
       clients:
         keycloak:
           client-secret: 'identity-service-secret'
-
-datasources:
-  default:
-    url: jdbc:tc:postgresql:latest://postgres
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    username: test
-    password: test

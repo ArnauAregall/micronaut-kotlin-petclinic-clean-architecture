@@ -3,7 +3,7 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.pers
 import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
@@ -16,7 +16,7 @@ internal class IdentityPersistenceAdapterIT(
     private val identityOutputPort: IdentityOutputPort,
     private val jdbc: JdbcOperations) {
 
-    @AfterEach
+    @BeforeEach
     fun tearDown() {
         jdbc.execute { c -> c.prepareCall("truncate table identity").execute() }
     }

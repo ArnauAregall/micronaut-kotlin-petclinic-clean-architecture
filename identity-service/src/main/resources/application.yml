@@ -24,4 +24,5 @@ jpa:
 
 datasources:
   default:
+    db-type: postgres
     driver-class-name: org.postgresql.Driver
