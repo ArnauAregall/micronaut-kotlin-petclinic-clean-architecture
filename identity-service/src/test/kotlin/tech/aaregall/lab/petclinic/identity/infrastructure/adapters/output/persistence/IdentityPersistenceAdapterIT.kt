@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
+import tech.aaregall.lab.petclinic.identity.domain.model.ContactDetails
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import java.util.UUID.randomUUID
@@ -52,9 +53,25 @@ internal class IdentityPersistenceAdapterIT(
     inner class LoadIdentityById {
 
         @Test
-        fun `It should load an Identity`() {
+        fun `It should load an Identity with null ContactDetails`() {
             val id = randomUUID()
             jdbc.execute { conn -> conn.prepareCall("insert into identity(id, first_name, last_name) values ('${id}', 'John', 'Doe')").execute() }
+
+            val identity = identityOutputPort.loadIdentityById(IdentityId.of(id))
+
+            assertThat(identity!!)
+                .isNotNull
+                .extracting(Identity::firstName, Identity::lastName, Identity::contactDetails)
+                .containsExactly("John", "Doe", null)
+        }
+
+        @Test
+        fun `It should load an Identity with filled ContactDetails`() {
+            val id = randomUUID()
+            jdbc.execute { conn -> conn.prepareCall("""
+                insert into identity(id, first_name, last_name) values ('${id}', 'John', 'Doe');
+                insert into contact_details(identity_id, email, phone_number) values ('${id}', 'john.doe@test.com', '123 456 789')
+            """.trimIndent()).execute() }
 
             val identity = identityOutputPort.loadIdentityById(IdentityId.of(id))
 
@@ -62,6 +79,11 @@ internal class IdentityPersistenceAdapterIT(
                 .isNotNull
                 .extracting("firstName", "lastName")
                 .containsExactly("John", "Doe")
+
+            assertThat(identity!!.contactDetails!!)
+                .isNotNull
+                .extracting(ContactDetails::email, ContactDetails::phoneNumber)
+                .containsExactly("john.doe@test.com", "123 456 789")
         }
 
         @Test

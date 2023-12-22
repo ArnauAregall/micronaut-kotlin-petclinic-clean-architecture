@@ -3,6 +3,7 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.pers
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import java.util.UUID
@@ -24,6 +25,9 @@ internal class IdentityJpaEntity(
 
     @NotNull
     @Column(name = "created_by")
-    internal var createdBy: UUID = SYSTEM_ACCOUNT_AUDIT_ID
+    internal var createdBy: UUID = SYSTEM_ACCOUNT_AUDIT_ID,
+
+    @OneToOne(mappedBy = "identity", optional = true)
+    var contactDetails: ContactDetailsJpaEntity? = null
 
 )
