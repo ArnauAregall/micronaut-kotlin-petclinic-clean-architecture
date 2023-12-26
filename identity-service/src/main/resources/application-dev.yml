@@ -5,6 +5,10 @@ micronaut:
         keycloak:
           openid:
             issuer: 'http://localhost:8082/realms/petclinic'
+    token:
+      jwt:
+        claims-validators:
+          openid-idtoken: false # until feedback from https://github.com/micronaut-projects/micronaut-security/issues/1543
 
 datasources:
   default:
