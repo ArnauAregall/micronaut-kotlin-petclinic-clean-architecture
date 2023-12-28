@@ -24,10 +24,12 @@ import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.JsonBody.json
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
 import java.util.UUID
 
 @MicronautTest(transactional = false)
-@TestResourcesProperties(providers = [MockServerSpec::class])
+@TestResourcesProperties(providers = [MockServerSpec::class, KeycloakSpec::class])
 internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
     private fun mockGetIdentityResponse(identityId: UUID, httpStatus: HttpStatus) {
@@ -52,6 +54,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
         @Test
         fun `Should create a Pet without PetOwner`() {
             Given {
+                header(getAuthorizationBearer())
                 contentType(JSON)
                 body("""
                     {
@@ -82,6 +85,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
             mockGetIdentityResponse(ownerIdentityId, HttpStatus.OK)
 
             Given {
+                header(getAuthorizationBearer())
                 contentType(JSON)
                 body("""
                     {
@@ -114,6 +118,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
             mockGetIdentityResponse(ownerIdentityId, HttpStatus.NOT_FOUND)
 
             Given {
+                header(getAuthorizationBearer())
                 contentType(JSON)
                 body("""
                     {
@@ -139,6 +144,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
             mockGetIdentityResponse(ownerIdentityId, httpStatus)
 
             Given {
+                header(getAuthorizationBearer())
                 contentType(JSON)
                 body("""
                     {

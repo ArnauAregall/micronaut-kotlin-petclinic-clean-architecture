@@ -1,4 +1,14 @@
 micronaut:
+  http:
+    services:
+      identity-service:
+        url: "http://localhost:8080"
+  security:
+    oauth2:
+      clients:
+        keycloak:
+          openid:
+            issuer: 'http://localhost:8082/realms/petclinic'
   server:
     port: 8083
 
