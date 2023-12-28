@@ -6,14 +6,3 @@ test-resources:
       password: "test"
     kafka:
       image-name: "confluentinc/cp-kafka:latest"
-
-micronaut:
-  security:
-    token:
-      jwt:
-        claims-validators:
-          openid-idtoken: false # do not validate JWT claims on integration/system tests
-    oauth2:
-      clients:
-        keycloak:
-          client-secret: 'identity-service-secret'
