@@ -1,8 +1,7 @@
-package tech.aaregall.lab.petclinic.identity.spec
+package tech.aaregall.lab.petclinic.test.spec.keycloak
 
 import dasniko.testcontainers.keycloak.KeycloakContainer
 import io.micronaut.core.annotation.ReflectiveAccess
-import io.micronaut.http.HttpStatus
 import io.micronaut.test.extensions.testresources.TestResourcesPropertyProvider
 import io.restassured.http.ContentType
 import io.restassured.http.Header
@@ -35,7 +34,7 @@ class KeycloakSpec: TestResourcesPropertyProvider {
             } When {
                 post(getTokenUrl())
             } Then {
-                statusCode(HttpStatus.OK.code)
+                statusCode(200)
             } Extract {
                 path("access_token")
             }
@@ -51,5 +50,4 @@ class KeycloakSpec: TestResourcesPropertyProvider {
             "micronaut.security.oauth2.clients.keycloak.openid.issuer" to "http://localhost:${keycloakContainer.httpPort}/realms/system_test_realm"
         )
     }
-
 }
