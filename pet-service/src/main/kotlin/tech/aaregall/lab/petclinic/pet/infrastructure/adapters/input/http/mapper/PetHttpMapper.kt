@@ -15,7 +15,7 @@ class PetHttpMapper {
         CreatePetCommand(
             type = PetType.valueOf(createPetRequest.type),
             name = createPetRequest.name,
-            birthDate = createPetRequest.birthDate,
+            birthDate = createPetRequest.birthDate!!,
             ownerIdentityId = createPetRequest.ownerIdentityId
         )
 

@@ -5,6 +5,7 @@ import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import jakarta.validation.Valid
 import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
 import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http.dto.request.CreatePetRequest
@@ -12,12 +13,12 @@ import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http.dto.re
 import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http.mapper.PetHttpMapper
 
 @Controller("/api/pets")
-private class PetController(
+private open class PetController(
     private val createPetUseCase: CreatePetUseCase,
     private val petHttpMapper: PetHttpMapper) {
 
     @Post
-    fun createPet(@Body createPetRequest: CreatePetRequest): Mono<MutableHttpResponse<PetResponse>> =
+    open fun createPet(@Body @Valid createPetRequest: CreatePetRequest): Mono<MutableHttpResponse<PetResponse>> =
         createPetUseCase.createPet(petHttpMapper.mapCreateRequestToCommand(createPetRequest))
             .map { petHttpMapper.mapToResponse(it) }
             .map { HttpResponse.created(it) }

@@ -26,6 +26,7 @@ import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
+import java.time.LocalDate
 import java.util.UUID
 
 @MicronautTest(transactional = false)
@@ -50,6 +51,90 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
     @Nested
     inner class CreatePet {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                contentType(JSON)
+                body("""
+                    {
+                        "type": "DOG",
+                        "name": "Bimo",
+                        "birth_date": "2020-03-21"
+                    }
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                post("/api/pets")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should not allow blank or null fields`() {
+            Given {
+                header(getAuthorizationBearer())
+                contentType(JSON)
+                body("""
+                    {
+                        "type": "",
+                        "name": "",
+                        "birth_date": null
+                    }
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                post("/api/pets")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(3),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("birthDate"),
+                        containsString("must not be null")
+                    ),
+                    "_embedded.errors[1].message", allOf(
+                        containsString("name"),
+                        containsString("must not be blank")
+                    ),
+                    "_embedded.errors[2].message", allOf(
+                        containsString("type"),
+                        containsString("must not be blank")
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `Should not allow birth dates in the future`() {
+            Given {
+                header(getAuthorizationBearer())
+                contentType(JSON)
+                body("""
+                    {
+                        "type": "CAT",
+                        "name": "Future",
+                        "birth_date": "${LocalDate.now().plusYears(1)}"
+                    }
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                post("/api/pets")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("birthDate"),
+                        containsString("must be a date in the past or in the present")
+                    ),
+                )
+            }
+        }
 
         @Test
         fun `Should create a Pet without PetOwner`() {
@@ -162,8 +247,10 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                 log().all()
                 body(
                     "_embedded.errors.size()", equalTo(1),
-                    "_embedded.errors[0].message",
-                    allOf(containsString("Failed loading PetOwner"), containsString("HTTP call to Identity Service returned not expected response status"))
+                    "_embedded.errors[0].message", allOf(
+                        containsString("Failed loading PetOwner"),
+                        containsString("HTTP call to Identity Service returned not expected response status")
+                    )
                 )
             }
 
