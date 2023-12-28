@@ -10,6 +10,9 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 
+/**
+ * TODO: Generify component to not reference identity-service, edit realm settings
+ */
 @ReflectiveAccess
 class KeycloakSpec: TestResourcesPropertyProvider {
 
@@ -47,7 +50,10 @@ class KeycloakSpec: TestResourcesPropertyProvider {
 
     override fun provide(testProperties: MutableMap<String, Any>?): MutableMap<String, String> {
         return mutableMapOf(
-            "micronaut.security.oauth2.clients.keycloak.openid.issuer" to "http://localhost:${keycloakContainer.httpPort}/realms/system_test_realm"
+            "micronaut.security.token.jwt.claims-validators.openid-idtoken" to "false",
+            "micronaut.security.oauth2.clients.keycloak.openid.issuer" to "http://localhost:${keycloakContainer.httpPort}/realms/system_test_realm",
+            "micronaut.security.oauth2.clients.keycloak.client-id" to "identity-service",
+            "micronaut.security.oauth2.clients.keycloak.client-secret" to "identity-service-secret"
         )
     }
 }
