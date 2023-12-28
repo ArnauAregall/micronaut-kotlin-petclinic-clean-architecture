@@ -10,9 +10,6 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 
-/**
- * TODO: Generify component to not reference identity-service, edit realm settings
- */
 @ReflectiveAccess
 class KeycloakSpec: TestResourcesPropertyProvider {
 
@@ -30,8 +27,8 @@ class KeycloakSpec: TestResourcesPropertyProvider {
             return Given {
                 contentType(ContentType.URLENC)
                 formParam("grant_type", "password")
-                formParam("client_id", "identity-service")
-                formParam("client_secret", "identity-service-secret")
+                formParam("client_id", "system-test-client")
+                formParam("client_secret", "system-test-client-secret")
                 formParam("username", "system_test_user")
                 formParam("password", "system_test_user")
             } When {
@@ -52,8 +49,8 @@ class KeycloakSpec: TestResourcesPropertyProvider {
         return mutableMapOf(
             "micronaut.security.token.jwt.claims-validators.openid-idtoken" to "false",
             "micronaut.security.oauth2.clients.keycloak.openid.issuer" to "http://localhost:${keycloakContainer.httpPort}/realms/system_test_realm",
-            "micronaut.security.oauth2.clients.keycloak.client-id" to "identity-service",
-            "micronaut.security.oauth2.clients.keycloak.client-secret" to "identity-service-secret"
+            "micronaut.security.oauth2.clients.keycloak.client-id" to "system-test-client",
+            "micronaut.security.oauth2.clients.keycloak.client-secret" to "system-test-client-secret"
         )
     }
 }

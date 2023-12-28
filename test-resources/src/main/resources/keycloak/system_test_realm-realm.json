@@ -321,7 +321,7 @@
           "attributes": {}
         }
       ],
-      "identity-service": [],
+      "system-test-client": [],
       "account": [
         {
           "id": "139e298b-8019-47fe-a754-0ee2ce0093ea",
@@ -673,9 +673,9 @@
     },
     {
       "id": "d30562af-d1cc-46da-86a2-58484ad7b7a9",
-      "clientId": "identity-service",
+      "clientId": "system-test-client",
       "name": "",
-      "description": "identity-service OpenID Connect client for system_test realm",
+      "description": "system-test-client OpenID Connect client for system_test realm",
       "rootUrl": "",
       "adminUrl": "",
       "baseUrl": "",
@@ -683,7 +683,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "identity-service-secret",
+      "secret": "system-test-client-secret",
       "redirectUris": [
         "/*"
       ],
