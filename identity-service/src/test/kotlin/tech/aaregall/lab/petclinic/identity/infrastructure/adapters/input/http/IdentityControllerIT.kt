@@ -21,8 +21,8 @@ import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdenti
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
-import tech.aaregall.lab.petclinic.identity.spec.KeycloakSpec
-import tech.aaregall.lab.petclinic.identity.spec.KeycloakSpec.Companion.getAuthorizationBearer
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
 import java.util.UUID
 
 @MicronautTest(transactional = false)

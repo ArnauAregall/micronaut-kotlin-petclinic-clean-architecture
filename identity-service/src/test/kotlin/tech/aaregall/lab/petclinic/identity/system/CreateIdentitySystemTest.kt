@@ -17,8 +17,8 @@ import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.persistence.SYSTEM_ACCOUNT_AUDIT_ID
 import tech.aaregall.lab.petclinic.identity.spec.KafkaConsumerSpec
-import tech.aaregall.lab.petclinic.identity.spec.KeycloakSpec
-import tech.aaregall.lab.petclinic.identity.spec.KeycloakSpec.Companion.getAuthorizationBearer
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
 import java.time.Duration
 
 @MicronautTest(transactional = false)

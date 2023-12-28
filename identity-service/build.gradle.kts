@@ -29,6 +29,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
+    testImplementation(project(":test-resources"))
     testImplementation("io.mockk:mockk:${project.properties["mockkVersion"]}")
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("io.micronaut.data:micronaut-data-jdbc")
@@ -41,7 +42,6 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:kafka")
-    testImplementation("com.github.dasniko:testcontainers-keycloak:${project.properties["testcontainersKeycloakVersion"]}")
 }
 
 application {
