@@ -45,7 +45,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("tech.aaregall.lab.petclinic.identity.IdentityApp")
+    mainClass.set("tech.aaregall.lab.petclinic.identity.IdentityAppKt")
 }
 
 graalvmNative {
