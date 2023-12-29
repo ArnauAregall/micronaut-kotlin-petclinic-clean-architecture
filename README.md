@@ -19,6 +19,22 @@ The goal is to mimic the well known project [Spring PetClinic](https://spring-pe
 
 ----
 
+## Running the application
+
+### identity-service
+
+*TODO*
+
+### pet-service
+
+```shell
+./gradlew :pet-service:nativeCompile
+
+export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxxx; ./pet-service/build/native/nativeCompile/pet-service
+```
+
+----
+
 ### Keycloak notes
 
 OpenID client settings:
