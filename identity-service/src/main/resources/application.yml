@@ -15,6 +15,7 @@ micronaut:
 
 jpa:
   default:
+    compile-time-hibernate-proxies: true
     entity-scan:
       packages:
         - tech.aaregall.lab.petclinic.identity.infrastructure
