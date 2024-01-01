@@ -24,20 +24,9 @@ The goal is to mimic the well known project [Spring PetClinic](https://spring-pe
 ### identity-service
 
 ```shell
-export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxx; ./gradlew :identity-service:run
-```
+./gradlew :identity-service:nativeCompile
 
-*TODO: Running natively with Hibernate needs investigation. Hints:*
-
-```kotlin
-graalvmNative {
-    toolchainDetection = false
-    binaries {
-        named("main") {
-            buildArgs("--initialize-at-build-time=org.postgresql.Driver,org.postgresql.util.SharedTimer,java.sql.DriverManager")
-        }
-    }
-}
+export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxx; ./identity-service/build/native/nativeCompile/identity-service
 ```
 
 ### pet-service
