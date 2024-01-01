@@ -1,0 +1,6 @@
+[
+  {
+    "name" : "java.util.UUID[]",
+    "unsafeAllocated" : true
+  }
+]
