@@ -2,7 +2,6 @@ package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.http
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micronaut.cache.annotation.CacheConfig
-import io.micronaut.cache.annotation.Cacheable
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.core.async.annotation.SingleResult
 import io.micronaut.http.HttpResponse
@@ -29,7 +28,7 @@ internal open class PetOwnerHttpAdapter(private val identityServiceHttpClient: I
         return UnitReactive(loadPetOwnerFromIdentityService(loadPetOwnerCommand.ownerIdentityId))
     }
 
-    @Cacheable
+    // @io.micronaut.cache.annotation.Cacheable TODO: review interference with io.micronaut.security.token.propagation.TokenPropagationHttpClientFilter
     open fun loadPetOwnerFromIdentityService(identityId: UUID): Mono<PetOwner?> {
         return identityServiceHttpClient.getIdentity(identityId)
             .mapNotNull { PetOwner(it.body().id) }
