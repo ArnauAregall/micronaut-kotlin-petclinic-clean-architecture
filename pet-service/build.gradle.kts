@@ -19,6 +19,7 @@ dependencies {
     implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.security:micronaut-security-oauth2")
     implementation("io.micronaut.validation:micronaut-validation")
+    implementation("io.micronaut.redis:micronaut-redis-lettuce")
     runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")

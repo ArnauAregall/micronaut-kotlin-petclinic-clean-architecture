@@ -1,6 +1,8 @@
 package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.http
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.micronaut.cache.annotation.CacheConfig
+import io.micronaut.cache.annotation.Cacheable
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.core.async.annotation.SingleResult
 import io.micronaut.http.HttpResponse
@@ -20,15 +22,21 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import java.util.UUID
 
 @Singleton
-internal class PetOwnerHttpAdapter(private val identityServiceHttpClient: IdentityServiceHttpClient): PetOwnerOutputPort {
+@CacheConfig(cacheNames = ["pet-owner"])
+internal open class PetOwnerHttpAdapter(private val identityServiceHttpClient: IdentityServiceHttpClient): PetOwnerOutputPort {
 
     override fun loadPetOwner(loadPetOwnerCommand: LoadPetOwnerCommand): UnitReactive<PetOwner?> {
-        return UnitReactive(identityServiceHttpClient.getIdentity(loadPetOwnerCommand.ownerIdentityId)
+        return UnitReactive(loadPetOwnerFromIdentityService(loadPetOwnerCommand.ownerIdentityId))
+    }
+
+    @Cacheable
+    open fun loadPetOwnerFromIdentityService(identityId: UUID): Mono<PetOwner?> {
+        return identityServiceHttpClient.getIdentity(identityId)
             .mapNotNull { PetOwner(it.body().id) }
             .onErrorResume {
                 if (it is HttpClientResponseException && it.status == HttpStatus.NOT_FOUND) Mono.empty()
                 else Mono.error(LoadPetOwnerCommandException("HTTP call to Identity Service returned not expected response status", it))
-            })
+            }
     }
 
 }

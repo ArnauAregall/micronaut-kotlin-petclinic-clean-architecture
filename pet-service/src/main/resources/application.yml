@@ -41,3 +41,8 @@ flyway:
       locations:
         - db/migrations
       default-schema: ${r2dbc.datasources.default.options.currentSchema}
+
+redis:
+  caches:
+    pet-owner:
+      charset: UTF-8

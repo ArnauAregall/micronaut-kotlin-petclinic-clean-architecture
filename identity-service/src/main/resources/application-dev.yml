@@ -19,3 +19,6 @@ datasources:
 kafka:
   bootstrap:
     servers: localhost:9092
+
+redis:
+  uri: 'redis://localhost'
