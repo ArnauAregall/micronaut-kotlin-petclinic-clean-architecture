@@ -15,13 +15,13 @@ class KeycloakSpec: TestResourcesPropertyProvider {
 
     companion object {
         private val keycloakContainer: KeycloakContainer = KeycloakContainer()
-            .withRealmImportFiles("keycloak/system_test_realm-realm.json")
+            .withRealmImportFiles("keycloak/test-petclinic-realm.json")
             .also {
                 it.start()
             }
 
         private fun getTokenUrl(): String =
-            keycloakContainer.authServerUrl + "/realms/system_test_realm/protocol/openid-connect/token"
+            keycloakContainer.authServerUrl + "/realms/petclinic/protocol/openid-connect/token"
 
         private fun getJwtToken(): String {
             return Given {
@@ -47,8 +47,7 @@ class KeycloakSpec: TestResourcesPropertyProvider {
 
     override fun provide(testProperties: MutableMap<String, Any>?): MutableMap<String, String> {
         return mutableMapOf(
-            "micronaut.security.token.jwt.claims-validators.openid-idtoken" to "false",
-            "micronaut.security.oauth2.clients.keycloak.openid.issuer" to "http://localhost:${keycloakContainer.httpPort}/realms/system_test_realm",
+            "micronaut.security.oauth2.clients.keycloak.openid.issuer" to "http://localhost:${keycloakContainer.httpPort}/realms/petclinic",
             "micronaut.security.oauth2.clients.keycloak.client-id" to "system-test-client",
             "micronaut.security.oauth2.clients.keycloak.client-secret" to "system-test-client-secret"
         )
