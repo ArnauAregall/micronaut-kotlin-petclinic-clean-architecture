@@ -10,6 +10,7 @@ group = "tech.aaregall.lab.petclinic"
 
 dependencies {
     implementation(project(":common"))
+    implementation("io.micrometer:context-propagation")
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     implementation("io.micronaut.reactor:micronaut-reactor-http-client")
