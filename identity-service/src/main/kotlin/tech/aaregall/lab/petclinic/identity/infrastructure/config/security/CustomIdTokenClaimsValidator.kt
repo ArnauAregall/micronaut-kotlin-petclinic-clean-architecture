@@ -19,8 +19,8 @@ class CustomIdTokenClaimsValidator<T>(oauthClientConfigurations: Collection<Oaut
             return true
         }
         return parseAzpClaim(claims)
-            .map { audiences.containsIgnoreCase(it) }
-            .orElse(false)
+            .filter { clientId == it || audiences.containsIgnoreCase(it) }
+            .isPresent
     }
 
 }
