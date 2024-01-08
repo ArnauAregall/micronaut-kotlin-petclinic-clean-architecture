@@ -10,10 +10,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityCreatedEvent
+import tech.aaregall.lab.petclinic.identity.domain.event.IdentityDeletedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 
@@ -69,6 +71,23 @@ internal class IdentityServiceTest {
             val result = identityService.loadIdentity(LoadIdentityCommand(identity.id))
 
             assertThat(result).isEqualTo(identity)
+        }
+
+    }
+
+    @Nested
+    inner class DeleteIdentity {
+
+        @Test
+        fun `It should call output port and publish an event`() {
+            every { identityOutputPort.deleteIdentityById(any()) } answers { nothing }
+            every { identityEventPublisher.publishIdentityDeletedEvent(any()) } answers { nothing }
+
+            val identityId = IdentityId.create()
+
+            identityService.deleteIdentity(DeleteIdentityCommand(identityId))
+
+            verify { identityEventPublisher.publishIdentityDeletedEvent(IdentityDeletedEvent(identityId)) }
         }
 
     }

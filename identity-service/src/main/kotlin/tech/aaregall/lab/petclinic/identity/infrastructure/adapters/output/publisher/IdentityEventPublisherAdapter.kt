@@ -9,6 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityCreatedEvent
+import tech.aaregall.lab.petclinic.identity.domain.event.IdentityDeletedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 
 @Singleton
@@ -22,6 +23,10 @@ internal class IdentityEventPublisherAdapter(private val identityKafkaClient: Id
         logger.info("Publishing Identity Created Event [identity={}, time={}]", identityCreatedEvent.identity, identityCreatedEvent.date)
         identityKafkaClient.sendIdentityCreated(identityCreatedEvent.identity.id.toString(),
             toKafkaEvent(identityCreatedEvent.identity))
+    }
+
+    override fun publishIdentityDeletedEvent(identityDeletedEvent: IdentityDeletedEvent) {
+        TODO("Not yet implemented")
     }
 
     private fun toKafkaEvent(identity: Identity): IdentityCreatedKafkaEvent =
