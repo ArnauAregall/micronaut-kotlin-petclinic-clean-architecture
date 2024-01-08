@@ -6,7 +6,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,14 +27,13 @@ internal class IdentityServiceTest {
     lateinit var identityEventPublisher: IdentityEventPublisher
 
     @InjectMockKs
-    lateinit var identityService: tech.aaregall.lab.petclinic.identity.domain.service.IdentityService
+    lateinit var identityService: IdentityService
 
     @Nested
-    @DisplayName("CreateIdentity")
     inner class CreateIdentity {
 
         @Test
-        fun `Creates Identity` () {
+        fun `It should create an Identity an publish an event` () {
             val expectedIdentity = Identity(id = IdentityId.create(), firstName = "Foo", lastName = "Bar")
 
             every { identityOutputPort.createIdentity(any(Identity::class)) } answers { expectedIdentity }
@@ -51,8 +49,7 @@ internal class IdentityServiceTest {
     }
 
     @Nested
-    @DisplayName("loadIdentityById")
-    inner class LoadIdentityById {
+    inner class LoadIdentity {
 
         @Test
         fun `When output port returns empty then returns null` () {
