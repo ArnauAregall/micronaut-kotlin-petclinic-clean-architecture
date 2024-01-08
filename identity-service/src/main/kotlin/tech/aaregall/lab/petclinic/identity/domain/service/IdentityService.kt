@@ -31,9 +31,11 @@ class IdentityService(
     }
 
     override fun deleteIdentity(deleteIdentityCommand: DeleteIdentityCommand) {
-        deleteIdentityCommand.identityId.let {
-            identityOutputPort.deleteIdentityById(it)
-            identityEventPublisher.publishIdentityDeletedEvent(IdentityDeletedEvent(it))
-        }
+        val identity = identityOutputPort.loadIdentityById(deleteIdentityCommand.identityId)
+
+        require(identity != null) { "Cannot delete a non existing Identity" }
+
+        identityOutputPort.deleteIdentity(identity)
+        identityEventPublisher.publishIdentityDeletedEvent(IdentityDeletedEvent(identity.id))
     }
 }

@@ -9,6 +9,6 @@ interface IdentityOutputPort {
 
     fun loadIdentityById(identityId: IdentityId): Identity?
 
-    fun deleteIdentityById(identityId: IdentityId)
+    fun deleteIdentity(identity: Identity)
 
 }

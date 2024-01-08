@@ -27,7 +27,7 @@ internal class IdentityPersistenceAdapter(
             .orElse(null)
     }
 
-    override fun deleteIdentityById(identityId: IdentityId) {
+    override fun deleteIdentity(identity: Identity) {
         TODO("Not yet implemented")
     }
 

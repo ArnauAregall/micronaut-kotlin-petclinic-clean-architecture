@@ -6,6 +6,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -79,15 +80,30 @@ internal class IdentityServiceTest {
     inner class DeleteIdentity {
 
         @Test
-        fun `It should call output port and publish an event`() {
-            every { identityOutputPort.deleteIdentityById(any()) } answers { nothing }
-            every { identityEventPublisher.publishIdentityDeletedEvent(any()) } answers { nothing }
-
+        fun `Call output port and publishes an IdentityDeletedEvent when Identity exists`() {
             val identityId = IdentityId.create()
+
+            every { identityOutputPort.loadIdentityById(identityId) } answers { Identity(id = args.first() as IdentityId, firstName =  "John", lastName = "Doe") }
+            every { identityOutputPort.deleteIdentity(any()) } answers { nothing }
+            every { identityEventPublisher.publishIdentityDeletedEvent(any()) } answers { nothing }
 
             identityService.deleteIdentity(DeleteIdentityCommand(identityId))
 
             verify { identityEventPublisher.publishIdentityDeletedEvent(IdentityDeletedEvent(identityId)) }
+        }
+
+        @Test
+        fun `Throws IllegalArgumentException when Identity does not exists`() {
+            val identityId = IdentityId.create()
+
+            every { identityOutputPort.loadIdentityById(identityId) } answers { null }
+            every { identityOutputPort.deleteIdentity(any()) } answers { nothing }
+
+            assertThatCode {
+                identityService.deleteIdentity(DeleteIdentityCommand(identityId))
+            }
+                .isInstanceOf(IllegalArgumentException::class.java)
+                .hasMessage("Cannot delete a non existing Identity")
         }
 
     }
