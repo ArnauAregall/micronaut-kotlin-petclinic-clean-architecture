@@ -3,7 +3,9 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.publ
 import io.micronaut.configuration.kafka.annotation.KafkaClient
 import io.micronaut.configuration.kafka.annotation.KafkaKey
 import io.micronaut.configuration.kafka.annotation.Topic
+import io.micronaut.messaging.annotation.MessageHeader
 import io.micronaut.serde.annotation.Serdeable
+import jakarta.annotation.Nullable
 import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,7 +28,8 @@ internal class IdentityEventPublisherAdapter(private val identityKafkaClient: Id
     }
 
     override fun publishIdentityDeletedEvent(identityDeletedEvent: IdentityDeletedEvent) {
-        TODO("Not yet implemented")
+        logger.info("Publishing Identity Deleted Event [identityId={}, time={}]", identityDeletedEvent.identityId, identityDeletedEvent.date)
+        identityKafkaClient.sendIdentityDeleted(identityDeletedEvent.identityId.toString(), null)
     }
 
     private fun toKafkaEvent(identity: Identity): IdentityCreatedKafkaEvent =
@@ -40,9 +43,18 @@ internal class IdentityEventPublisherAdapter(private val identityKafkaClient: Id
 internal data class IdentityCreatedKafkaEvent(val firstName: String, val lastName: String)
 
 @KafkaClient
-internal fun interface IdentityKafkaClient {
+internal interface IdentityKafkaClient {
+
+    companion object {
+        private const val ACTION_HEADER: String = "X-Action"
+    }
 
     @Topic("identity")
+    @MessageHeader(name = ACTION_HEADER, value = "CREATE")
     fun sendIdentityCreated(@KafkaKey id: String, identityCreatedKafkaEvent: IdentityCreatedKafkaEvent)
+
+    @Topic("identity")
+    @MessageHeader(name = ACTION_HEADER, value = "DELETE")
+    fun sendIdentityDeleted(@KafkaKey id: String, @Nullable body: Any?)
 
 }

@@ -14,9 +14,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.persistence.SYSTEM_ACCOUNT_AUDIT_ID
 import tech.aaregall.lab.petclinic.identity.spec.KafkaConsumerSpec
+import tech.aaregall.lab.petclinic.identity.spec.KafkaRecord
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
 import java.time.Duration
@@ -66,10 +66,19 @@ internal class CreateIdentitySystemTest(
 
         await().atMost(Duration.ofSeconds(5)).until { kafkaConsumerSpec.hasConsumedRecords() }
 
-        assertThat(kafkaConsumerSpec.get(IdentityId.of(identityId)))
+        assertThat(kafkaConsumerSpec.get(identityId))
             .isNotNull
-            .extracting("firstName", "lastName")
-            .containsExactly("Foo", "Bar")
+            .isNotEmpty()
+            .hasSize(1)
+            .allSatisfy {
+                assertThat(it as KafkaRecord)
+                    .satisfies({ record -> assertThat(record.getActionHeader()).isEqualTo("CREATE") })
+                    .satisfies({ record ->
+                        assertThat(record.body)
+                            .extracting("firstName", "lastName")
+                            .containsExactly("Foo", "Bar")
+                    })
+            }
     }
 
 }
