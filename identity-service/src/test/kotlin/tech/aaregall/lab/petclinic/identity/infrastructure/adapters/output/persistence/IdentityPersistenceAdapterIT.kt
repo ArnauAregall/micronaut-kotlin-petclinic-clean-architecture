@@ -3,6 +3,7 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.pers
 import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -93,6 +94,54 @@ internal class IdentityPersistenceAdapterIT(
             val identity = identityOutputPort.loadIdentityById(IdentityId.of(id))
 
             assertThat(identity).isNull()
+        }
+
+    }
+
+    @Nested
+    inner class DeleteIdentity {
+
+        @Test
+        fun `It should delete the Identity and it's ContactDetails when it exists`() {
+            val identity = Identity(
+                id = IdentityId.create(),
+                firstName = "John",
+                lastName = "Doe",
+                contactDetails = ContactDetails("john.doe@test.com", "123 456 789")
+            )
+
+            jdbc.execute { conn ->
+                conn.prepareCall("""
+                    insert into identity(id, first_name, last_name) values ('${identity.id}', '${identity.firstName}', '${identity.lastName}');
+                    insert into contact_details(identity_id, email, phone_number) values ('${identity.id}', '${identity.contactDetails!!.email}', '${identity.contactDetails!!.phoneNumber}');
+                """.trimIndent()).execute()
+            }
+
+            identityOutputPort.deleteIdentity(identity)
+
+            jdbc.execute { conn ->
+                val resultSet = conn.prepareStatement("""
+                    select  count(i.*) as identity_count, 
+                            count(cd.*) as contact_details_count 
+                    from identity i 
+                    inner join contact_details cd on i.id = cd.identity_id 
+                    where i.id = '${identity.id}'
+                """.trimIndent()).executeQuery()
+                resultSet.next()
+                assertThat(resultSet.getInt("identity_count")).isZero()
+                assertThat(resultSet.getInt("contact_details_count")).isZero()
+            }
+        }
+
+        @Test
+        fun `It should throw IllegalStateException when Identity does not exist`() {
+            val identity = Identity(id = IdentityId.create(), firstName = "Foo", lastName = "Bar")
+
+            assertThatCode {
+                identityOutputPort.deleteIdentity(identity)
+            }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessage("Cannot delete Identity with ID ${identity.id} as it does not exist")
         }
 
     }

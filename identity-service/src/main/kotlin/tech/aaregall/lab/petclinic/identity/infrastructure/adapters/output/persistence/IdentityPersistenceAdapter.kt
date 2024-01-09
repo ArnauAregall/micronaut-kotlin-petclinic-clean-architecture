@@ -28,7 +28,9 @@ internal class IdentityPersistenceAdapter(
     }
 
     override fun deleteIdentity(identity: Identity) {
-        TODO("Not yet implemented")
+        identityJpaRepository.findById(UUID.fromString(identity.id.toString()))
+            .map(identityJpaRepository::delete)
+            .orElseThrow { IllegalStateException("Cannot delete Identity with ID ${identity.id} as it does not exist") }
     }
 
 }
