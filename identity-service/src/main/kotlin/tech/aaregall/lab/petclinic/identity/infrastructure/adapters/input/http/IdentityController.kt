@@ -7,6 +7,7 @@ import io.micronaut.http.HttpResponse.ok
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
@@ -14,6 +15,8 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Status
 import jakarta.validation.Valid
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
@@ -30,6 +33,7 @@ private open class IdentityController(
     private val createIdentityUseCase: CreateIdentityUseCase,
     private val loadIdentityUseCase: LoadIdentityUseCase,
     private val updateIdentityContactDetailsUseCase: UpdateIdentityContactDetailsUseCase,
+    private val deleteIdentityUseCase: DeleteIdentityUseCase,
     private val identityHttpMapper: IdentityHttpMapper) {
 
     @Post
@@ -56,6 +60,12 @@ private open class IdentityController(
                 updateIdentityContactDetailsRequest.phoneNumber
             )
         )
+    }
+
+    @Delete("/{id}")
+    @Status(HttpStatus.NO_CONTENT)
+    fun deleteIdentity(@PathVariable id: UUID) {
+        deleteIdentityUseCase.deleteIdentity(DeleteIdentityCommand(IdentityId.of(id)))
     }
 
 }
