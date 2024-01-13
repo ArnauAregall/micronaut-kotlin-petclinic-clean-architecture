@@ -4,6 +4,8 @@ import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
@@ -15,7 +17,7 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 class PetService(
     private val petOutputPort: PetOutputPort,
     private val petOwnerOutputPort: PetOwnerOutputPort
-): CreatePetUseCase {
+): CreatePetUseCase, DeletePetsByPetOwnerUseCase {
 
     override fun createPet(createPetCommand: CreatePetCommand): UnitReactive<Pet> {
         return createPetCommand.ownerIdentityId
@@ -25,6 +27,10 @@ class PetService(
             }
             ?: UnitReactive(createPetCommand.toPet())
                 .flatMap(petOutputPort::createPet)
+    }
+
+    override fun deletePetsByPetOwner(deletePetsByPetOwnerCommand: DeletePetsByPetOwnerCommand) {
+        petOutputPort.deletePetsByPetOwner(PetOwner(deletePetsByPetOwnerCommand.ownerIdentityId))
     }
 
     private fun CreatePetCommand.toPet(petOwner: PetOwner? = null): Pet =

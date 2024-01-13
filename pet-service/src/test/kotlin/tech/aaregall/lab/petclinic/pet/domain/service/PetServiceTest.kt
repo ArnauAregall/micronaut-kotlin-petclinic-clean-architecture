@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
@@ -88,6 +89,22 @@ internal class PetServiceTest {
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                 .containsExactly(DOG, "Bimo", LocalDate.now(), PetOwner(ownerIdentityId))
+        }
+
+    }
+
+    @Nested
+    inner class DeletePetsByPetOwner {
+
+        @Test
+        fun `Should call PetOutputPort`() {
+            every { petOutputPort.deletePetsByPetOwner(any()) } answers { nothing }
+
+            val command = DeletePetsByPetOwnerCommand(randomUUID())
+
+            petService.deletePetsByPetOwner(command)
+
+            verify { petOutputPort.deletePetsByPetOwner(PetOwner(command.ownerIdentityId)) }
         }
 
     }
