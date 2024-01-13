@@ -4,3 +4,5 @@ test-resources:
       image-name: "postgres:latest"
       username: "test"
       password: "test"
+    kafka:
+      image-name: "confluentinc/cp-kafka:latest"

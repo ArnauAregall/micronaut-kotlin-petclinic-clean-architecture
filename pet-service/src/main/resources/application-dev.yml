@@ -31,4 +31,6 @@ r2dbc:
       username: ${dev.postgres.username}
       password: ${dev.postgres.password}
 
-
+kafka:
+  bootstrap:
+    servers: localhost:9092

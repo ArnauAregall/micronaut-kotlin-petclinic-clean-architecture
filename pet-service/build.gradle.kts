@@ -21,6 +21,7 @@ dependencies {
     implementation("io.micronaut.security:micronaut-security-oauth2")
     implementation("io.micronaut.validation:micronaut-validation")
     implementation("io.micronaut.redis:micronaut-redis-lettuce")
+    implementation("io.micronaut.kafka:micronaut-kafka")
     runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
