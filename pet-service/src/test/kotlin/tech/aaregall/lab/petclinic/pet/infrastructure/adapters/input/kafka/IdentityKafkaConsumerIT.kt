@@ -8,7 +8,6 @@ import io.micronaut.messaging.annotation.MessageHeader
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.annotation.Nullable
@@ -24,15 +23,12 @@ import java.util.UUID.randomUUID
 @MicronautTest
 internal class IdentityKafkaConsumerIT {
 
-    @MockK
-    var mock: DeletePetsByPetOwnerUseCase = mockk()
-
     @Singleton
     @Replaces(DeletePetsByPetOwnerUseCase::class)
-    fun mockUseCase(): DeletePetsByPetOwnerUseCase = mock
+    fun mockUseCase(): DeletePetsByPetOwnerUseCase = mockk()
 
     @BeforeEach
-    fun beforeEach(): Unit = clearAllMocks()
+    fun beforeEach() = clearAllMocks()
 
     @KafkaClient
     fun interface IdentityProducer {
