@@ -16,7 +16,6 @@ import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerComm
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
-import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.CAT
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.DOG
@@ -42,7 +41,7 @@ internal class PetServiceTest {
             every { petOutputPort.createPet(any(Pet::class)) } answers {
                 val argPet = it.invocation.args.first() as Pet
                 UnitReactive(Pet(
-                    id = PetId.create(),
+                    id = argPet.id,
                     type = argPet.type,
                     name = argPet.name,
                     birthDate = argPet.birthDate,
@@ -60,9 +59,12 @@ internal class PetServiceTest {
                 )
             )
 
-            verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
+            val createdPet: Pet = result.toMono().block()!!
 
-            assertThat(result.toMono().block())
+            verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
+            verify { petOutputPort.createPet(createdPet) }
+
+            assertThat(createdPet)
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                 .containsExactly(CAT, "Peebles", LocalDate.now(), null)
@@ -83,7 +85,10 @@ internal class PetServiceTest {
                 )
             )
 
+            val createdPet: Pet = result.toMono().block()!!
+
             verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
+            verify { petOutputPort.createPet(createdPet) }
 
             assertThat(result.toMono().block())
                 .isNotNull

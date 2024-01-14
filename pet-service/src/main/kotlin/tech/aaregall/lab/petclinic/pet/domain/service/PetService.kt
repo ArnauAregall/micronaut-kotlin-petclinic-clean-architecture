@@ -24,6 +24,7 @@ class PetService(
             ?.let {
                 petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(it))
                     .map { petOwner -> createPetCommand.toPet(petOwner) }
+                    .flatMap { pet -> petOutputPort.createPet(pet) }
             }
             ?: UnitReactive(createPetCommand.toPet())
                 .flatMap(petOutputPort::createPet)
