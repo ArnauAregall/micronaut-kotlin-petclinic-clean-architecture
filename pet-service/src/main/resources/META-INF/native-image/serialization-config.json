@@ -1,0 +1,12 @@
+[
+  {
+    "name": "tech.aaregall.lab.petclinic.pet.domain.model.PetOwner",
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "java.util.UUID",
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true
+  }
+]
