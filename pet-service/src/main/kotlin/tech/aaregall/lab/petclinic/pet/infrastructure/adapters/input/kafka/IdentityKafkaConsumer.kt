@@ -6,6 +6,7 @@ import io.micronaut.configuration.kafka.annotation.OffsetReset
 import io.micronaut.configuration.kafka.annotation.Topic
 import io.micronaut.messaging.annotation.MessageHeader
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory.getLogger
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
@@ -18,6 +19,8 @@ class IdentityKafkaConsumer(
     private val petOwnerOutputPort: PetOwnerOutputPort,
     private val deletePetsByPetOwnerUseCase: DeletePetsByPetOwnerUseCase) {
 
+    private val logger = getLogger(this::class.java)
+
     @Topic("identity")
     fun consumeIdentityTopic(@KafkaKey key: String, @MessageHeader("X-Action") actionHeader: String) {
         when (actionHeader) {
@@ -27,7 +30,7 @@ class IdentityKafkaConsumer(
                 deletePetsByPetOwnerUseCase.deletePetsByPetOwner(DeletePetsByPetOwnerCommand(identityId))
             }
 
-            else -> println("Ignoring action $actionHeader for record with ID $key")
+            else -> logger.info("Ignoring action $actionHeader for record with ID $key")
         }
 
     }

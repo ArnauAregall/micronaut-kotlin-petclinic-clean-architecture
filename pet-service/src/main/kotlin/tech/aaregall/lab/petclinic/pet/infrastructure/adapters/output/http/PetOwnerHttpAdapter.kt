@@ -14,6 +14,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.serde.annotation.Serdeable
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory.getLogger
 import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
@@ -26,6 +27,8 @@ import java.util.UUID
 @CacheConfig(cacheNames = ["pet-owner"])
 internal open class PetOwnerHttpAdapter(private val identityServiceHttpClient: IdentityServiceHttpClient): PetOwnerOutputPort {
 
+    private val logger = getLogger(this::class.java)
+
     override fun loadPetOwner(loadPetOwnerCommand: LoadPetOwnerCommand): UnitReactive<PetOwner?> {
         return UnitReactive(loadPetOwnerFromIdentityService(loadPetOwnerCommand.ownerIdentityId))
     }
@@ -36,7 +39,7 @@ internal open class PetOwnerHttpAdapter(private val identityServiceHttpClient: I
 
     @CacheInvalidate
     open fun invalidatePetOwnerCache(identityId: UUID) {
-        println("Invalidated PetOwner cache with key $identityId")
+        logger.info("Invalidated PetOwner cache with key $identityId")
     }
 
     @Cacheable
