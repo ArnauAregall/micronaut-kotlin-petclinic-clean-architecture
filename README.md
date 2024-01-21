@@ -21,6 +21,12 @@ The goal is to mimic the well known project [Spring PetClinic](https://spring-pe
 
 ## Running the application
 
+### Infrastructure dependencies
+
+```shell
+docker-compose up
+```
+
 ### identity-service
 
 ```shell
