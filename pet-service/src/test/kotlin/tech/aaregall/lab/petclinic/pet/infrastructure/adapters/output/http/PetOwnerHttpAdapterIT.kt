@@ -27,7 +27,7 @@ import java.util.UUID
 
 @MicronautTest
 @TestResourcesProperties(providers = [MockServerSpec::class])
-internal class PetOwnerHttpAdapterTest(
+internal class PetOwnerHttpAdapterIT(
     private val petOwnerHttpAdapter: PetOwnerHttpAdapter,
     private val redisConnection: StatefulRedisConnection<String, String>) {
 
