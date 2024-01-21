@@ -20,6 +20,6 @@ internal class PetPersistenceAdapter(
     }
 
     override fun deletePetsByPetOwner(petOwner: PetOwner) {
-        TODO("Not yet implemented")
+        petR2DBCRepository.deleteByOwnerIdentityId(petOwner.identityId)
     }
 }

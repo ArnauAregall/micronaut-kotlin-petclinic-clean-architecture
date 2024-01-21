@@ -17,11 +17,17 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
+import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import java.time.Duration
 import java.util.UUID.randomUUID
 
 @MicronautTest
 internal class IdentityKafkaConsumerIT {
+
+    @Singleton
+    @Replaces(PetOwnerOutputPort::class)
+    fun mockPetOwnerOutputPort(): PetOwnerOutputPort = mockk()
 
     @Singleton
     @Replaces(DeletePetsByPetOwnerUseCase::class)
@@ -38,10 +44,12 @@ internal class IdentityKafkaConsumerIT {
     }
 
     @Test
-    fun `Should consume records and call DeletePetsByPetOwnerUseCase when record header X-Action is DELETE`(
+    fun `Should consume records and call PetOwnerOutputPort and DeletePetsByPetOwnerUseCase when record header X-Action is DELETE`(
         identityProducer: IdentityProducer,
+        petOwnerOutputPort: PetOwnerOutputPort,
         deletePetsByPetOwnerUseCase: DeletePetsByPetOwnerUseCase) {
 
+        every { petOwnerOutputPort.deletePetOwner(any()) } answers { nothing }
         every { deletePetsByPetOwnerUseCase.deletePetsByPetOwner(any()) } answers { nothing }
 
         val key = randomUUID()
@@ -50,18 +58,21 @@ internal class IdentityKafkaConsumerIT {
 
         await().atMost(Duration.ofSeconds(5)).until { true }
 
+        verify { petOwnerOutputPort.deletePetOwner(PetOwner(key)) }
         verify { deletePetsByPetOwnerUseCase.deletePetsByPetOwner(DeletePetsByPetOwnerCommand(key)) }
     }
 
     @Test
-    fun `Should consume records and not call DeletePetsByPetOwnerUseCase when record header X-Action is not DELETE`(
+    fun `Should consume records and not call PetOwnerOutputPort nor DeletePetsByPetOwnerUseCase when record header X-Action is not DELETE`(
         identityProducer: IdentityProducer,
+        petOwnerOutputPort: PetOwnerOutputPort,
         deletePetsByPetOwnerUseCase: DeletePetsByPetOwnerUseCase) {
 
         identityProducer.produce(randomUUID().toString(), "ANYTHING", null)
 
         await().atMost(Duration.ofSeconds(5)).until { true }
 
+        verify (exactly = 0) { petOwnerOutputPort.deletePetOwner(any()) }
         verify (exactly = 0) { deletePetsByPetOwnerUseCase.deletePetsByPetOwner(any()) }
     }
 

@@ -6,4 +6,8 @@ import io.micronaut.data.repository.reactive.ReactorPageableRepository
 import java.util.UUID
 
 @R2dbcRepository(dialect = Dialect.POSTGRES)
-internal interface PetR2dbcRepository: ReactorPageableRepository<PetPersistenceEntity, UUID>
+internal interface PetR2dbcRepository: ReactorPageableRepository<PetPersistenceEntity, UUID> {
+
+    fun deleteByOwnerIdentityId(ownerIdentityId: UUID)
+
+}

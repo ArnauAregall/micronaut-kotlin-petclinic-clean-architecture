@@ -4,9 +4,11 @@ import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import java.util.UUID
 
-fun interface PetOwnerOutputPort {
+interface PetOwnerOutputPort {
 
     fun loadPetOwner(loadPetOwnerCommand: LoadPetOwnerCommand): UnitReactive<PetOwner?>
+
+    fun deletePetOwner(petOwner: PetOwner)
 
 }
 

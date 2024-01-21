@@ -2,6 +2,7 @@ package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.http
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micronaut.cache.annotation.CacheConfig
+import io.micronaut.cache.annotation.CacheInvalidate
 import io.micronaut.cache.annotation.Cacheable
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.core.async.annotation.SingleResult
@@ -27,6 +28,15 @@ internal open class PetOwnerHttpAdapter(private val identityServiceHttpClient: I
 
     override fun loadPetOwner(loadPetOwnerCommand: LoadPetOwnerCommand): UnitReactive<PetOwner?> {
         return UnitReactive(loadPetOwnerFromIdentityService(loadPetOwnerCommand.ownerIdentityId))
+    }
+
+    override fun deletePetOwner(petOwner: PetOwner) {
+        invalidatePetOwnerCache(petOwner.identityId)
+    }
+
+    @CacheInvalidate
+    open fun invalidatePetOwnerCache(identityId: UUID) {
+        println("Invalidated PetOwner cache with key $identityId")
     }
 
     @Cacheable

@@ -82,5 +82,47 @@ internal class PetPersistenceAdapterIT(
 
     }
 
+    @Nested
+    inner class DeletePetsByPetOwner {
+
+        @Test
+        fun `It should delete all Pets by PetOwner when Pets exist`() {
+            val petOwner = PetOwner(UUID.randomUUID())
+
+            Mono.from(
+                r2dbc.withTransaction { status ->
+                    Mono.from(
+                        status.connection.createStatement("""
+                        insert into pet (id, type, name, birth_date, owner_identity_id) values 
+                        ('${UUID.randomUUID()}', 'DOG', 'Snoopy', '1950-10-04', '${petOwner.identityId}'),
+                        ('${UUID.randomUUID()}', 'CAT', 'Garfield', '1988-09-17', '${petOwner.identityId}'),
+                        ('${UUID.randomUUID()}', 'BIRD', 'Woodstock', '1950-10-04', '${petOwner.identityId}');
+                        """.trimIndent()
+                        ).execute()
+                    )
+                }
+            ).block()
+
+            petPersistenceAdapter.deletePetsByPetOwner(petOwner)
+
+            val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
+                Mono.from(
+                    status.connection.createStatement("""
+                    select count(*) from pet where owner_identity_id = '${petOwner.identityId}'
+                    """.trimIndent()
+                    ).execute()
+                )
+                    .flatMap { result ->
+                        Mono.from(result.map { row -> row.get(0) as Long })
+                    }
+            }
+
+            val count: Long = Mono.from(countQueryPublisher).block() as Long
+
+            assertThat(count).isZero()
+        }
+
+    }
+
 
 }

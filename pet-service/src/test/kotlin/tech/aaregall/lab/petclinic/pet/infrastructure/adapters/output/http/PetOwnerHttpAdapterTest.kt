@@ -1,5 +1,6 @@
 package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.http
 
+import io.lettuce.core.api.StatefulRedisConnection
 import io.micronaut.http.HttpMethod.GET
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.HttpStatus.NOT_FOUND
@@ -109,6 +110,40 @@ internal class PetOwnerHttpAdapterTest {
 
             getMockServerClient()
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
+        }
+
+    }
+
+    @Nested
+    inner class DeletePetOwner {
+
+        @Test
+        fun `Should invalidate PetOwner cache`(redisConnection: StatefulRedisConnection<String, String>) {
+            val identityId = UUID.randomUUID()
+            fun getCachedPetOwner(): String = redisConnection.sync().get("pet-owner:$identityId")
+
+            getMockServerClient()
+                .`when`(request())
+                .respond(
+                    response()
+                    .withStatusCode(OK.code)
+                    .withBody(json(
+                        """
+                            {
+                              "id": "$identityId"
+                            }
+                        """.trimIndent()
+                    )
+                )
+            )
+
+            val petOwner = petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId)).toMono().block()!!
+
+            assertThat(getCachedPetOwner()).isNotNull
+
+            petOwnerHttpAdapter.deletePetOwner(petOwner)
+
+            assertThat(getCachedPetOwner()).isNull()
         }
 
     }
