@@ -28,6 +28,12 @@ data class PetResponse(
 data class PetOwnerDTO(
 
     @JsonProperty("id")
-    val id: String
+    val id: String,
+
+    @JsonProperty("first_name")
+    val firstName: String? = null,
+
+    @JsonProperty("last_name")
+    val lastName: String? = null
 
 )

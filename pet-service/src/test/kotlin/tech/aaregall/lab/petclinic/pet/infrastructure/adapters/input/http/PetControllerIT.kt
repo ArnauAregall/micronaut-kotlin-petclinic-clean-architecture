@@ -42,7 +42,12 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                     .withHeaders(Header("Content-Type", "application/json"))
 
                 return@respond when (httpStatus) {
-                    HttpStatus.OK ->  response.withBody(json("{\"id\": \"$identityId\" }"))
+                    HttpStatus.OK ->  response.withBody(json("""
+                        {
+                          "id": "$identityId", "first_name": "John", "last_name": "Doe"
+                        }
+                        """.trimIndent()
+                    ))
                     else -> response
                 }
             }
@@ -191,7 +196,9 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                     "name", equalTo("Java"),
                     "birth_date", equalTo("2019-06-20"),
                     "owner", notNullValue(),
-                    "owner.id", equalTo(ownerIdentityId.toString())
+                    "owner.id", equalTo(ownerIdentityId.toString()),
+                    "owner.first_name", equalTo("John"),
+                    "owner.last_name", equalTo("Doe")
                 )
             }
         }

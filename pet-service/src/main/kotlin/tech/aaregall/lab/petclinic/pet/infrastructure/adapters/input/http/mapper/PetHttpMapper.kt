@@ -25,7 +25,7 @@ class PetHttpMapper {
             type = pet.type.toString(),
             name = pet.name,
             birthDate = pet.birthDate,
-            petOwnerDTO = pet.owner?.let { PetOwnerDTO(it.identityId.toString()) }
+            petOwnerDTO = pet.owner?.let { PetOwnerDTO(it.identityId.toString(), it.firstName, it.lastName) }
         )
 
 }
