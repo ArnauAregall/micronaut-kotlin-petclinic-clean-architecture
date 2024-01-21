@@ -7,7 +7,6 @@ import io.micronaut.http.HttpStatus.NOT_FOUND
 import io.micronaut.http.HttpStatus.OK
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.micronaut.test.extensions.testresources.annotation.TestResourcesProperties
-import jakarta.inject.Inject
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.AfterEach
@@ -28,22 +27,23 @@ import java.util.UUID
 
 @MicronautTest
 @TestResourcesProperties(providers = [MockServerSpec::class])
-internal class PetOwnerHttpAdapterTest {
-
-    @Inject
-    lateinit var petOwnerHttpAdapter: PetOwnerHttpAdapter
+internal class PetOwnerHttpAdapterTest(
+    private val petOwnerHttpAdapter: PetOwnerHttpAdapter,
+    private val redisConnection: StatefulRedisConnection<String, String>) {
 
     @AfterEach
     fun tearDown() {
         getMockServerClient().reset()
     }
 
+    fun getCachedPetOwner(identityId: UUID): String? = redisConnection.sync().get("pet-owner:$identityId")
+
     @Nested
     inner class LoadPetOwner {
 
 
         @Test
-        fun `Should return a PetOwner when Identity Service response is 200 OK`() {
+        fun `Should return and cache a PetOwner when Identity Service response is 200 OK`() {
             val identityId = UUID.randomUUID()
 
             getMockServerClient()
@@ -67,6 +67,8 @@ internal class PetOwnerHttpAdapterTest {
                 .isNotNull
                 .extracting("identityId")
                 .isEqualTo(identityId)
+
+            assertThat(getCachedPetOwner(identityId)).isNotNull
 
             getMockServerClient()
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
@@ -118,9 +120,8 @@ internal class PetOwnerHttpAdapterTest {
     inner class DeletePetOwner {
 
         @Test
-        fun `Should invalidate PetOwner cache`(redisConnection: StatefulRedisConnection<String, String>) {
+        fun `Should invalidate PetOwner cache`() {
             val identityId = UUID.randomUUID()
-            fun getCachedPetOwner(): String = redisConnection.sync().get("pet-owner:$identityId")
 
             getMockServerClient()
                 .`when`(request())
@@ -139,11 +140,11 @@ internal class PetOwnerHttpAdapterTest {
 
             val petOwner = petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId)).toMono().block()!!
 
-            assertThat(getCachedPetOwner()).isNotNull
+            assertThat(getCachedPetOwner(identityId)).isNotNull
 
             petOwnerHttpAdapter.deletePetOwner(petOwner)
 
-            assertThat(getCachedPetOwner()).isNull()
+            assertThat(getCachedPetOwner(identityId)).isNull()
         }
 
     }
