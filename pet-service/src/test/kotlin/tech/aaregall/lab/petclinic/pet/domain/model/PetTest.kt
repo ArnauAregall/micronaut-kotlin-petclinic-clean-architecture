@@ -47,4 +47,23 @@ internal class PetTest {
             .hasMessage("birthDate cannot be a future date")
     }
 
+    @ParameterizedTest
+    @EnumSource(PetType::class)
+    fun `withOwner should accept null PetOwner argument`(petType: PetType) {
+        val pet = Pet(id = PetId.create(), type = petType, name = "Bar", birthDate = LocalDate.now())
+            .withOwner(null)
+
+        assertThat(pet.owner).isNull()
+    }
+
+    @ParameterizedTest
+    @EnumSource(PetType::class)
+    fun `withOwner should accept a non null PetOwner argument and set the owner variable`(petType: PetType) {
+        val pet = Pet(id = PetId.create(), type = petType, name = "Bar", birthDate = LocalDate.now())
+
+        val petWithOwner = pet.withOwner(PetOwner(randomUUID(), "John", "Doe"))
+
+        assertThat(petWithOwner.owner).isNotNull
+    }
+
 }
