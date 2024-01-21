@@ -45,7 +45,8 @@ internal open class PetOwnerHttpAdapter(private val identityServiceHttpClient: I
     @Cacheable
     open fun loadPetOwnerFromIdentityService(identityId: UUID): Mono<PetOwner?> {
         return identityServiceHttpClient.getIdentity(identityId)
-            .mapNotNull { PetOwner(it.body().id) }
+            .map { it.body() }
+            .mapNotNull { PetOwner(it.id, it.firstName, it.lastName) }
             .onErrorResume {
                 if (it is HttpClientResponseException && it.status == HttpStatus.NOT_FOUND) Mono.empty()
                 else Mono.error(LoadPetOwnerCommandException("HTTP call to Identity Service returned not expected response status", it))
@@ -66,4 +67,8 @@ internal fun interface IdentityServiceHttpClient {
 
 @Introspected
 @Serdeable
-internal data class GetIdentityResponse(@JsonProperty("id") val id: UUID)
+internal data class GetIdentityResponse(
+    @JsonProperty("id") val id: UUID,
+    @JsonProperty("first_name") val firstName: String?,
+    @JsonProperty("last_name") val lastName: String?
+)

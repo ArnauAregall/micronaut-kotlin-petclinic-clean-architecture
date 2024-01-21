@@ -16,6 +16,7 @@ internal class PetPersistenceAdapter(
         return UnitReactive(
             petR2DBCRepository.save(petPersistenceMapper.mapToEntity(pet))
                 .map(petPersistenceMapper::mapToDomain)
+                .map{ it.withOwner(pet.owner)}
         )
     }
 

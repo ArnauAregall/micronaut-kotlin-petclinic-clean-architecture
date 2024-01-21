@@ -21,6 +21,7 @@ import org.mockserver.model.JsonBody.json
 import org.mockserver.verify.VerificationTimes.once
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommandException
+import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
 import java.util.UUID
@@ -55,7 +56,7 @@ internal class PetOwnerHttpAdapterIT(
                         .withBody(json(
                             """
                             {
-                              "id": "$identityId"
+                              "id": "$identityId", "first_name": "John", "last_name": "Doe"
                             }
                         """.trimIndent()
                         ))
@@ -65,8 +66,8 @@ internal class PetOwnerHttpAdapterIT(
 
             assertThat(petOwner.toMono().block())
                 .isNotNull
-                .extracting("identityId")
-                .isEqualTo(identityId)
+                .extracting("identityId", "firstName", "lastName")
+                .containsExactly(identityId, "John", "Doe")
 
             assertThat(getCachedPetOwner(identityId)).isNotNull
 
