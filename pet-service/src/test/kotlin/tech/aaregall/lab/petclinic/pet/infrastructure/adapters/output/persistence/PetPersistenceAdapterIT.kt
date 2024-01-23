@@ -76,6 +76,40 @@ internal class PetPersistenceAdapterIT(
     }
 
     @Nested
+    inner class CountAllPets {
+
+        @Test
+        fun `Should return a UnitReactive with 0 when there are no Pet records on the database`() {
+            val result = petPersistenceAdapter.countAllPets()
+
+            assertThat(result.toMono().block()).isZero()
+        }
+
+        @Test
+        fun `Should return a UnitReactive with the total number of Pets when Pet records are present on the database`() {
+            Mono.from(
+                r2dbc.withTransaction { status ->
+                    Mono.from(
+                        status.connection.createStatement(buildString {
+                            append("insert into pet (id, type, name, birth_date) values ")
+                            append(IntRange(start = 1, endInclusive = 50).joinToString(", ") { index ->
+                                "('${UUID.nameUUIDFromBytes(index.toString().toByteArray())}', 'CAT', '$index', '2024-01-01')"
+                            })
+                            append(";")
+                        }
+                        ).execute()
+                    )
+                }
+            ).block()
+
+            val result = petPersistenceAdapter.countAllPets()
+
+            assertThat(result.toMono().block()).isEqualTo(50)
+        }
+
+    }
+
+    @Nested
     inner class CreatePet {
 
         @Test

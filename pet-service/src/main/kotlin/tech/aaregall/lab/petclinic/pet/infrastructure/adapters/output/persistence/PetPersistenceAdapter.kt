@@ -21,6 +21,8 @@ internal class PetPersistenceAdapter(
         return CollectionReactive(flux)
     }
 
+    override fun countAllPets(): UnitReactive<Long> = UnitReactive(petR2DBCRepository.count())
+
     override fun createPet(pet: Pet): UnitReactive<Pet> {
         return UnitReactive(
             petR2DBCRepository.save(petPersistenceMapper.mapToEntity(pet))

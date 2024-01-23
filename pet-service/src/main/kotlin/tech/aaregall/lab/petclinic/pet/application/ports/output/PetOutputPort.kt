@@ -9,6 +9,8 @@ interface PetOutputPort {
 
     fun findPets(pageNumber: Int, pageSize: Int): CollectionReactive<Pet>
 
+    fun countAllPets(): UnitReactive<Long>
+
     fun createPet(pet: Pet): UnitReactive<Pet>
 
     fun deletePetsByPetOwner(petOwner: PetOwner)
