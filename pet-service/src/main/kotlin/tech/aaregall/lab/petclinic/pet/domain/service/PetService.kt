@@ -3,6 +3,7 @@ package tech.aaregall.lab.petclinic.pet.domain.service
 import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.common.reactive.CollectionReactive
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
+import tech.aaregall.lab.petclinic.pet.application.ports.input.CountAllPetsUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
@@ -20,10 +21,12 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 class PetService(
     private val petOutputPort: PetOutputPort,
     private val petOwnerOutputPort: PetOwnerOutputPort
-): CreatePetUseCase, DeletePetsByPetOwnerUseCase, SearchPetsUseCase {
+): CreatePetUseCase, DeletePetsByPetOwnerUseCase, SearchPetsUseCase, CountAllPetsUseCase {
 
     override fun searchPets(searchPetsCommand: SearchPetsCommand): CollectionReactive<Pet> =
         petOutputPort.findPets(searchPetsCommand.pageNumber, searchPetsCommand.pageSize)
+
+    override fun countAllPets(): UnitReactive<Long> = petOutputPort.countAllPets()
 
     override fun createPet(createPetCommand: CreatePetCommand): UnitReactive<Pet> {
         return createPetCommand.ownerIdentityId

@@ -1,4 +1,9 @@
 package tech.aaregall.lab.petclinic.pet.application.ports.input
 
-class CountAllPetsUseCase {
+import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
+
+fun interface CountAllPetsUseCase {
+
+    fun countAllPets(): UnitReactive<Long>
+
 }
