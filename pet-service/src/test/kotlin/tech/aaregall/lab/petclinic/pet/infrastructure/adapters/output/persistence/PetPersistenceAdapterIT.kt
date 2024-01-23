@@ -29,6 +29,53 @@ internal class PetPersistenceAdapterIT(
     }
 
     @Nested
+    inner class FindPets {
+
+        @Test
+        fun `It should return an empty Flux when there are not Pet table records present`() {
+            val result = petPersistenceAdapter.findPets(0, 20)
+
+            assertThat(result.toFlux().collectList().block())
+                .isEmpty()
+        }
+
+        @Test
+        fun `It should return Pets based on pagination arguments when Pet table records are present`() {
+            Mono.from(
+                r2dbc.withTransaction { status ->
+                    Mono.from(
+                        status.connection.createStatement(buildString {
+                            append("insert into pet (id, type, name, birth_date) values ")
+                            append(IntRange(start = 1, endInclusive = 50).joinToString(", ") { index ->
+                                "('${UUID.nameUUIDFromBytes(index.toString().toByteArray())}', 'DOG', 'Puppy #$index', '2024-01-01')"
+                            })
+                            append(";")
+                        }
+                        ).execute()
+                    )
+                }
+            ).block()
+
+            fun expectedPetNames(start: Int, endInclusive: Int) = IntRange(start, endInclusive).map { index -> "Puppy #$index" }.toList()
+
+            val firstTwentyPets = petPersistenceAdapter.findPets(0, 20)
+            assertThat(firstTwentyPets.toFlux().collectList().block())
+                .isNotEmpty
+                .hasSize(20)
+                .extracting("name")
+                .containsAll(expectedPetNames(1, 20))
+
+            val lastFivePets = petPersistenceAdapter.findPets(9, 5)
+            assertThat(lastFivePets.toFlux().collectList().block())
+                .isNotEmpty
+                .hasSize(5)
+                .extracting("name")
+                .containsAll(expectedPetNames(46, 50))
+        }
+
+    }
+
+    @Nested
     inner class CreatePet {
 
         @Test
