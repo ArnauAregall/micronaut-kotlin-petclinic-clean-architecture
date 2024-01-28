@@ -26,6 +26,8 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetType.DOG
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.RABBIT
 import java.time.LocalDate
 import java.util.UUID.randomUUID
+import kotlin.random.Random
+import kotlin.random.nextLong
 
 @ExtendWith(MockKExtension::class)
 internal class PetServiceTest {
@@ -85,6 +87,23 @@ internal class PetServiceTest {
                 })
 
             verify { petOutputPort.findPets(0, 3) }
+        }
+
+    }
+
+    @Nested
+    inner class CountAllPets {
+
+        @Test
+        fun `Should return a UnitReactive with the exact same value returned by PetOutputPort`() {
+            val fakeCount = Random.nextLong(LongRange(10, 1000))
+
+            every { petOutputPort.countAllPets() } answers { UnitReactive(fakeCount) }
+
+            val result = petService.countAllPets()
+
+            assertThat(result.toMono().block())
+                .isEqualTo(fakeCount)
         }
 
     }
