@@ -25,6 +25,7 @@ class PetService(
 
     override fun searchPets(searchPetsCommand: SearchPetsCommand): CollectionReactive<Pet> =
         petOutputPort.findPets(searchPetsCommand.pageNumber, searchPetsCommand.pageSize)
+            .loadOwners()
 
     override fun countAllPets(): UnitReactive<Long> = petOutputPort.countAllPets()
 
@@ -45,5 +46,27 @@ class PetService(
 
     private fun CreatePetCommand.toPet(petOwner: PetOwner? = null): Pet =
         Pet(id = PetId.create(), type = type, name = name, birthDate = birthDate, owner = petOwner)
+
+    private fun CollectionReactive<Pet>.loadOwners(): CollectionReactive<Pet> {
+        val pets = this.toFlux()
+
+        val ownersMap = pets
+            .filter { it.owner != null }
+            .mapNotNull { it.owner!!.identityId }
+            .distinct()
+            .flatMapSequential { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(it)).toMono() }
+            .collectMap({ petOwner -> petOwner!!.identityId }, { petOwner -> petOwner!! })
+            .cache()
+
+        return CollectionReactive(
+            ownersMap.flatMapMany { map ->
+                pets.map { pet ->
+                    pet.owner?.let { petOwner ->
+                        pet.withOwner(map[petOwner.identityId])
+                    } ?: pet
+                }
+            }
+        )
+    }
 
 }
