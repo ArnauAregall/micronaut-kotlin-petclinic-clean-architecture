@@ -1,6 +1,5 @@
 package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.persistence
 
-import io.micronaut.data.model.Pageable
 import jakarta.inject.Singleton
 import tech.aaregall.lab.petclinic.common.reactive.CollectionReactive
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
@@ -15,8 +14,7 @@ internal class PetPersistenceAdapter(
 ) : PetOutputPort {
 
     override fun findPets(pageNumber: Int, pageSize: Int): CollectionReactive<Pet> {
-        val flux = petR2DBCRepository.findAll(Pageable.from(pageNumber, pageSize))
-            .flatMapIterable { it.content }
+        val flux = petR2DBCRepository.find(pageNumber * pageSize, pageSize)
             .map(petPersistenceMapper::mapToDomain)
         return CollectionReactive(flux)
     }
