@@ -22,6 +22,9 @@ micronaut:
         service-id-regex: "identity-service"
       cookie:
         cookie-name: "JWT"
+  data:
+    pageable:
+      default-page-size: 10
 
 datasources:
   default:

@@ -11,9 +11,13 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.everyItem
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -22,12 +26,17 @@ import org.mockserver.model.Header
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.JsonBody.json
+import reactor.core.publisher.Flux
+import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
+import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
 import java.time.LocalDate
 import java.util.UUID
+import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
 @TestResourcesProperties(providers = [MockServerSpec::class, KeycloakSpec::class])
@@ -53,6 +62,99 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
             }
     }
 
+    @Nested
+    inner class SearchPets(private val createPetUseCase: CreatePetUseCase) {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                contentType(JSON)
+                queryParams(mapOf("page" to "0", "size" to "20"))
+            } When {
+                port(embeddedServer.port)
+                get("/api/pets")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should return 200 OK with empty content array when there are no Pets`() {
+            Given {
+                contentType(JSON)
+                queryParams(mapOf("page" to "0", "size" to "20"))
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                get("/api/pets")
+            } Then {
+                statusCode(HttpStatus.OK.code)
+                body("content.size()", equalTo(0))
+                body("totalSize", equalTo(0))
+            }
+        }
+
+        @Test
+        fun `Should return 200 OK with not empty content array containing Pets with PetOwners details when there are Pets`() {
+            val ownerIdentityId = randomUUID()
+            mockGetIdentityResponse(ownerIdentityId, HttpStatus.OK)
+
+            val pets = Flux.fromIterable(
+                listOf(
+                    CreatePetCommand(
+                        type = PetType.DOG,
+                        name = "Snoopy",
+                        birthDate = LocalDate.now(),
+                        ownerIdentityId = ownerIdentityId
+                    ),
+                    CreatePetCommand(
+                        type = PetType.CAT,
+                        name = "Garfield",
+                        birthDate = LocalDate.now().minusYears(10),
+                        ownerIdentityId = ownerIdentityId
+                    )
+                )
+            )
+                .flatMap { createPetUseCase.createPet(it).toMono() }
+                .collectList()
+                .block()!!
+
+            Given {
+                contentType(JSON)
+                queryParams(mapOf("page" to "0", "size" to "20"))
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                get("/api/pets")
+            } Then {
+                log().all()
+                statusCode(HttpStatus.OK.code)
+                // using '*' to spread array into varargs to match containsInAnyOrder
+                body(
+                    "content.size()", allOf(
+                        not(0), equalTo(pets.size)
+                    ),
+                    "content.id", containsInAnyOrder(
+                        *pets.map { it.id.toString() }.toTypedArray()
+                    ),
+                    "content.name", containsInAnyOrder(
+                        *pets.map { it.name }.toTypedArray()
+                    ),
+                    "content.birth_date", containsInAnyOrder(
+                        *pets.map { it.birthDate.toString() }.toTypedArray()
+                    ),
+                    "content.owner.id", everyItem(`is`(ownerIdentityId.toString())),
+                    "content.owner.first_name", everyItem(`is`("John")),
+                    "content.owner.last_name", everyItem(`is`("Doe")),
+                    "totalSize", allOf(
+                        not(0), equalTo(pets.size)
+                    )
+                )
+            }
+        }
+
+    }
 
     @Nested
     inner class CreatePet {
@@ -170,7 +272,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
         @Test
         fun `Should create a Pet with a valid PetOwner`() {
-            val ownerIdentityId = UUID.randomUUID()
+            val ownerIdentityId = randomUUID()
 
             mockGetIdentityResponse(ownerIdentityId, HttpStatus.OK)
 
@@ -205,7 +307,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
         @Test
         fun `Should return 404 Not Found when creating a Pet with a non existing PetOwner`() {
-            val ownerIdentityId = UUID.randomUUID()
+            val ownerIdentityId = randomUUID()
 
             mockGetIdentityResponse(ownerIdentityId, HttpStatus.NOT_FOUND)
 
@@ -231,7 +333,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
         @ParameterizedTest
         @EnumSource(HttpStatus::class, mode = EnumSource.Mode.EXCLUDE, names = ["OK", "NOT_FOUND"])
         fun `Should return 503 Internal Server Error when fetching the PetOwner returns an unexpected error`(httpStatus: HttpStatus) {
-            val ownerIdentityId = UUID.randomUUID()
+            val ownerIdentityId = randomUUID()
 
             mockGetIdentityResponse(ownerIdentityId, httpStatus)
 
