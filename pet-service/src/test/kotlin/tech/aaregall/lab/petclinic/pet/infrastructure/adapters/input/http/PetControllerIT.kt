@@ -1,5 +1,6 @@
 package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http
 
+import io.micronaut.data.r2dbc.operations.R2dbcOperations
 import io.micronaut.http.HttpMethod.GET
 import io.micronaut.http.HttpStatus
 import io.micronaut.runtime.server.EmbeddedServer
@@ -18,6 +19,7 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -27,6 +29,7 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.JsonBody.json
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType
@@ -63,7 +66,15 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
     }
 
     @Nested
-    inner class SearchPets(private val createPetUseCase: CreatePetUseCase) {
+    inner class SearchPets(private val createPetUseCase: CreatePetUseCase, private val r2dbc: R2dbcOperations) {
+
+        // TODO Find a cleaner solution to not depend on r2dbc, maybe something more elegant like @CleanDatabase
+        @BeforeEach
+        fun beforeEach() {
+            Mono.from(r2dbc.withTransaction { status ->
+                status.connection.createStatement("truncate table pet").execute()
+            }).block()
+        }
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -128,7 +139,6 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                 port(embeddedServer.port)
                 get("/api/pets")
             } Then {
-                log().all()
                 statusCode(HttpStatus.OK.code)
                 // using '*' to spread array into varargs to match containsInAnyOrder
                 body(
@@ -353,7 +363,6 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                 post("/api/pets")
             } Then {
                 statusCode(HttpStatus.INTERNAL_SERVER_ERROR.code)
-                log().all()
                 body(
                     "_embedded.errors.size()", equalTo(1),
                     "_embedded.errors[0].message", allOf(
