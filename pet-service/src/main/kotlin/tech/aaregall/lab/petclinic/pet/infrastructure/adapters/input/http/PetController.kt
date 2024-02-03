@@ -25,7 +25,7 @@ private open class PetController(
     private val countAllPetsUseCase: CountAllPetsUseCase,
     private val petHttpMapper: PetHttpMapper) {
 
-    @Get("/")
+    @Get
     open fun searchPets(pageable: Pageable): Mono<Page<PetResponse>> =
         searchPetsUseCase.searchPets(SearchPetsCommand(pageable.number, pageable.size))
             .map { petHttpMapper.mapToResponse(it) }
