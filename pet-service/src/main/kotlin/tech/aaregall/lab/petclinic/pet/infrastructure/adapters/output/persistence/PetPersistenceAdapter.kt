@@ -5,7 +5,9 @@ import tech.aaregall.lab.petclinic.common.reactive.CollectionReactive
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
+import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
+import java.util.UUID
 
 @Singleton
 internal class PetPersistenceAdapter(
@@ -28,6 +30,10 @@ internal class PetPersistenceAdapter(
                 .map{ it.withOwner(pet.owner)}
         )
     }
+
+    override fun loadPetById(petId: PetId): UnitReactive<Pet> =
+        UnitReactive(petR2DBCRepository.findById(UUID.fromString(petId.toString())))
+            .map(petPersistenceMapper::mapToDomain)
 
     override fun deletePetsByPetOwner(petOwner: PetOwner) {
         petR2DBCRepository.deleteByOwnerIdentityId(petOwner.identityId)

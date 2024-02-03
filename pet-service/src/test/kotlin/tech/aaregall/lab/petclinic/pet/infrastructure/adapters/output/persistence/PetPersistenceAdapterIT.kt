@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
+import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.BIRD
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.DOG
 import java.time.LocalDate
@@ -71,6 +72,46 @@ internal class PetPersistenceAdapterIT(
                 .hasSize(5)
                 .extracting("name")
                 .containsAll(expectedPetNames(46, 50))
+        }
+
+    }
+
+    @Nested
+    inner class LoadPetById {
+
+        @Test
+        fun `It should return a UnitReactive of empty Mono when Pet does not exist in the database`() {
+            val result = petPersistenceAdapter.loadPetById(PetId.of(UUID.randomUUID()))
+
+            assertThat(result.toMono().block())
+                .isNull()
+        }
+
+        @Test
+        fun `Should return a UnitReactive with a Mono containing the Pet exists in the database`() {
+            val petId = UUID.randomUUID()
+            val ownerIdentityId = UUID.randomUUID()
+
+            Mono.from(
+                r2dbc.withTransaction { status ->
+                    Mono.from(
+                        status.connection.createStatement("""
+                            insert into pet (id, type, name, birth_date, owner_identity_id) values 
+                            ('$petId', 'CAT', 'Silvester', '2024-02-01', '$ownerIdentityId')
+                        """.trimIndent()).execute()
+                    )
+                }
+            ).block()
+
+            val result = petPersistenceAdapter.loadPetById(PetId.of(petId))
+
+            assertThat(result.toMono().block())
+                .isNotNull
+                .isInstanceOf(Pet::class.java)
+                .extracting(Pet::id, Pet::type, Pet::name, Pet::birthDate, Pet::owner)
+                .containsExactly(
+                    PetId.of(petId), PetType.CAT, "Silvester", LocalDate.of(2024, 2, 1), PetOwner(ownerIdentityId)
+                )
         }
 
     }
