@@ -16,6 +16,8 @@ interface PetOutputPort {
 
     fun createPet(pet: Pet): UnitReactive<Pet>
 
+    fun deletePet(pet: Pet): UnitReactive<Boolean>
+
     fun deletePetsByPetOwner(petOwner: PetOwner)
 
 }

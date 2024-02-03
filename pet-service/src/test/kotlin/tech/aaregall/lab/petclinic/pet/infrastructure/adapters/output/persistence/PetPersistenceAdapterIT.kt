@@ -205,6 +205,51 @@ internal class PetPersistenceAdapterIT(
     }
 
     @Nested
+    inner class DeletePet {
+
+        @Test
+        fun `It should return a UnitReactive containing false when the Pet is not deleted from the database`() {
+            val pet = Pet(PetId.create(), DOG, "Non existing dog", LocalDate.now())
+
+            val result = petPersistenceAdapter.deletePet(pet)
+
+            assertThat(result.toMono().block()!!).isFalse()
+        }
+
+        @Test
+        fun `It should return a UnitReactive containing true when the Pet is deleted from the database`() {
+            val pet = Pet(PetId.create(), DOG, "Scooby Doo", LocalDate.now())
+
+            Mono.from(
+                r2dbc.withTransaction { status ->
+                    Mono.from(
+                        status.connection.createStatement("""
+                            insert into pet (id, type, name, birth_date) values 
+                            ('${pet.id}', '${pet.type.name}', '${pet.name}', '${pet.birthDate}')
+                        """.trimIndent()).execute()
+                    )
+                }
+            ).block()
+
+            val result = petPersistenceAdapter.deletePet(pet)
+
+            assertThat(result.toMono().block()!!).isTrue()
+
+            val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
+                Mono.from(status.connection.createStatement("select count(*) from pet where id = '${pet.id}'").execute())
+                    .flatMap { result ->
+                        Mono.from(result.map { row -> row.get(0) as Long })
+                    }
+            }
+
+            val count: Long? = Mono.from(countQueryPublisher).block()
+
+            assertThat(count).isZero()
+        }
+
+    }
+
+    @Nested
     inner class DeletePetsByPetOwner {
 
         @Test

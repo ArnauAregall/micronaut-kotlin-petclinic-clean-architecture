@@ -35,6 +35,10 @@ internal class PetPersistenceAdapter(
         UnitReactive(petR2DBCRepository.findById(UUID.fromString(petId.toString())))
             .map(petPersistenceMapper::mapToDomain)
 
+    override fun deletePet(pet: Pet): UnitReactive<Boolean> =
+        UnitReactive(petR2DBCRepository.deleteById(UUID.fromString(pet.id.toString())))
+            .map { count -> count == 1L }
+
     override fun deletePetsByPetOwner(petOwner: PetOwner) {
         petR2DBCRepository.deleteByOwnerIdentityId(petOwner.identityId)
     }
