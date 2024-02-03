@@ -8,6 +8,8 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.SearchPetsCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.SearchPetsUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
@@ -21,11 +23,20 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 class PetService(
     private val petOutputPort: PetOutputPort,
     private val petOwnerOutputPort: PetOwnerOutputPort
-): CreatePetUseCase, DeletePetsByPetOwnerUseCase, SearchPetsUseCase, CountAllPetsUseCase {
+): SearchPetsUseCase, LoadPetUseCase, CountAllPetsUseCase, CreatePetUseCase, DeletePetsByPetOwnerUseCase {
 
     override fun searchPets(searchPetsCommand: SearchPetsCommand): CollectionReactive<Pet> =
         petOutputPort.findPets(searchPetsCommand.pageNumber, searchPetsCommand.pageSize)
             .loadOwners()
+
+    override fun loadPet(loadPetCommand: LoadPetCommand): UnitReactive<Pet> =
+        petOutputPort.loadPetById(loadPetCommand.petId)
+            .flatMap { pet ->
+                pet.owner?.let { petOwner ->
+                    petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(petOwner.identityId))
+                        .map { pet.withOwner(it) }
+                } ?: UnitReactive(pet)
+            }
 
     override fun countAllPets(): UnitReactive<Long> = petOutputPort.countAllPets()
 
