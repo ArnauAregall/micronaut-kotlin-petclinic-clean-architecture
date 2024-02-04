@@ -83,7 +83,7 @@ internal class PetPersistenceAdapterIT(
         fun `It should return a UnitReactive of empty Mono when Pet does not exist in the database`() {
             val result = petPersistenceAdapter.loadPetById(PetId.of(UUID.randomUUID()))
 
-            assertThat(result.toMono().block())
+            assertThat(result.block())
                 .isNull()
         }
 
@@ -105,7 +105,7 @@ internal class PetPersistenceAdapterIT(
 
             val result = petPersistenceAdapter.loadPetById(PetId.of(petId))
 
-            assertThat(result.toMono().block())
+            assertThat(result.block()!!)
                 .isNotNull
                 .isInstanceOf(Pet::class.java)
                 .extracting(Pet::id, Pet::type, Pet::name, Pet::birthDate, Pet::owner)
@@ -123,7 +123,7 @@ internal class PetPersistenceAdapterIT(
         fun `Should return a UnitReactive with 0 when there are no Pet records on the database`() {
             val result = petPersistenceAdapter.countAllPets()
 
-            assertThat(result.toMono().block()).isZero()
+            assertThat(result.block()!!).isZero()
         }
 
         @Test
@@ -145,7 +145,7 @@ internal class PetPersistenceAdapterIT(
 
             val result = petPersistenceAdapter.countAllPets()
 
-            assertThat(result.toMono().block()).isEqualTo(50)
+            assertThat(result.block()!!).isEqualTo(50)
         }
 
     }
@@ -159,7 +159,7 @@ internal class PetPersistenceAdapterIT(
 
             petPersistenceAdapter.createPet(
                 Pet(id = petId, type = DOG, name = "Bimo", birthDate = LocalDate.now(), owner = null)
-            ).toMono().block()
+            ).block()!!
 
             val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
                 Mono.from(status.connection.createStatement("select count(*) from pet where id = '$petId'").execute())
@@ -180,7 +180,7 @@ internal class PetPersistenceAdapterIT(
 
             petPersistenceAdapter.createPet(
                 Pet(id = petId, type = BIRD, name = "Marujito", birthDate = LocalDate.now(), owner = petOwner)
-            ).toMono().block()
+            ).block()!!
 
             val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
                 Mono.from(
@@ -213,7 +213,7 @@ internal class PetPersistenceAdapterIT(
 
             val result = petPersistenceAdapter.deletePet(pet)
 
-            assertThat(result.toMono().block()!!).isFalse()
+            assertThat(result.block()!!!!).isFalse()
         }
 
         @Test
@@ -233,7 +233,7 @@ internal class PetPersistenceAdapterIT(
 
             val result = petPersistenceAdapter.deletePet(pet)
 
-            assertThat(result.toMono().block()!!).isTrue()
+            assertThat(result.block()!!!!).isTrue()
 
             val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
                 Mono.from(status.connection.createStatement("select count(*) from pet where id = '${pet.id}'").execute())

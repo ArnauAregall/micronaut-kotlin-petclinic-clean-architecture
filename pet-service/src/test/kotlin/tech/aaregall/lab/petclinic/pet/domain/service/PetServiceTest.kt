@@ -171,7 +171,7 @@ internal class PetServiceTest {
             assertThat(result)
                 .isInstanceOf(UnitReactive::class.java)
                 .satisfies({
-                    assertThat(it.toMono().block())
+                    assertThat(it.block()!!)
                         .isNotNull
                         .extracting(Pet::id, Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                         .containsExactly(
@@ -203,7 +203,7 @@ internal class PetServiceTest {
             assertThat(result)
                 .isInstanceOf(UnitReactive::class.java)
                 .satisfies({
-                    assertThat(it.toMono().block())
+                    assertThat(it.block()!!)
                         .isNotNull
                         .extracting(Pet::id, Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                         .containsExactly(
@@ -228,7 +228,7 @@ internal class PetServiceTest {
 
             val result = petService.countAllPets()
 
-            assertThat(result.toMono().block())
+            assertThat(result.block()!!)
                 .isEqualTo(fakeCount)
         }
 
@@ -259,7 +259,7 @@ internal class PetServiceTest {
                 )
             )
 
-            val createdPet: Pet = result.toMono().block()!!
+            val createdPet: Pet = result.block()!!!!
 
             verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
             verify { petOutputPort.createPet(createdPet) }
@@ -285,12 +285,12 @@ internal class PetServiceTest {
                 )
             )
 
-            val createdPet: Pet = result.toMono().block()!!
+            val createdPet: Pet = result.block()!!!!
 
             verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
             verify { petOutputPort.createPet(createdPet) }
 
-            assertThat(result.toMono().block())
+            assertThat(result.block()!!)
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                 .containsExactly(DOG, "Bimo", LocalDate.now(), PetOwner(ownerIdentityId))
@@ -309,7 +309,7 @@ internal class PetServiceTest {
 
             val result = petService.deletePet(DeletePetCommand(pet.id))
 
-            assertThatCode { result.toMono().block() }
+            assertThatCode { result.block()!! }
                 .isInstanceOf(DeletePetCommandException::class.java)
                 .hasMessageContaining("Failed deleting Pet with ID ${pet.id}")
                 .hasMessageContaining("Pet was not found")
@@ -327,7 +327,7 @@ internal class PetServiceTest {
 
             val result = petService.deletePet(DeletePetCommand(pet.id))
 
-            assertThatCode {result.toMono().block()  }
+            assertThatCode {result.block()!!  }
                 .isInstanceOf(DeletePetCommandException::class.java)
                 .hasMessageContaining("Failed deleting Pet with ID ${pet.id}")
                 .hasMessageContaining("Pet cannot be deleted")
@@ -345,7 +345,7 @@ internal class PetServiceTest {
 
             val result = petService.deletePet(DeletePetCommand(pet.id))
 
-            assertThatCode {result.toMono().block()  }
+            assertThatCode {result.block()!!  }
                 .doesNotThrowAnyException()
 
             verify { petOutputPort.loadPetById(pet.id) }
