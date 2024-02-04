@@ -10,7 +10,9 @@ Tech stack:
 - Gradle
 - Micronaut
 - Postgres
+- Hibernate / R2DBC
 - Apache Kafka
+- Redis
 - Keycloak
 - Docker
 - Testcontainers
