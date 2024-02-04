@@ -12,6 +12,8 @@ class UnitReactive<T>(private val mono: Mono<T>) {
         fun <O> empty(): UnitReactive<O> = UnitReactive(Mono.empty())
     }
 
+    fun block(): T? = mono.block()
+
     fun toMono() = mono
 
     fun <O> map(mappingFunction: (T) -> O): UnitReactive<O> =

@@ -86,4 +86,20 @@ internal class UnitReactiveTest {
             })
     }
 
+    @Test
+    fun `block should return the Mono value when is not empty`() {
+        val result = UnitReactive("Foo").block()
+
+        assertThat(result)
+            .isNotNull
+            .isEqualTo("Foo")
+    }
+
+    @Test
+    fun `block should return null when the Mono value empty`() {
+        val result = UnitReactive.empty<Any>().block()
+
+        assertThat(result).isNull()
+    }
+
 }
