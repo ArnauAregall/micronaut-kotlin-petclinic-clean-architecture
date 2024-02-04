@@ -115,4 +115,25 @@ internal class CollectionReactiveTest {
             })
     }
 
+    @Test
+    fun `blockList should return the Flux mutable list when it has values`() {
+        val pizzas = CollectionReactive(Pizza("Margherita"), Pizza("Four Cheese"), Pizza("BBQ"))
+
+        val result = pizzas.blockList()
+
+        assertThat(result)
+            .hasSize(3)
+            .extracting("name")
+            .containsExactly("Margherita", "Four Cheese", "BBQ")
+    }
+
+    @Test
+    fun `blockList should return an empty List when Flux is empty`() {
+        val pizzas = CollectionReactive<Pizza>(Flux.empty())
+
+        val result = pizzas.blockList()
+
+        assertThat(result).isEmpty()
+    }
+
 }

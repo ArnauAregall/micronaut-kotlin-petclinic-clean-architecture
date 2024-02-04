@@ -14,6 +14,8 @@ class CollectionReactive<T>(private val flux: Flux<T>) {
 
     fun toFlux() = flux
 
+    fun blockList(): MutableList<T>? = flux.collectList().block()
+
     fun <O> map(mappingFunction: (T) -> O): CollectionReactive<O> = CollectionReactive(flux.map(mappingFunction))
 
 }
