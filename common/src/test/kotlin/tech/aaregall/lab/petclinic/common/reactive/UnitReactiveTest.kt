@@ -74,4 +74,16 @@ internal class UnitReactiveTest {
             })
     }
 
+    @Test
+    fun `empty should create a UnitReactive with a Mono empty`() {
+        val result = UnitReactive.empty<Any>()
+
+        assertThat(result)
+            .isInstanceOf(UnitReactive::class.java)
+            .satisfies({
+                assertThat(result.toMono().block())
+                    .isNull()
+            })
+    }
+
 }

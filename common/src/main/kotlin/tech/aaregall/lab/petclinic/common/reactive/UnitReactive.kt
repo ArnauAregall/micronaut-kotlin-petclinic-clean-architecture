@@ -8,6 +8,8 @@ class UnitReactive<T>(private val mono: Mono<T>) {
 
     companion object {
         fun <O> error(throwable: Throwable): UnitReactive<O> = UnitReactive(Mono.error(throwable))
+
+        fun <O> empty(): UnitReactive<O> = UnitReactive(Mono.empty())
     }
 
     fun toMono() = mono
