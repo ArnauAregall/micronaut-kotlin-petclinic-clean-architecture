@@ -36,7 +36,7 @@ internal class PetPersistenceAdapterIT(
         fun `It should return an empty Flux when there are not Pet table records present`() {
             val result = petPersistenceAdapter.findPets(0, 20)
 
-            assertThat(result.toFlux().collectList().block())
+            assertThat(result.blockList())
                 .isEmpty()
         }
 
@@ -60,14 +60,14 @@ internal class PetPersistenceAdapterIT(
             fun expectedPetNames(start: Int, endInclusive: Int) = IntRange(start, endInclusive).map { index -> "Puppy #$index" }.toList()
 
             val firstTwentyPets = petPersistenceAdapter.findPets(0, 20)
-            assertThat(firstTwentyPets.toFlux().collectList().block())
+            assertThat(firstTwentyPets.blockList())
                 .isNotEmpty
                 .hasSize(20)
                 .extracting("name")
                 .containsAll(expectedPetNames(1, 20))
 
             val lastFivePets = petPersistenceAdapter.findPets(9, 5)
-            assertThat(lastFivePets.toFlux().collectList().block())
+            assertThat(lastFivePets.blockList())
                 .isNotEmpty
                 .hasSize(5)
                 .extracting("name")

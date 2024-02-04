@@ -62,7 +62,7 @@ internal class PetServiceTest {
                 assertThat(result)
                     .isInstanceOf(CollectionReactive::class.java)
                     .satisfies({
-                        assertThat(it.toFlux().collectList().block())
+                        assertThat(it.blockList())
                             .isEmpty()
                     })
 
@@ -85,7 +85,7 @@ internal class PetServiceTest {
                 assertThat(result)
                     .isInstanceOf(CollectionReactive::class.java)
                     .satisfies({
-                        assertThat(it.toFlux().collectList().block())
+                        assertThat(it.blockList())
                             .isNotEmpty
                             .hasSize(3)
                             .extracting(Pet::type, Pet::name)
@@ -132,7 +132,7 @@ internal class PetServiceTest {
                 assertThat(result)
                     .isInstanceOf(CollectionReactive::class.java)
                     .satisfies({
-                        assertThat(it.toFlux().collectList().block())
+                        assertThat(it.blockList())
                             .isNotEmpty
                             .hasSize(3)
                             .extracting(Pet::type, Pet::name, Pet::owner)
