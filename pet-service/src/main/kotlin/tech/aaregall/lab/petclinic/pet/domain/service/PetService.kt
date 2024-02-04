@@ -6,6 +6,9 @@ import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CountAllPetsUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetCommand
@@ -23,7 +26,7 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 class PetService(
     private val petOutputPort: PetOutputPort,
     private val petOwnerOutputPort: PetOwnerOutputPort
-): SearchPetsUseCase, LoadPetUseCase, CountAllPetsUseCase, CreatePetUseCase, DeletePetsByPetOwnerUseCase {
+): SearchPetsUseCase, LoadPetUseCase, CountAllPetsUseCase, CreatePetUseCase, DeletePetUseCase, DeletePetsByPetOwnerUseCase {
 
     override fun searchPets(searchPetsCommand: SearchPetsCommand): CollectionReactive<Pet> =
         petOutputPort.findPets(searchPetsCommand.pageNumber, searchPetsCommand.pageSize)
@@ -50,6 +53,19 @@ class PetService(
             ?: UnitReactive(createPetCommand.toPet())
                 .flatMap(petOutputPort::createPet)
     }
+
+    override fun deletePet(deletePetCommand: DeletePetCommand): UnitReactive<Unit> =
+        UnitReactive(
+            petOutputPort.loadPetById(deletePetCommand.petId).toMono()
+                .switchIfEmpty(UnitReactive.error<Pet>(DeletePetCommandException(deletePetCommand, "Pet was not found")).toMono())
+                .flatMap { pet ->
+                    petOutputPort.deletePet(pet).toMono()
+                        .flatMap { canBeDeleted ->
+                            if (!canBeDeleted) UnitReactive.error<Unit>(DeletePetCommandException(deletePetCommand, "Pet cannot be deleted")).toMono()
+                            else UnitReactive(Unit).toMono()
+                        }
+                }
+        )
 
     override fun deletePetsByPetOwner(deletePetsByPetOwnerCommand: DeletePetsByPetOwnerCommand) {
         petOutputPort.deletePetsByPetOwner(PetOwner(deletePetsByPetOwnerCommand.ownerIdentityId))

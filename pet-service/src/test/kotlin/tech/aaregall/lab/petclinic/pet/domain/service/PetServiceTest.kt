@@ -6,6 +6,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.groups.Tuple.tuple
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.common.reactive.CollectionReactive
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.SearchPetsCommand
@@ -291,6 +294,62 @@ internal class PetServiceTest {
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                 .containsExactly(DOG, "Bimo", LocalDate.now(), PetOwner(ownerIdentityId))
+        }
+
+    }
+
+    @Nested
+    inner class DeletePet {
+
+        @Test
+        fun `It should return an errored UnitReactive with a DeletePetCommandException when the PetOutputPort cannot load the Pet`() {
+            val pet = Pet(PetId.create(), DOG, "Snoopy", LocalDate.now())
+
+            every { petOutputPort.loadPetById(pet.id) } answers { UnitReactive.empty() }
+
+            val result = petService.deletePet(DeletePetCommand(pet.id))
+
+            assertThatCode { result.toMono().block() }
+                .isInstanceOf(DeletePetCommandException::class.java)
+                .hasMessageContaining("Failed deleting Pet with ID ${pet.id}")
+                .hasMessageContaining("Pet was not found")
+
+            verify { petOutputPort.loadPetById(pet.id) }
+            verify (exactly = 0) { petOutputPort.deletePet(pet) }
+        }
+
+        @Test
+        fun `It should return an errored UnitReactive with a DeletePetCommandException when the PetOutputPort can load a Pet but cannot delete it`() {
+            val pet = Pet(PetId.create(), DOG, "Marshall", LocalDate.now())
+
+            every { petOutputPort.loadPetById(pet.id) } answers { UnitReactive(pet) }
+            every { petOutputPort.deletePet(pet) } answers { UnitReactive(false) }
+
+            val result = petService.deletePet(DeletePetCommand(pet.id))
+
+            assertThatCode {result.toMono().block()  }
+                .isInstanceOf(DeletePetCommandException::class.java)
+                .hasMessageContaining("Failed deleting Pet with ID ${pet.id}")
+                .hasMessageContaining("Pet cannot be deleted")
+
+            verify { petOutputPort.loadPetById(pet.id) }
+            verify { petOutputPort.deletePet(pet) }
+        }
+
+        @Test
+        fun `It should return a UnitReactive that does not error when the PetOutputPort can load a Pet and can delete it`() {
+            val pet = Pet(PetId.create(), DOG, "Rubble", LocalDate.now())
+
+            every { petOutputPort.loadPetById(pet.id) } answers { UnitReactive(pet) }
+            every { petOutputPort.deletePet(pet) } answers { UnitReactive(true) }
+
+            val result = petService.deletePet(DeletePetCommand(pet.id))
+
+            assertThatCode {result.toMono().block()  }
+                .doesNotThrowAnyException()
+
+            verify { petOutputPort.loadPetById(pet.id) }
+            verify { petOutputPort.deletePet(pet) }
         }
 
     }
