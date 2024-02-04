@@ -280,6 +280,83 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
     }
 
     @Nested
+    inner class DeletePet(private val createPetUseCase: CreatePetUseCase) {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                pathParam("id", randomUUID())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/pets/{id}")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should return 400 Bad Request when ID is not a UUID`() {
+            Given {
+                pathParam("id", "something")
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/pets/{id}")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return 400 Bad Request when Pet does not exist`() {
+            val id = randomUUID()
+            Given {
+                pathParam("id", id)
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/pets/{id}")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Failed deleting Pet with ID $id: Pet was not found")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return 204 No Content when Pet exits`() {
+            val pet = createPetUseCase.createPet(
+                CreatePetCommand(
+                    type = PetType.DOG,
+                    name = "Snoopy",
+                    birthDate = LocalDate.now(),
+                    ownerIdentityId = null
+                )
+            ).toMono().block()!!
+
+            Given {
+                pathParam("id", pet.id.toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/pets/{id}")
+            } Then {
+                statusCode(HttpStatus.NO_CONTENT.code)
+            }
+        }
+
+    }
+
+    @Nested
     inner class CreatePet {
 
         @Test

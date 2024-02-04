@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
@@ -13,6 +14,8 @@ import jakarta.validation.Valid
 import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CountAllPetsUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.SearchPetsCommand
@@ -29,6 +32,7 @@ private open class PetController(
     private val loadPetUseCase: LoadPetUseCase,
     private val searchPetsUseCase: SearchPetsUseCase,
     private val countAllPetsUseCase: CountAllPetsUseCase,
+    private val deletePetUseCase: DeletePetUseCase,
     private val petHttpMapper: PetHttpMapper) {
 
     @Get
@@ -45,6 +49,12 @@ private open class PetController(
         loadPetUseCase.loadPet(LoadPetCommand(PetId.of(id)))
             .map { petHttpMapper.mapToResponse(it) }
             .map { HttpResponse.ok(it) }
+            .toMono()
+
+    @Delete("/{id}")
+    open fun deletePet(@PathVariable id: UUID): Mono<MutableHttpResponse<Any>> =
+        deletePetUseCase.deletePet(DeletePetCommand(PetId.of(id)))
+            .map { HttpResponse.noContent<Any>() }
             .toMono()
 
     @Post
