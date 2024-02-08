@@ -31,6 +31,14 @@ internal class PetPersistenceAdapter(
         )
     }
 
+    override fun updatePet(pet: Pet): UnitReactive<Pet> {
+        return UnitReactive(
+            petR2DBCRepository.update(petPersistenceMapper.mapToEntity(pet))
+                .map(petPersistenceMapper::mapToDomain)
+                .map { it.withOwner(pet.owner) }
+        )
+    }
+
     override fun loadPetById(petId: PetId): UnitReactive<Pet> =
         UnitReactive(petR2DBCRepository.findById(UUID.fromString(petId.toString())))
             .map(petPersistenceMapper::mapToDomain)

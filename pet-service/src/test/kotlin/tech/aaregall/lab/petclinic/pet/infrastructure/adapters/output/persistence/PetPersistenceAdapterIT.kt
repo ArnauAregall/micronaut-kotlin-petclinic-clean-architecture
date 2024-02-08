@@ -205,6 +205,83 @@ internal class PetPersistenceAdapterIT(
     }
 
     @Nested
+    inner class UpdatePet {
+
+        @Test
+        fun `It should update the PetOwner from an existing Pet without PetOwner`() {
+            val pet = Pet(PetId.create(), DOG, "Scooby Doo", LocalDate.now())
+
+            Mono.from(
+                r2dbc.withTransaction { status ->
+                    Mono.from(
+                        status.connection.createStatement("""
+                            insert into pet (id, type, name, birth_date) values 
+                            ('${pet.id}', '${pet.type.name}', '${pet.name}', '${pet.birthDate}')
+                        """.trimIndent()).execute()
+                    )
+                }
+            ).block()
+
+            val petOwner = PetOwner(UUID.randomUUID())
+            pet.owner = petOwner
+
+            val result = petPersistenceAdapter.updatePet(pet).block()!!
+
+            assertThat(result.owner)
+                .isNotNull
+                .isEqualTo(petOwner)
+
+            val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
+                Mono.from(status.connection.createStatement("select count(*) from pet where owner_identity_id = '${petOwner.identityId}'").execute())
+                    .flatMap { result ->
+                        Mono.from(result.map { row -> row.get(0) as Long })
+                    }
+            }
+
+            val count: Long? = Mono.from(countQueryPublisher).block()
+
+            assertThat(count).isEqualTo(1)
+        }
+
+        @Test
+        fun `It should update the PetOwner from an existing Pet with PetOwner`() {
+            val pet = Pet(PetId.create(), DOG, "Scooby Doo", LocalDate.now(), PetOwner(UUID.randomUUID()))
+
+            Mono.from(
+                r2dbc.withTransaction { status ->
+                    Mono.from(
+                        status.connection.createStatement("""
+                            insert into pet (id, type, name, birth_date, owner_identity_id) values 
+                            ('${pet.id}', '${pet.type.name}', '${pet.name}', '${pet.birthDate}', '${pet.owner!!.identityId}')
+                        """.trimIndent()).execute()
+                    )
+                }
+            ).block()
+
+            val newPetOwner = PetOwner(UUID.randomUUID())
+            pet.owner = newPetOwner
+
+            val result = petPersistenceAdapter.updatePet(pet).block()!!
+
+            assertThat(result.owner)
+                .isNotNull
+                .isEqualTo(newPetOwner)
+
+            val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
+                Mono.from(status.connection.createStatement("select count(*) from pet where owner_identity_id = '${newPetOwner.identityId}'").execute())
+                    .flatMap { result ->
+                        Mono.from(result.map { row -> row.get(0) as Long })
+                    }
+            }
+
+            val count: Long? = Mono.from(countQueryPublisher).block()
+
+            assertThat(count).isEqualTo(1)
+        }
+
+    }
+
+    @Nested
     inner class DeletePet {
 
         @Test
@@ -213,7 +290,7 @@ internal class PetPersistenceAdapterIT(
 
             val result = petPersistenceAdapter.deletePet(pet)
 
-            assertThat(result.block()!!!!).isFalse()
+            assertThat(result.block()!!).isFalse()
         }
 
         @Test
@@ -233,7 +310,7 @@ internal class PetPersistenceAdapterIT(
 
             val result = petPersistenceAdapter.deletePet(pet)
 
-            assertThat(result.block()!!!!).isTrue()
+            assertThat(result.block()!!).isTrue()
 
             val countQueryPublisher: Publisher<Long> = r2dbc.withTransaction { status ->
                 Mono.from(status.connection.createStatement("select count(*) from pet where id = '${pet.id}'").execute())
