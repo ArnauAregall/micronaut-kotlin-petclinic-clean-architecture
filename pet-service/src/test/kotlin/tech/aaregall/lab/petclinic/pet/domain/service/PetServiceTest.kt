@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.common.reactive.CollectionReactive
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
+import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
@@ -294,6 +296,115 @@ internal class PetServiceTest {
                 .isNotNull
                 .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
                 .containsExactly(DOG, "Bimo", LocalDate.now(), PetOwner(ownerIdentityId))
+        }
+
+    }
+
+    @Nested
+    inner class AdoptPet {
+
+        @Test
+        fun `It should return an errored UnitReactive when the PetOutputPort fails to load the Pet`() {
+            val petId = PetId.create()
+
+            every { petOutputPort.loadPetById(petId) } answers { UnitReactive.error(IllegalStateException("Cannot load Pet")) }
+
+            val result = petService.adoptPet(AdoptPetCommand(petId, randomUUID()))
+
+            assertThatCode { result.block() }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessage("Cannot load Pet")
+
+            verify { petOutputPort.loadPetById(petId) }
+            verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
+            verify (exactly = 0) { petOutputPort.updatePet(any()) }
+        }
+
+        @Test
+        fun `It should return an errored UnitReactive when the PetOwnerOutputPort fails to load the PetOwner`() {
+            val petId = PetId.create()
+            val ownerIdentityId = randomUUID()
+
+            every { petOutputPort.loadPetById(petId) } answers {
+                UnitReactive(
+                    Pet(id = petId, type = CAT, name = "Garfield", birthDate = LocalDate.now())
+                )
+            }
+
+            every { petOwnerOutputPort.loadPetOwner(any()) } answers { UnitReactive.error(IllegalStateException("Cannot load PetOwner")) }
+
+            val result = petService.adoptPet(AdoptPetCommand(petId, ownerIdentityId))
+
+            assertThatCode { result.block() }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessage("Cannot load PetOwner")
+
+            verify { petOutputPort.loadPetById(petId) }
+            verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
+            verify (exactly = 0) { petOutputPort.updatePet(any()) }
+        }
+
+        @Test
+        fun `It should return an errored UnitReactive when the PetOwnerOutputPort returns an empty PetOwner`() {
+            val petId = PetId.create()
+            val ownerIdentityId = randomUUID()
+
+            every { petOutputPort.loadPetById(petId) } answers {
+                UnitReactive(
+                    Pet(id = petId, type = CAT, name = "Garfield", birthDate = LocalDate.now())
+                )
+            }
+
+            every { petOwnerOutputPort.loadPetOwner(any()) } answers { UnitReactive.empty() }
+
+            val result = petService.adoptPet(AdoptPetCommand(petId, ownerIdentityId))
+
+            assertThatCode { result.block() }
+                .isInstanceOf(AdoptPetCommandException::class.java)
+                .hasMessageContaining("Failed to adopt Pet")
+                .hasMessageContaining("Could not load the adopter PetOwner with ID")
+                .hasMessageContaining(ownerIdentityId.toString())
+
+            verify { petOutputPort.loadPetById(petId) }
+            verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
+            verify (exactly = 0) { petOutputPort.updatePet(any()) }
+        }
+
+        @Test
+        fun `It should return a UnitReactive with the updated Pet when the adopter PetOwner is loaded`() {
+            val petId = PetId.create()
+            val ownerIdentityId = randomUUID()
+
+            val mockPetOwner = PetOwner(identityId = ownerIdentityId, firstName = "Jonathan Q", lastName = "Arbuckle")
+
+            every { petOutputPort.loadPetById(petId) } answers {
+                UnitReactive(
+                    Pet(id = petId, type = CAT, name = "Garfield", birthDate = LocalDate.now())
+                )
+            }
+
+            every { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) } answers {
+                UnitReactive(
+                    mockPetOwner
+                )
+            }
+
+            every { petOutputPort.updatePet(any(Pet::class)) } answers { UnitReactive(args.first() as Pet) }
+
+            val result = petService.adoptPet(AdoptPetCommand(petId, ownerIdentityId))
+
+            assertThat(result.block()!!)
+                .isNotNull
+                .isInstanceOf(Pet::class.java)
+                .satisfies({
+                    assertThat(it.owner)
+                        .isNotNull
+                        .isEqualTo(mockPetOwner)
+                })
+
+            verify { petOutputPort.loadPetById(petId) }
+            verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
+            verify { petOutputPort.updatePet(any(Pet::class)) }
         }
 
     }
