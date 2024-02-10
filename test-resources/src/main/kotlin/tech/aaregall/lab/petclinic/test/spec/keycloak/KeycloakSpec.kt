@@ -23,8 +23,8 @@ class KeycloakSpec: TestResourcesPropertyProvider {
         private fun getTokenUrl(): String =
             keycloakContainer.authServerUrl + "/realms/petclinic/protocol/openid-connect/token"
 
-        private fun getJwtToken(): String {
-            return Given {
+        private fun getJwtToken(): String =
+            Given {
                 contentType(ContentType.URLENC)
                 formParam("grant_type", "password")
                 formParam("client_id", "system-test-client")
@@ -38,11 +38,9 @@ class KeycloakSpec: TestResourcesPropertyProvider {
             } Extract {
                 path("access_token")
             }
-        }
 
-        fun getAuthorizationBearer(): Header {
-            return Header("Authorization", "Bearer ${getJwtToken()}")
-        }
+        fun getAuthorizationBearer(): Header =
+            Header("Authorization", "Bearer ${getJwtToken()}")
     }
 
     override fun provide(testProperties: MutableMap<String, Any>?): MutableMap<String, String> {
