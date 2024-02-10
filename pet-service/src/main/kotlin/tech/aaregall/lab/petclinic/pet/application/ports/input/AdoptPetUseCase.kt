@@ -13,4 +13,4 @@ fun interface AdoptPetUseCase {
 
 data class AdoptPetCommand(val petId: PetId, val ownerIdentityId: UUID)
 
-class AdoptPetCommandException(message: String, cause: Throwable? = null) : IllegalStateException("Failed to adopt Pet: $message", cause)
+class AdoptPetCommandException(message: String, cause: Throwable? = null) : IllegalArgumentException("Failed to adopt Pet: $message", cause)
