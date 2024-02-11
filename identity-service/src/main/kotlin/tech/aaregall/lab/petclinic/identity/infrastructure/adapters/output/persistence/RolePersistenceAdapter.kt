@@ -2,6 +2,7 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.pers
 
 import jakarta.inject.Singleton
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
+import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
 import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 import java.util.UUID
@@ -14,4 +15,7 @@ internal class RolePersistenceAdapter(private val roleJpaRepository: RoleJpaRepo
             .map { role -> Role(RoleId(role.id), role.name) }
             .orElse(null)
 
+    override fun assignRoleToIdentity(identity: Identity, role: Role) {
+        TODO("Not yet implemented")
+    }
 }
