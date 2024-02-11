@@ -24,6 +24,33 @@ internal class RolePersistenceAdapterIT(
     }
 
     @Nested
+    inner class CreateRole {
+
+        @Test
+        fun `It should persist a new Role`() {
+            val role = Role(RoleId.create(), "Healer")
+
+            val result = roleOutputPort.createRole(role)
+
+            assertThat(result)
+                .isNotNull
+                .extracting(Role::id, Role::name)
+                .containsExactly(role.id, role.name)
+
+            jdbc.execute { conn ->
+                val resultSet = conn.prepareStatement("""
+                    select count(*) as role_created_count
+                    from role
+                    where id = '${role.id}' and name = '${role.name}'
+                """.trimIndent()).executeQuery()
+                resultSet.next()
+                assertThat(resultSet.getInt("role_created_count")).isOne()
+            }
+        }
+
+    }
+
+    @Nested
     inner class RoleExistsByName {
 
         @Test

@@ -6,6 +6,8 @@ import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 
 interface RoleOutputPort {
 
+    fun createRole(role: Role): Role
+
     fun roleExistsByName(name: String): Boolean
 
     fun loadRoleById(roleId: RoleId): Role?
