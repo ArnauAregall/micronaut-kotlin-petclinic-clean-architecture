@@ -41,6 +41,52 @@ internal class IdentityPersistenceMapperTest {
     }
 
     @Test
+    fun `Maps entity to domain without Roles`() {
+        val jpaEntity = IdentityJpaEntity(id = UUID.randomUUID(), firstName = "John", lastName = "Doe")
+
+        val domain = identityPersistenceMapper.mapToDomain(jpaEntity)
+
+        assertThat(domain)
+            .isNotNull
+            .satisfies({
+                assertThat(it)
+                    .extracting(Identity::firstName, Identity::lastName)
+                    .containsExactly("John", "Doe")
+            })
+            .satisfies({
+                assertThat(it.roles)
+                    .isNotNull
+                    .isEmpty()
+            })
+    }
+
+    @Test
+    fun `Maps entity to domain with Roles`() {
+        val jpaEntity = IdentityJpaEntity(id = UUID.randomUUID(), firstName = "John", lastName = "Doe")
+        jpaEntity.roles = mutableSetOf(
+            RoleJpaEntity(UUID.randomUUID(), "Mock Role", UUID.randomUUID()),
+            RoleJpaEntity(UUID.randomUUID(), "Yet Another Mock Role", UUID.randomUUID()),
+        )
+
+        val domain = identityPersistenceMapper.mapToDomain(jpaEntity)
+
+        assertThat(domain)
+            .isNotNull
+            .satisfies({
+                assertThat(it)
+                    .extracting(Identity::firstName, Identity::lastName)
+                    .containsExactly("John", "Doe")
+            })
+            .satisfies({
+                assertThat(it.roles)
+                    .hasSize(2)
+                    .extracting("name")
+                    .containsExactly("Mock Role", "Yet Another Mock Role")
+            })
+
+    }
+
+    @Test
     fun `Maps domain to entity without mapping ContactDetails`() {
         val domain = Identity(
             id = IdentityId.create(), firstName = "Bob", lastName = "Builder",
