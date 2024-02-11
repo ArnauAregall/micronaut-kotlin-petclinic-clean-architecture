@@ -5,4 +5,7 @@ import io.micronaut.data.jpa.repository.JpaRepository
 import java.util.UUID
 
 @Repository
-internal interface RoleJpaRepository: JpaRepository<RoleJpaEntity, UUID>
+internal interface RoleJpaRepository: JpaRepository<RoleJpaEntity, UUID> {
+
+    fun existsByNameIgnoreCase(name: String): Boolean
+}

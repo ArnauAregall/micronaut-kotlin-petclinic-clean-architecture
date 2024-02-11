@@ -24,6 +24,36 @@ internal class RolePersistenceAdapterIT(
     }
 
     @Nested
+    inner class RoleExistsByName {
+
+        @Test
+        fun `It should return false when there is no Role on the database`() {
+            val result = roleOutputPort.roleExistsByName("Warrior")
+
+            assertThat(result).isFalse()
+        }
+
+        @Test
+        fun `It should return false when there is no Role on the database that matches the given name`() {
+            jdbc.execute { conn -> conn.prepareCall("insert into role(id, name) values ('${randomUUID()}', 'Mage')").execute() }
+
+            val result = roleOutputPort.roleExistsByName("Warrior")
+
+            assertThat(result).isFalse()
+        }
+
+        @Test
+        fun `It should return true when there is a Role with the given name on the database ignoring case`() {
+            jdbc.execute { conn -> conn.prepareCall("insert into role(id, name) values ('${randomUUID()}', 'Warrior')").execute() }
+
+            val result = roleOutputPort.roleExistsByName("WaRRioR")
+
+            assertThat(result).isTrue()
+        }
+
+    }
+
+    @Nested
     inner class LoadRoleById {
 
         @Test
