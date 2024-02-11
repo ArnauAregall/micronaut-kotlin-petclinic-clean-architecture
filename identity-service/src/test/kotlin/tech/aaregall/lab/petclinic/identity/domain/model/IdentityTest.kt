@@ -22,6 +22,20 @@ internal class IdentityTest {
     }
 
     @Test
+    fun `Should create Identity with not blank first and last name, ContactDetails and Roles`() {
+        assertThatCode {
+            Identity(
+                id = IdentityId.create(),
+                firstName = "Foo",
+                lastName = "Bar",
+                contactDetails = ContactDetails(email = "test@test.com", phoneNumber = "123 456 789"),
+                roles = listOf(Role(id = RoleId.create(), name = "Warrior"))
+            )
+        }
+            .doesNotThrowAnyException()
+    }
+
+    @Test
     fun `First name cannot be blank`() {
         assertThatCode { Identity(id = IdentityId.create(), firstName = "", lastName = "Bar") }
             .isInstanceOf(IllegalArgumentException::class.java)
