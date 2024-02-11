@@ -19,8 +19,8 @@ internal class IdentityPersistenceAdapterIT(
     private val jdbc: JdbcOperations) {
 
     @BeforeEach
-    fun tearDown() {
-        jdbc.execute { c -> c.prepareCall("truncate table identity").execute() }
+    fun setUp() {
+        jdbc.execute { c -> c.prepareCall("truncate table identity cascade").execute() }
     }
 
     @Nested

@@ -19,8 +19,8 @@ internal class RolePersistenceAdapterIT(
     private val jdbc: JdbcOperations) {
 
     @BeforeEach
-    fun tearDown() {
-        jdbc.execute { c -> c.prepareCall("truncate table role").execute() }
+    fun setUp() {
+        jdbc.execute { c -> c.prepareCall("truncate table role cascade").execute() }
     }
 
     @Nested
