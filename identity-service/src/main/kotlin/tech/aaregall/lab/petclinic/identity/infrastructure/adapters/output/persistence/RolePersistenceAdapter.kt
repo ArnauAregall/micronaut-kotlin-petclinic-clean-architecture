@@ -8,7 +8,7 @@ import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 import java.util.UUID
 
 @Singleton
-internal class RolePersistenceAdapter(private val roleJpaRepository: RoleJpaRepository): RoleOutputPort {
+internal class RolePersistenceAdapter(private val roleJpaRepository: RoleJpaRepository, private val identityRoleJpaRepository: IdentityRoleJpaRepository): RoleOutputPort {
 
     override fun loadRoleById(roleId: RoleId): Role? =
         roleJpaRepository.findById(UUID.fromString(roleId.toString()))
@@ -16,6 +16,12 @@ internal class RolePersistenceAdapter(private val roleJpaRepository: RoleJpaRepo
             .orElse(null)
 
     override fun assignRoleToIdentity(identity: Identity, role: Role) {
-        TODO("Not yet implemented")
+        val identityRoleJpaEntity = IdentityRoleJpaEntity(
+            IdentityRoleId(
+                identityId = UUID.fromString(identity.id.toString()),
+                roleId = UUID.fromString(role.id.toString())
+            )
+        )
+        identityRoleJpaRepository.save(identityRoleJpaEntity)
     }
 }

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
+import tech.aaregall.lab.petclinic.identity.domain.model.Identity
+import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
 import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 import java.util.UUID.randomUUID
@@ -42,6 +44,35 @@ internal class RolePersistenceAdapterIT(
 
             assertThat(result).isNull()
         }
+
+    }
+
+    @Nested
+    inner class AssignRoleToIdentity {
+
+        @Test
+        fun `It should insert a row in identity_role table `() {
+            val identity = Identity(IdentityId.create(), "Myrddin", "Wynn")
+            val role = Role(RoleId.create(), "Mage")
+
+            jdbc.execute { conn -> conn.prepareCall("""
+                insert into identity(id, first_name, last_name) values ('${identity.id}', '${identity.firstName}', '${identity.lastName}');
+                insert into role(id, name) values ('${role.id}', '${role.name}');
+            """.trimIndent()).execute() }
+
+            roleOutputPort.assignRoleToIdentity(identity, role)
+
+            jdbc.execute { conn ->
+                val resultSet = conn.prepareStatement("""
+                    select count(*) as role_assigned_count
+                    from identity_role
+                    where identity_id = '${identity.id}' and role_id = '${role.id}'
+                """.trimIndent()).executeQuery()
+                resultSet.next()
+                assertThat(resultSet.getInt("role_assigned_count")).isOne()
+            }
+        }
+
 
     }
 
