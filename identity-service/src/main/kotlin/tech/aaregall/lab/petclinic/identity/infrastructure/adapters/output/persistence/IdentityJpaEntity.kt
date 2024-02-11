@@ -4,6 +4,9 @@ import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
@@ -29,6 +32,14 @@ internal class IdentityJpaEntity(
     internal var createdBy: UUID = SYSTEM_ACCOUNT_AUDIT_ID,
 
     @OneToOne(mappedBy = "identity", optional = true, cascade = [CascadeType.ALL])
-    var contactDetails: ContactDetailsJpaEntity? = null
+    var contactDetails: ContactDetailsJpaEntity? = null,
+
+    @ManyToMany
+    @JoinTable(
+        name = "identity_role",
+        joinColumns = [JoinColumn(name = "identity_id")],
+        inverseJoinColumns = [JoinColumn(name = "role_id")]
+    )
+    var roles: MutableSet<RoleJpaEntity>? = mutableSetOf()
 
 )

@@ -2,13 +2,14 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.pers
 
 import io.micronaut.security.utils.SecurityService
 import jakarta.inject.Singleton
+import jakarta.transaction.Transactional
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import java.util.UUID
 
 @Singleton
-internal class IdentityPersistenceAdapter(
+internal open class IdentityPersistenceAdapter(
     private val identityJpaRepository: IdentityJpaRepository,
     private val identityPersistenceMapper: IdentityPersistenceMapper,
     private val securityService: SecurityService
@@ -21,6 +22,7 @@ internal class IdentityPersistenceAdapter(
         return identityPersistenceMapper.mapToDomain(jpaEntity)
     }
 
+    @Transactional
     override fun loadIdentityById(identityId: IdentityId): Identity? {
         return identityJpaRepository.findById(UUID.fromString(identityId.toString()))
             .map(identityPersistenceMapper::mapToDomain)
