@@ -1,5 +1,6 @@
 package tech.aaregall.lab.petclinic.identity.domain.model
 
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Test
 
@@ -47,6 +48,51 @@ internal class IdentityTest {
         assertThatCode { Identity(id = IdentityId.create(), firstName = "Foo", lastName = "") }
             .isInstanceOf(IllegalArgumentException::class.java)
             .hasMessage("lastName cannot be blank")
+    }
+
+    @Test
+    fun `hasRole should return false when Identity does not have any Role`() {
+        val identity = Identity(id = IdentityId.create(), firstName = "Foo", lastName = "Bar")
+
+        val role = Role(id = RoleId.create(), name = "Warrior")
+
+        val result = identity.hasRole(role)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun `hasRole should return false when Identity has Roles and does not have aimed Role`() {
+        val roleWarrior = Role(id = RoleId.create(), name = "Warrior")
+        val roleMage = Role(id = RoleId.create(), name = "Mage")
+
+        val identity = Identity(
+            id = IdentityId.create(), firstName = "Foo", lastName = "Bar",
+            roles = listOf(roleWarrior, roleMage)
+        )
+
+        val role = Role(id = RoleId.create(), name = "Paladin")
+
+        val result = identity.hasRole(role)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun `hasRole should return true when Identity has Roles and has aimed Role`() {
+        val roleWarrior = Role(id = RoleId.create(), name = "Warrior")
+        val roleMage = Role(id = RoleId.create(), name = "Mage")
+
+        val identity = Identity(
+            id = IdentityId.create(), firstName = "Foo", lastName = "Bar",
+            roles = listOf(roleWarrior, roleMage)
+        )
+
+        assertThat(identity.hasRole(roleWarrior))
+            .isTrue()
+
+        assertThat(identity.hasRole(roleMage))
+            .isTrue()
     }
 
 }

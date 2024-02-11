@@ -13,6 +13,9 @@ data class Identity(
         require(firstName.isNotBlank()) { "firstName cannot be blank" }
         require(lastName.isNotBlank()) { "lastName cannot be blank" }
     }
+
+    fun hasRole(role: Role): Boolean = roles.orEmpty().contains(role)
+
 }
 
 data class IdentityId(private val value: UUID) {
