@@ -280,6 +280,165 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
     }
 
     @Nested
+    inner class AdoptPet(private val createPetUseCase: CreatePetUseCase) {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization token`() {
+            Given {
+                pathParam("id", randomUUID())
+                contentType(JSON)
+                body("""
+                    {"owner_identity_id": "${randomUUID()}"}
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/pets/{id}/adopt")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should return 400 Bad Request when ID is not a UUID`() {
+            Given {
+                pathParam("id", "something")
+                header(getAuthorizationBearer())
+                contentType(JSON)
+                body("""
+                    {"owner_identity_id": "${randomUUID()}"}
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/pets/{id}/adopt")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return 400 Bad Request when body owner_identity_id is null`() {
+            Given {
+                pathParam("id", randomUUID().toString())
+                header(getAuthorizationBearer())
+                contentType(JSON)
+                body("""
+                    {"owner_identity_id": null}
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/pets/{id}/adopt")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Pet adopter Identity ID is required")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return 404 Not Found when Pet does not exist`() {
+            Given {
+                pathParam("id", randomUUID().toString())
+                header(getAuthorizationBearer())
+                contentType(JSON)
+                body("""
+                    {"owner_identity_id": "${randomUUID()}"}
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/pets/{id}/adopt")
+            } Then {
+                statusCode(HttpStatus.NOT_FOUND.code)
+            }
+        }
+
+        @Test
+        fun `Should return 400 Bad Request when PetOwner does not exist`() {
+            val pet = createPetUseCase.createPet(
+                CreatePetCommand(
+                    type = PetType.DOG,
+                    name = "Snoopy",
+                    birthDate = LocalDate.now(),
+                    ownerIdentityId = null
+                )
+            ).block()!!
+
+            val ownerIdentityId = randomUUID()
+            mockGetIdentityResponse(ownerIdentityId, HttpStatus.NOT_FOUND)
+
+            Given {
+                pathParam("id", pet.id.toString())
+                header(getAuthorizationBearer())
+                contentType(JSON)
+                body("""
+                    {"owner_identity_id": "$ownerIdentityId"}
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/pets/{id}/adopt")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("Failed to adopt Pet"),
+                        containsString("Could not load the adopter PetOwner with ID $ownerIdentityId")
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `Should return 200 OK with new PetOwner details when both Pet and PetOwner exist`() {
+            val pet = createPetUseCase.createPet(
+                CreatePetCommand(
+                    type = PetType.DOG,
+                    name = "Poppy",
+                    birthDate = LocalDate.of(2024, 2, 10),
+                    ownerIdentityId = null
+                )
+            ).block()!!
+
+            val ownerIdentityId = randomUUID()
+            mockGetIdentityResponse(ownerIdentityId, HttpStatus.OK)
+
+            Given {
+                pathParam("id", pet.id.toString())
+                header(getAuthorizationBearer())
+                contentType(JSON)
+                body("""
+                    {"owner_identity_id": "$ownerIdentityId"}
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                patch("/api/pets/{id}/adopt")
+            } Then {
+                statusCode(HttpStatus.OK.code)
+                body(
+                    "id", equalTo(pet.id.toString()),
+                    "type", equalTo("DOG"),
+                    "name", equalTo("Poppy"),
+                    "birth_date", equalTo("2024-02-10"),
+                    "owner", notNullValue(),
+                    "owner.id", equalTo(ownerIdentityId.toString()),
+                    "owner.first_name", equalTo("John"),
+                    "owner.last_name", equalTo("Doe")
+                )
+            }
+        }
+
+    }
+
+    @Nested
     inner class DeletePet(private val createPetUseCase: CreatePetUseCase) {
 
         @Test
@@ -341,7 +500,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                     birthDate = LocalDate.now(),
                     ownerIdentityId = null
                 )
-            ).block()!!!!
+            ).block()!!
 
             Given {
                 pathParam("id", pet.id.toString())

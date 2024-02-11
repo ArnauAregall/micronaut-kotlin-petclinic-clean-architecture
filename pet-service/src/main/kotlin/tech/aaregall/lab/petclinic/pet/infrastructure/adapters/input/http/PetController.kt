@@ -8,10 +8,13 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import jakarta.validation.Valid
 import reactor.core.publisher.Mono
+import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CountAllPetsUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
@@ -21,6 +24,7 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.SearchPetsCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.SearchPetsUseCase
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
+import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http.dto.request.AdoptPetRequest
 import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http.dto.request.CreatePetRequest
 import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http.dto.response.PetResponse
 import tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http.mapper.PetHttpMapper
@@ -30,6 +34,7 @@ import java.util.UUID
 private open class PetController(
     private val createPetUseCase: CreatePetUseCase,
     private val loadPetUseCase: LoadPetUseCase,
+    private val adoptPetUseCase: AdoptPetUseCase,
     private val searchPetsUseCase: SearchPetsUseCase,
     private val countAllPetsUseCase: CountAllPetsUseCase,
     private val deletePetUseCase: DeletePetUseCase,
@@ -47,6 +52,13 @@ private open class PetController(
     @Get("/{id}")
     open fun loadPet(@PathVariable id: UUID): Mono<MutableHttpResponse<PetResponse>> =
         loadPetUseCase.loadPet(LoadPetCommand(PetId.of(id)))
+            .map { petHttpMapper.mapToResponse(it) }
+            .map { HttpResponse.ok(it) }
+            .toMono()
+
+    @Patch("/{id}/adopt")
+    open fun adoptPet(@PathVariable id: UUID, @Body @Valid adoptPetRequest: AdoptPetRequest): Mono<MutableHttpResponse<PetResponse>> =
+        adoptPetUseCase.adoptPet(AdoptPetCommand(PetId.of(id), adoptPetRequest.ownerIdentityId!!))
             .map { petHttpMapper.mapToResponse(it) }
             .map { HttpResponse.ok(it) }
             .toMono()
