@@ -9,8 +9,8 @@ import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRolesToIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRolesToIdentityCommandException
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommandException
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
@@ -40,7 +40,7 @@ internal class RoleServiceTest {
 
             every { loadIdentityUseCase.loadIdentity(LoadIdentityCommand(identityId)) } answers { null }
 
-            assertThatCode { roleService.assignRoleToIdentity(AssignRolesToIdentityCommand(identityId, RoleId.create()))}
+            assertThatCode { roleService.assignRoleToIdentity(AssignRoleToIdentityCommand(identityId, RoleId.create()))}
                 .isInstanceOf(IllegalArgumentException::class.java)
                 .hasMessage("Cannot assign roles to a non existing Identity")
 
@@ -60,7 +60,7 @@ internal class RoleServiceTest {
 
             every { roleOutputPort.loadRoleById(roleId) } answers { null }
 
-            assertThatCode { roleService.assignRoleToIdentity(AssignRolesToIdentityCommand(identityId, roleId))}
+            assertThatCode { roleService.assignRoleToIdentity(AssignRoleToIdentityCommand(identityId, roleId))}
                 .isInstanceOf(IllegalArgumentException::class.java)
                 .hasMessage("Cannot assign a non existing Role to Identity $identityId")
 
@@ -80,8 +80,8 @@ internal class RoleServiceTest {
 
             every { roleOutputPort.loadRoleById(roleId) } answers { Role(id = roleId, name = "Mage") }
 
-            assertThatCode { roleService.assignRoleToIdentity(AssignRolesToIdentityCommand(identityId, roleId))}
-                .isInstanceOf(AssignRolesToIdentityCommandException::class.java)
+            assertThatCode { roleService.assignRoleToIdentity(AssignRoleToIdentityCommand(identityId, roleId))}
+                .isInstanceOf(AssignRoleToIdentityCommandException::class.java)
                 .hasMessageContaining("Failed assigning Role to Identity")
                 .hasMessageContaining("Identity $identityId already has Role $roleId assigned")
 
@@ -102,7 +102,7 @@ internal class RoleServiceTest {
             every { roleOutputPort.loadRoleById(roleId) } answers { mockRole  }
             every { roleOutputPort.assignRoleToIdentity(mockIdentity, mockRole) } answers { nothing }
 
-            assertThatCode { roleService.assignRoleToIdentity(AssignRolesToIdentityCommand(identityId, roleId))}
+            assertThatCode { roleService.assignRoleToIdentity(AssignRoleToIdentityCommand(identityId, roleId))}
                 .doesNotThrowAnyException()
 
             verify { loadIdentityUseCase.loadIdentity(LoadIdentityCommand(identityId)) }
