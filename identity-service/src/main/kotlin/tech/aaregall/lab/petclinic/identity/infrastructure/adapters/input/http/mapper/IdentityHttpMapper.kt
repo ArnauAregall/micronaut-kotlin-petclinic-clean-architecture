@@ -18,7 +18,8 @@ class IdentityHttpMapper {
             id = identity.id.toString(),
             firstName = identity.firstName,
             lastName = identity.lastName,
-            contactDetailsDTO = identity.contactDetails?.let { ContactDetailsDTO(it.email, it.phoneNumber) }
+            contactDetailsDTO = identity.contactDetails?.let { ContactDetailsDTO(it.email, it.phoneNumber) },
+            roles = identity.roles.orEmpty().map { it.name }.sorted()
         )
 
 }

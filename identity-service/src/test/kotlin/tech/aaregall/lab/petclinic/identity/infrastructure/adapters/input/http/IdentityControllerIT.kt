@@ -17,8 +17,12 @@ import org.hamcrest.Matchers.notNullValue
 import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
@@ -196,6 +200,64 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
                     "contact_details", notNullValue(),
                     "contact_details.email", equalTo(contactDetails.email),
                     "contact_details.phone_number", equalTo(contactDetails.phoneNumber)
+                )
+            }
+        }
+
+        @Test
+        fun `Should return OK with null Roles when Identity exists and does not have Roles`() {
+            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+            Given {
+                pathParam("id", identity.id.toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                get("/api/identities/{id}")
+            } Then {
+                statusCode(HttpStatus.OK.code)
+                body(
+                    "id", equalTo(identity.id.toString()) ,
+                    "first_name", equalTo(identity.firstName),
+                    "last_name", equalTo(identity.lastName),
+                    "roles", nullValue()
+                )
+            }
+        }
+
+        @Test
+        fun `Should return OK with Roles sorted alphabetically when Identity exists and has Roles assigned`(
+            createIdentityUseCase: CreateIdentityUseCase,
+            createRoleUseCase: CreateRoleUseCase,
+            assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase
+        ) {
+
+            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+
+            val role1 = createRoleUseCase.createRole(CreateRoleCommand("Warrior"))
+            val role2 = createRoleUseCase.createRole(CreateRoleCommand("Knight"))
+            val role3 = createRoleUseCase.createRole(CreateRoleCommand("Paladin"))
+
+            setOf(role1, role2, role3).forEach {
+                assignRoleToIdentityUseCase.assignRoleToIdentity(
+                    AssignRoleToIdentityCommand(identityId = identity.id, roleId = it.id))
+            }
+
+            Given {
+                pathParam("id", identity.id.toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                get("/api/identities/{id}")
+            } Then {
+                statusCode(HttpStatus.OK.code)
+                body(
+                    "id", equalTo(identity.id.toString()) ,
+                    "first_name", equalTo(identity.firstName),
+                    "last_name", equalTo(identity.lastName),
+                    "roles.size()", equalTo(3),
+                    "roles[0]", equalTo("Knight"),
+                    "roles[1]", equalTo("Paladin"),
+                    "roles[2]", equalTo("Warrior")
                 )
             }
         }

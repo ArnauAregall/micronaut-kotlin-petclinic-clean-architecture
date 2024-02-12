@@ -16,7 +16,10 @@ data class IdentityResponse(
     val lastName: String,
 
     @JsonProperty("contact_details")
-    val contactDetailsDTO: ContactDetailsDTO? = null
+    val contactDetailsDTO: ContactDetailsDTO? = null,
+
+    @JsonProperty("roles")
+    val roles: Collection<String> = emptyList()
 )
 
 @Serdeable
