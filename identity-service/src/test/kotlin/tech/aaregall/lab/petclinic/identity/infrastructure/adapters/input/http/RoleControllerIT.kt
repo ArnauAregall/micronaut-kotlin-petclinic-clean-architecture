@@ -18,6 +18,7 @@ import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCo
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleUseCase
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
+import java.time.Instant.now
 
 @MicronautTest(transactional = false)
 @TestResourcesProperties(providers = [KeycloakSpec::class])
@@ -91,11 +92,13 @@ internal class RoleControllerIT(private val embeddedServer: EmbeddedServer) {
 
         @Test
         fun `Should return 201 Created when the Role name is not blank and no other role with the same name exists`() {
+            val roleName = "NEW_ROLE_${now().toEpochMilli()}"
+
             Given {
                 contentType(ContentType.JSON)
                 body("""
                     {
-                        "name": "Warrior"
+                        "name": "$roleName"
                     }
                 """.trimIndent())
                 header(getAuthorizationBearer())
@@ -106,7 +109,7 @@ internal class RoleControllerIT(private val embeddedServer: EmbeddedServer) {
                 statusCode(HttpStatus.CREATED.code)
                 body(
                     "id", notNullValue(),
-                    "name", equalTo("Warrior"),
+                    "name", equalTo(roleName),
                 )
             }
         }
