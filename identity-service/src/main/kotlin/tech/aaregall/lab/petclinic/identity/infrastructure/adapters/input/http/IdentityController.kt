@@ -12,8 +12,11 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.Status
 import jakarta.validation.Valid
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityUseCase
@@ -22,6 +25,8 @@ import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentity
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
+import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
+import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.request.AssignRoleToIdentityRequest
 import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.request.CreateIdentityRequest
 import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.request.UpdateIdentityContactDetailsRequest
 import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.response.IdentityResponse
@@ -34,6 +39,7 @@ private open class IdentityController(
     private val loadIdentityUseCase: LoadIdentityUseCase,
     private val updateIdentityContactDetailsUseCase: UpdateIdentityContactDetailsUseCase,
     private val deleteIdentityUseCase: DeleteIdentityUseCase,
+    private val assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase,
     private val identityHttpMapper: IdentityHttpMapper) {
 
     @Post
@@ -61,6 +67,15 @@ private open class IdentityController(
             )
         )
     }
+
+    @Put("/{id}/role")
+    @Status(HttpStatus.OK)
+    open fun assignRoleToIdentity(@PathVariable id: UUID, @Body @Valid assignRoleToIdentityRequest: AssignRoleToIdentityRequest) =
+        assignRoleToIdentityUseCase.assignRoleToIdentity(
+            AssignRoleToIdentityCommand(
+                identityId = IdentityId.of(id), roleId = RoleId.of(assignRoleToIdentityRequest.roleId)
+            )
+        )
 
     @Delete("/{id}")
     @Status(HttpStatus.NO_CONTENT)
