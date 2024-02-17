@@ -223,7 +223,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                     birthDate = LocalDate.of(2024, 1, 31),
                     ownerIdentityId = null
                 )
-            ).block()!!!!
+            ).block()!!
 
             Given {
                 pathParam("id", pet.id.toString())
@@ -255,7 +255,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                     birthDate = LocalDate.of(2024, 1, 31),
                     ownerIdentityId = ownerIdentityId
                 )
-            ).block()!!!!
+            ).block()!!
 
             Given {
                 pathParam("id", pet.id.toString())

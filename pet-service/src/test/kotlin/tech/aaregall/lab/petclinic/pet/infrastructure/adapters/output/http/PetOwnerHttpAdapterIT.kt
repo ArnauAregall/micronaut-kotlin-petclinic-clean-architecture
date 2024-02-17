@@ -139,7 +139,7 @@ internal class PetOwnerHttpAdapterIT(
                 )
             )
 
-            val petOwner = petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId)).block()!!!!
+            val petOwner = petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId)).block()!!
 
             assertThat(getCachedPetOwner(identityId)).isNotNull
 

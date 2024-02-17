@@ -261,7 +261,7 @@ internal class PetServiceTest {
                 )
             )
 
-            val createdPet: Pet = result.block()!!!!
+            val createdPet: Pet = result.block()!!
 
             verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
             verify { petOutputPort.createPet(createdPet) }
@@ -287,7 +287,7 @@ internal class PetServiceTest {
                 )
             )
 
-            val createdPet: Pet = result.block()!!!!
+            val createdPet: Pet = result.block()!!
 
             verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
             verify { petOutputPort.createPet(createdPet) }
