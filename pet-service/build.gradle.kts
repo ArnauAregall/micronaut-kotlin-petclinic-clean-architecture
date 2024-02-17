@@ -25,6 +25,7 @@ dependencies {
     runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
     testImplementation(project(":test-resources"))
     testImplementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
     testImplementation("io.micronaut.test:micronaut-test-rest-assured")
