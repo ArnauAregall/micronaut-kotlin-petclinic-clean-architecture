@@ -40,6 +40,10 @@ internal class RolePersistenceAdapter(
         identityRoleJpaRepository.save(identityRoleJpaEntity)
     }
 
+    override fun revokeRoleFromIdentity(identity: Identity, role: Role) {
+        TODO("Not yet implemented")
+    }
+
     private fun mapToEntity(domain: Role): RoleJpaEntity =
         RoleJpaEntity(UUID.fromString(domain.id.toString()), domain.name)
 

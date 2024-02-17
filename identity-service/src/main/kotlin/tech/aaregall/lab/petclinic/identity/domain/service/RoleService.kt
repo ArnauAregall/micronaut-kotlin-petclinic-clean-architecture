@@ -9,6 +9,9 @@ import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCo
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommandException
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
 import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
@@ -17,7 +20,7 @@ import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 internal class RoleService(
     private val loadIdentityUseCase: LoadIdentityUseCase,
     private val roleOutputPort: RoleOutputPort
-) : CreateRoleUseCase, AssignRoleToIdentityUseCase {
+) : CreateRoleUseCase, AssignRoleToIdentityUseCase, RevokeRoleFromIdentityUseCase {
 
     override fun createRole(createRoleCommand: CreateRoleCommand): Role {
         if (roleOutputPort.roleExistsByName(createRoleCommand.name)) {
@@ -39,5 +42,19 @@ internal class RoleService(
         }
 
         roleOutputPort.assignRoleToIdentity(identity, role)
+    }
+
+    override fun revokeRoleFromIdentity(revokeRoleFromIdentityCommand: RevokeRoleFromIdentityCommand) {
+        val identity = loadIdentityUseCase.loadIdentity(LoadIdentityCommand(revokeRoleFromIdentityCommand.identityId))
+        require(identity != null) { "Cannot revoke a Role from a non existing Identity" }
+
+        val role = roleOutputPort.loadRoleById(revokeRoleFromIdentityCommand.roleId)
+        require(role != null) { "Cannot revoke a non existing Role from Identity ${identity.id}" }
+
+        if (!identity.hasRole(role)) {
+            throw RevokeRoleFromIdentityCommandException("Identity ${identity.id} does not have the Role ${role.id} assigned")
+        }
+
+        roleOutputPort.revokeRoleFromIdentity(identity, role)
     }
 }

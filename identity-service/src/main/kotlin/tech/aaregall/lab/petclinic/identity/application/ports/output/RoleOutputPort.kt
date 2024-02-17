@@ -14,4 +14,6 @@ interface RoleOutputPort {
 
     fun assignRoleToIdentity(identity: Identity, role: Role)
 
+    fun revokeRoleFromIdentity(identity: Identity, role: Role)
+
 }
