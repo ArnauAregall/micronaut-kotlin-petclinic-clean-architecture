@@ -31,17 +31,12 @@ internal class RolePersistenceAdapter(
             .orElse(null)
 
     override fun assignRoleToIdentity(identity: Identity, role: Role) {
-        val identityRoleJpaEntity = IdentityRoleJpaEntity(
-            IdentityRoleId(
-                identityId = UUID.fromString(identity.id.toString()),
-                roleId = UUID.fromString(role.id.toString())
-            )
-        )
+        val identityRoleJpaEntity = IdentityRoleJpaEntity(IdentityRoleId(identity, role))
         identityRoleJpaRepository.save(identityRoleJpaEntity)
     }
 
     override fun revokeRoleFromIdentity(identity: Identity, role: Role) {
-        TODO("Not yet implemented")
+        identityRoleJpaRepository.deleteById(IdentityRoleId(identity, role))
     }
 
     private fun mapToEntity(domain: Role): RoleJpaEntity =

@@ -5,6 +5,8 @@ import jakarta.persistence.Embeddable
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import tech.aaregall.lab.petclinic.identity.domain.model.Identity
+import tech.aaregall.lab.petclinic.identity.domain.model.Role
 import java.io.Serializable
 import java.util.UUID
 
@@ -15,7 +17,12 @@ internal data class IdentityRoleId(
 
     @Column(name = "role_id") val roleId: UUID
 
-): Serializable
+): Serializable {
+
+    constructor(identity: Identity, role: Role) :
+            this(identityId = UUID.fromString(identity.id.toString()), roleId = UUID.fromString(role.id.toString()))
+
+}
 
 @Entity
 @Table(name = "identity_role")

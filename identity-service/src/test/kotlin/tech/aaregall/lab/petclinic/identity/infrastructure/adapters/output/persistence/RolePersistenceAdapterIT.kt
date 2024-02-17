@@ -130,6 +130,34 @@ internal class RolePersistenceAdapterIT(
             }
         }
 
+    }
+
+    @Nested
+    inner class RevokeRoleFromIdentity {
+
+        @Test
+        fun `It should delete a row from identity_role table `() {
+            val identity = Identity(IdentityId.create(), "Myrddin", "Wynn")
+            val role = Role(RoleId.create(), "Mage")
+
+            jdbc.execute { conn -> conn.prepareCall("""
+                insert into identity(id, first_name, last_name) values ('${identity.id}', '${identity.firstName}', '${identity.lastName}');
+                insert into role(id, name) values ('${role.id}', '${role.name}');
+                insert into identity_role(identity_id, role_id) values ('${identity.id}', '${role.id}');
+            """.trimIndent()).execute() }
+
+            roleOutputPort.revokeRoleFromIdentity(identity, role)
+
+            jdbc.execute { conn ->
+                val resultSet = conn.prepareStatement("""
+                    select count(*) as role_assigned_count
+                    from identity_role
+                    where identity_id = '${identity.id}' and role_id = '${role.id}'
+                """.trimIndent()).executeQuery()
+                resultSet.next()
+                assertThat(resultSet.getInt("role_assigned_count")).isZero()
+            }
+        }
 
     }
 
