@@ -564,6 +564,144 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
     }
 
     @Nested
+    inner class RevokeRoleFromIdentity(private val createIdentityUseCase: CreateIdentityUseCase) {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                pathParam("id", UUID.randomUUID())
+                pathParam("roleId", UUID.randomUUID())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/identities/{id}/role/{roleId}")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when Identity ID is not a UUID`() {
+            Given {
+                pathParam("id", "something")
+                pathParam("roleId", UUID.randomUUID())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/identities/{id}/role/{roleId}")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when Role ID is not a UUID`() {
+            Given {
+                pathParam("id", UUID.randomUUID())
+                pathParam("roleId", "something")
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/identities/{id}/role/{roleId}")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when Identity does not exist`() {
+            Given {
+                pathParam("id", UUID.randomUUID())
+                pathParam("roleId", UUID.randomUUID())
+                contentType(ContentType.JSON)
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/identities/{id}/role/{roleId}")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when Role does not exist`() {
+            val identity = createIdentityUseCase.createIdentity(
+                CreateIdentityCommand(firstName = "Amelia", lastName = "Apricot")
+            )
+
+            Given {
+                pathParam("id", identity.id.toString())
+                pathParam("roleId", UUID.randomUUID())
+                contentType(ContentType.JSON)
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/identities/{id}/role/{roleId}")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.code)
+            }
+        }
+
+        @Test
+        fun `Should return 409 Conflict when Identity does not have the Role assigned`(createRoleUseCase: CreateRoleUseCase) {
+            val identity = createIdentityUseCase.createIdentity(
+                CreateIdentityCommand(firstName = "Eric", lastName = "Egg")
+            )
+
+            val role = createRoleUseCase.createRole(CreateRoleCommand(name = "A new Role ${identity.id}"))
+
+            Given {
+                pathParam("id", identity.id.toString())
+                pathParam("roleId", role.id.toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/identities/{id}/role/{roleId}")
+            } Then {
+                statusCode(HttpStatus.CONFLICT.code)
+            }
+        }
+
+        @Test
+        fun `Should return 204 No Content when Identity has the Role assigned`(
+            createRoleUseCase: CreateRoleUseCase,
+            assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase) {
+
+            val identity = createIdentityUseCase.createIdentity(
+                CreateIdentityCommand(firstName = "Daisy", lastName = "Doughnut")
+            )
+
+            val role = createRoleUseCase.createRole(CreateRoleCommand(name = "Role for ${identity.id}"))
+
+            assignRoleToIdentityUseCase.assignRoleToIdentity(
+                AssignRoleToIdentityCommand(identityId = identity.id, roleId = role.id)
+            )
+
+            Given {
+                pathParam("id", identity.id.toString())
+                pathParam("roleId", role.id.toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/identities/{id}/role/{roleId}")
+            } Then {
+                statusCode(HttpStatus.NO_CONTENT.code)
+            }
+        }
+
+    }
+
+    @Nested
     inner class DeleteIdentity(private val createIdentityUseCase: CreateIdentityUseCase) {
 
         @Test

@@ -22,6 +22,8 @@ import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdenti
 import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
@@ -40,6 +42,7 @@ private open class IdentityController(
     private val updateIdentityContactDetailsUseCase: UpdateIdentityContactDetailsUseCase,
     private val deleteIdentityUseCase: DeleteIdentityUseCase,
     private val assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase,
+    private val revokeRoleFromIdentityUseCase: RevokeRoleFromIdentityUseCase,
     private val identityHttpMapper: IdentityHttpMapper) {
 
     @Post
@@ -74,6 +77,15 @@ private open class IdentityController(
         assignRoleToIdentityUseCase.assignRoleToIdentity(
             AssignRoleToIdentityCommand(
                 identityId = IdentityId.of(id), roleId = RoleId.of(assignRoleToIdentityRequest.roleId)
+            )
+        )
+
+    @Delete("/{id}/role/{roleId}")
+    @Status(HttpStatus.NO_CONTENT)
+    open fun revokeRoleFromIdentity(@PathVariable id: UUID, @PathVariable roleId: UUID) =
+        revokeRoleFromIdentityUseCase.revokeRoleFromIdentity(
+            RevokeRoleFromIdentityCommand(
+                identityId = IdentityId.of(id), roleId = RoleId.of(roleId)
             )
         )
 
