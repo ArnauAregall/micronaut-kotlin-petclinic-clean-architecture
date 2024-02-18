@@ -17,6 +17,7 @@ import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
@@ -273,7 +274,28 @@ internal class PetServiceTest {
         }
 
         @Test
-        fun `Creates a Pet with Owner`() {
+        fun `Should throw a CreatePetCommandException when PetOwnerOutputPort returns empty PetOwner`() {
+            val ownerIdentityId = randomUUID()
+
+            every { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) } answers { UnitReactive.empty() }
+
+            val result = petService.createPet(
+                CreatePetCommand(
+                    type = DOG,
+                    name = "Bimo",
+                    birthDate = LocalDate.now(),
+                    ownerIdentityId = ownerIdentityId
+                )
+            )
+
+            assertThatCode { result.block() }
+                .isInstanceOf(CreatePetCommandException::class.java)
+                .hasMessageContaining("Failed to create Pet")
+                .hasMessageContaining("Could not load the PetOwner with ID $ownerIdentityId")
+        }
+
+        @Test
+        fun `Creates a Pet with Owner when PetOwner exists`() {
             mockCreatePetOutputPort()
 
             every { petOwnerOutputPort.loadPetOwner(any(LoadPetOwnerCommand::class)) } answers {

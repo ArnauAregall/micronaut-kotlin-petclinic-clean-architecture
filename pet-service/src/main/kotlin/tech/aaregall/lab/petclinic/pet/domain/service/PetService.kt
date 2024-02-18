@@ -8,6 +8,7 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommandEx
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CountAllPetsUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
@@ -48,10 +49,13 @@ class PetService(
 
     override fun createPet(createPetCommand: CreatePetCommand): UnitReactive<Pet> {
         return createPetCommand.ownerIdentityId
-            ?.let {
-                petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(it))
-                    .map { petOwner -> createPetCommand.toPet(petOwner) }
-                    .flatMap { pet -> petOutputPort.createPet(pet) }
+            ?.let { ownerIdentityId ->
+                UnitReactive(
+                    petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)).toMono()
+                        .switchIfEmpty(UnitReactive.error<PetOwner>(CreatePetCommandException("Could not load the PetOwner with ID ${createPetCommand.ownerIdentityId}")).toMono())
+                        .map { petOwner -> createPetCommand.toPet(petOwner) }
+                        .flatMap { pet -> petOutputPort.createPet(pet).toMono() }
+                )
             }
             ?: UnitReactive(createPetCommand.toPet())
                 .flatMap(petOutputPort::createPet)

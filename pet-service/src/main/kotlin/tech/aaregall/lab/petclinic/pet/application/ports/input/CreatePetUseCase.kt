@@ -13,3 +13,5 @@ fun interface CreatePetUseCase {
 }
 
 data class CreatePetCommand(val type: PetType, val name: String, val birthDate: LocalDate, val ownerIdentityId: UUID?)
+
+class CreatePetCommandException(message: String, cause: Throwable? = null) : IllegalArgumentException("Failed to create Pet: $message", cause)
