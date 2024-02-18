@@ -669,7 +669,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
         }
 
         @Test
-        fun `Should return 404 Not Found when creating a Pet with a non existing PetOwner`() {
+        fun `Should return 400 Bad Request when creating a Pet with a non existing PetOwner`() {
             val ownerIdentityId = randomUUID()
 
             mockGetIdentityResponse(ownerIdentityId, HttpStatus.NOT_FOUND)
@@ -689,7 +689,14 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                 port(embeddedServer.port)
                 post("/api/pets")
             } Then {
-                statusCode(HttpStatus.NOT_FOUND.code)
+                statusCode(HttpStatus.BAD_REQUEST.code)
+                body(
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("Failed to create Pet"),
+                        containsString("Could not load the PetOwner with ID $ownerIdentityId")
+                    )
+                )
             }
         }
 
