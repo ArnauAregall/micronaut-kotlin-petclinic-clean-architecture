@@ -1,5 +1,6 @@
 package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http
 
+import io.micronaut.context.annotation.Value
 import io.micronaut.data.r2dbc.operations.R2dbcOperations
 import io.micronaut.http.HttpMethod.GET
 import io.micronaut.http.HttpStatus
@@ -45,6 +46,9 @@ import java.util.UUID.randomUUID
 @TestResourcesProperties(providers = [MockServerSpec::class, KeycloakSpec::class])
 internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
+    @Value("\${app.ports.output.pet-owner.required-identity-role-name}")
+    lateinit var requiredIdentityRoleName: String
+
     private fun mockGetIdentityResponse(identityId: UUID, httpStatus: HttpStatus) {
         getMockServerClient()
             .`when`(request().withMethod(GET.name).withPath("/api/identities/$identityId"))
@@ -56,7 +60,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                 return@respond when (httpStatus) {
                     HttpStatus.OK ->  response.withBody(json("""
                         {
-                          "id": "$identityId", "first_name": "John", "last_name": "Doe"
+                          "id": "$identityId", "first_name": "John", "last_name": "Doe", "roles": ["$requiredIdentityRoleName"]
                         }
                         """.trimIndent()
                     ))

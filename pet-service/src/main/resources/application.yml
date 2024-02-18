@@ -49,3 +49,9 @@ redis:
   caches:
     pet-owner:
       charset: UTF-8
+
+app:
+  ports:
+    output:
+      pet-owner:
+        required-identity-role-name: "PET_OWNER"

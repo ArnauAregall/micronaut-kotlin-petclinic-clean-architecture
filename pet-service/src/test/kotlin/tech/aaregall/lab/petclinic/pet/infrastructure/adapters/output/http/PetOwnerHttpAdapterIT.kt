@@ -1,6 +1,7 @@
 package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.http
 
 import io.lettuce.core.api.StatefulRedisConnection
+import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpMethod.GET
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.HttpStatus.NOT_FOUND
@@ -21,7 +22,6 @@ import org.mockserver.model.JsonBody.json
 import org.mockserver.verify.VerificationTimes.once
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommandException
-import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
 import java.util.UUID
@@ -31,6 +31,9 @@ import java.util.UUID
 internal class PetOwnerHttpAdapterIT(
     private val petOwnerHttpAdapter: PetOwnerHttpAdapter,
     private val redisConnection: StatefulRedisConnection<String, String>) {
+
+    @Value("\${app.ports.output.pet-owner.required-identity-role-name}")
+    lateinit var requiredIdentityRoleName: String
 
     @AfterEach
     fun tearDown() {
@@ -44,7 +47,7 @@ internal class PetOwnerHttpAdapterIT(
 
 
         @Test
-        fun `Should return and cache a PetOwner when Identity Service response is 200 OK`() {
+        fun `Should return and cache a PetOwner when Identity Service response is 200 OK and Identity has the required role`() {
             val identityId = UUID.randomUUID()
 
             getMockServerClient()
@@ -56,7 +59,7 @@ internal class PetOwnerHttpAdapterIT(
                         .withBody(json(
                             """
                             {
-                              "id": "$identityId", "first_name": "John", "last_name": "Doe"
+                              "id": "$identityId", "first_name": "John", "last_name": "Doe", "roles": ["$requiredIdentityRoleName"]
                             }
                         """.trimIndent()
                         ))
@@ -70,6 +73,33 @@ internal class PetOwnerHttpAdapterIT(
                 .containsExactly(identityId, "John", "Doe")
 
             assertThat(getCachedPetOwner(identityId)).isNotNull
+
+            getMockServerClient()
+                .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
+        }
+
+        @Test
+        fun `Should return null when Identity Service response is 200 OK and Identity does not have the required role`() {
+            val identityId = UUID.randomUUID()
+
+            getMockServerClient()
+                .`when`(request().withMethod(GET.name).withPath("/api/identities/$identityId"))
+                .respond(
+                    response()
+                        .withStatusCode(OK.code)
+                        .withHeaders(Header("Content-Type", "application/json"))
+                        .withBody(json(
+                            """
+                            {
+                              "id": "$identityId", "first_name": "Bob", "last_name": "Builder", "roles": ["FOO", "BAR"]
+                            }
+                        """.trimIndent()
+                        ))
+                )
+
+            val petOwner = petOwnerHttpAdapter.loadPetOwner(LoadPetOwnerCommand(identityId))
+
+            assertThat(petOwner.block()).isNull()
 
             getMockServerClient()
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
@@ -132,7 +162,7 @@ internal class PetOwnerHttpAdapterIT(
                     .withBody(json(
                         """
                             {
-                              "id": "$identityId"
+                              "id": "$identityId", "roles": ["$requiredIdentityRoleName"]
                             }
                         """.trimIndent()
                     )
