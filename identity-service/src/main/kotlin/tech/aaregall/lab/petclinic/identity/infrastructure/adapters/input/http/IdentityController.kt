@@ -51,17 +51,14 @@ private open class IdentityController(
             createIdentityUseCase.createIdentity(identityHttpMapper.mapCreateRequestToCommand(createIdentityRequest))))
 
     @Get("/{id}")
-    open fun loadIdentity(@PathVariable id: UUID): HttpResponse<IdentityResponse> =
+    fun loadIdentity(@PathVariable id: UUID): HttpResponse<IdentityResponse> =
         loadIdentityUseCase.loadIdentity(LoadIdentityCommand(IdentityId.of(id)))
             ?.let { ok(identityHttpMapper.mapToResponse(it)) }
             ?: notFound()
 
     @Patch("/{id}/contact-details")
     @Status(HttpStatus.NO_CONTENT)
-    open fun updateIdentityContactDetails(
-        @PathVariable id: UUID,
-        @Body @Valid updateIdentityContactDetailsRequest: UpdateIdentityContactDetailsRequest
-    ) {
+    open fun updateIdentityContactDetails(@PathVariable id: UUID, @Body @Valid updateIdentityContactDetailsRequest: UpdateIdentityContactDetailsRequest) {
         updateIdentityContactDetailsUseCase.updateIdentityContactDetails(
             UpdateIdentityContactDetailsCommand(
                 IdentityId.of(id),
@@ -82,7 +79,7 @@ private open class IdentityController(
 
     @Delete("/{id}/role/{roleId}")
     @Status(HttpStatus.NO_CONTENT)
-    open fun revokeRoleFromIdentity(@PathVariable id: UUID, @PathVariable roleId: UUID) =
+    fun revokeRoleFromIdentity(@PathVariable id: UUID, @PathVariable roleId: UUID) =
         revokeRoleFromIdentityUseCase.revokeRoleFromIdentity(
             RevokeRoleFromIdentityCommand(
                 identityId = IdentityId.of(id), roleId = RoleId.of(roleId)
@@ -91,8 +88,7 @@ private open class IdentityController(
 
     @Delete("/{id}")
     @Status(HttpStatus.NO_CONTENT)
-    fun deleteIdentity(@PathVariable id: UUID) {
+    fun deleteIdentity(@PathVariable id: UUID) =
         deleteIdentityUseCase.deleteIdentity(DeleteIdentityCommand(IdentityId.of(id)))
-    }
 
 }
