@@ -23,13 +23,19 @@ The goal is to mimic the well known project [Spring PetClinic](https://spring-pe
 
 ## Running the application
 
-### Infrastructure dependencies
+### 1. Infrastructure dependencies
 
 ```shell
 docker-compose up
 ```
 
-### identity-service
+### 2. Import Keycloak OpenID realm
+
+- Open your browser and head to [Master Realm Admin Console](http://localhost:8082/admin/master/console/) page.
+- Login with Keycloak username and password.
+- Create a new realm by importing the test realm file `./test-resources/src/main/resources/keycloak/test-petclinic-realm.json`.
+
+### 3. identity-service
 
 ```shell
 ./gradlew :identity-service:nativeCompile
@@ -37,7 +43,7 @@ docker-compose up
 export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxx; ./identity-service/build/native/nativeCompile/identity-service
 ```
 
-### pet-service
+### 4. pet-service
 
 ```shell
 ./gradlew :pet-service:nativeCompile
