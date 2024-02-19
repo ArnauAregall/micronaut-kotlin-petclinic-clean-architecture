@@ -1,6 +1,6 @@
 rootProject.name="micronaut-kotlin-petclinic-clean-architecture"
 
-include(":common", ":identity-service", ":pet-service", ":test-resources")
+include(":common", ":identity-service", ":pet-service", ":vet-service", ":test-resources")
 
 pluginManagement {
     val kotlinVersion: String by settings
