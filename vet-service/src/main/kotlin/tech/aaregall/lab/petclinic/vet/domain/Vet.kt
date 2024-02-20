@@ -2,7 +2,7 @@ package tech.aaregall.lab.petclinic.vet.domain
 
 import java.util.UUID
 
-data class Vet(val id: VetId)
+data class Vet(val id: VetId, val specialities: Collection<Speciality> = emptySet())
 
 data class VetId(private val value: UUID) {
 
