@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.vet.domain
+package tech.aaregall.lab.petclinic.vet.domain.model
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

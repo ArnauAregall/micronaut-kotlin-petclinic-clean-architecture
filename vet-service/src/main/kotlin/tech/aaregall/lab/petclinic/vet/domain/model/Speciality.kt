@@ -1,16 +1,15 @@
-package tech.aaregall.lab.petclinic.vet.domain
+package tech.aaregall.lab.petclinic.vet.domain.model
 
 import java.util.UUID
 
-data class Vet(val id: VetId, val specialities: Collection<Speciality> = emptySet())
+data class Speciality(val id: SpecialityId, val name: String, val description: String? = null)
 
-data class VetId(private val value: UUID) {
+data class SpecialityId(private val value: UUID) {
 
     companion object {
+        fun create() = SpecialityId(UUID.randomUUID())
 
-        fun create() = VetId(UUID.randomUUID())
-
-        fun of(uuid: UUID) = VetId(uuid)
+        fun of(uuid: UUID) = SpecialityId(uuid)
 
         fun of(string: String) = of(UUID.fromString(string))
 
@@ -20,7 +19,7 @@ data class VetId(private val value: UUID) {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as VetId
+        other as SpecialityId
 
         return value == other.value
     }
@@ -28,5 +27,4 @@ data class VetId(private val value: UUID) {
     override fun toString(): String = value.toString()
 
     override fun hashCode(): Int = value.hashCode()
-
 }
