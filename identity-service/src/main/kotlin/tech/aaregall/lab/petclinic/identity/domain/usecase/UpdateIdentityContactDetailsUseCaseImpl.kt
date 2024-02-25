@@ -1,21 +1,19 @@
-package tech.aaregall.lab.petclinic.identity.domain.service
+package tech.aaregall.lab.petclinic.identity.domain.usecase
 
 import tech.aaregall.lab.petclinic.common.UseCase
-import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.output.ContactDetailsOutputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.domain.model.ContactDetails
 
 @UseCase
-class ContactDetailsService(
-    private val contactDetailsOutputPort: ContactDetailsOutputPort,
-    private val loadIdentityUseCase: LoadIdentityUseCase
-) : UpdateIdentityContactDetailsUseCase {
+internal class UpdateIdentityContactDetailsUseCaseImpl(
+    private val identityOutputPort: IdentityOutputPort,
+    private val contactDetailsOutputPort: ContactDetailsOutputPort): UpdateIdentityContactDetailsUseCase {
 
     override fun updateIdentityContactDetails(updateIdentityContactDetailsCommand: UpdateIdentityContactDetailsCommand): ContactDetails {
-        val identity = loadIdentityUseCase.loadIdentity(LoadIdentityCommand(updateIdentityContactDetailsCommand.identityId))
+        val identity = identityOutputPort.loadIdentityById(updateIdentityContactDetailsCommand.identityId)
 
         require(identity != null) { "Cannot update ContactDetails for a non existing Identity" }
 
@@ -27,5 +25,4 @@ class ContactDetailsService(
             )
         )
     }
-
 }

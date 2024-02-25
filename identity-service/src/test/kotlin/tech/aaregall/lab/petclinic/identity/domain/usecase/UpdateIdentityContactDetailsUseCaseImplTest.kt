@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.domain.service
+package tech.aaregall.lab.petclinic.identity.domain.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -11,25 +11,24 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.output.ContactDetailsOutputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.domain.model.ContactDetails
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 
 @ExtendWith(MockKExtension::class)
-internal class ContactDetailsServiceTest {
+internal class UpdateIdentityContactDetailsUseCaseImplTest {
 
     @MockK
-    lateinit var loadIdentityUseCase: LoadIdentityUseCase
+    lateinit var identityOutputPort: IdentityOutputPort
 
     @MockK
     lateinit var contactDetailsOutputPort: ContactDetailsOutputPort
 
     @InjectMockKs
-    lateinit var contactDetailsService: ContactDetailsService
+    lateinit var useCase: UpdateIdentityContactDetailsUseCaseImpl
 
     @Nested
     @DisplayName("updateIdentityContactDetails")
@@ -40,7 +39,7 @@ internal class ContactDetailsServiceTest {
             val identityId = IdentityId.create()
             val identity = Identity(id = identityId, firstName = "Foo", lastName = "Bar")
 
-            every { loadIdentityUseCase.loadIdentity(LoadIdentityCommand(identityId)) } answers { identity }
+            every { identityOutputPort.loadIdentityById(identityId) } answers { identity }
             every {
                 contactDetailsOutputPort.updateIdentityContactDetails(
                     eq(identity),
@@ -48,9 +47,11 @@ internal class ContactDetailsServiceTest {
                 )
             } answers { it.invocation.args.last() as ContactDetails }
 
-            val result = contactDetailsService.updateIdentityContactDetails(UpdateIdentityContactDetailsCommand(
-                identityId = identityId, email = "foo.bar@test.com", phoneNumber = "123 456 789"
-            ))
+            val result = useCase.updateIdentityContactDetails(
+                UpdateIdentityContactDetailsCommand(
+                    identityId = identityId, email = "foo.bar@test.com", phoneNumber = "123 456 789"
+                )
+            )
 
             assertThat(result)
                 .isNotNull
@@ -59,7 +60,8 @@ internal class ContactDetailsServiceTest {
 
             verify {
                 contactDetailsOutputPort.updateIdentityContactDetails(identity,
-                    ContactDetails(email = "foo.bar@test.com", phoneNumber = "123 456 789"))
+                    ContactDetails(email = "foo.bar@test.com", phoneNumber = "123 456 789")
+                )
             }
         }
 
@@ -67,10 +69,10 @@ internal class ContactDetailsServiceTest {
         fun `Throws IllegalArgumentException when Identity does not exists`() {
             val identityId = IdentityId.create()
 
-            every { loadIdentityUseCase.loadIdentity(LoadIdentityCommand(identityId)) } answers { null }
+            every { identityOutputPort.loadIdentityById(identityId) } answers { null }
 
             assertThatCode {
-                contactDetailsService.updateIdentityContactDetails(
+                useCase.updateIdentityContactDetails(
                     UpdateIdentityContactDetailsCommand(
                         identityId = identityId, email = "foo.bar@test.com", phoneNumber = "123 456 789"
                     )
@@ -81,5 +83,4 @@ internal class ContactDetailsServiceTest {
         }
 
     }
-
 }
