@@ -5,7 +5,6 @@ import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetUseCase
-import tech.aaregall.lab.petclinic.pet.application.ports.input.CountAllPetsUseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
@@ -25,9 +24,7 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 class PetService(
     private val petOutputPort: PetOutputPort,
     private val petOwnerOutputPort: PetOwnerOutputPort
-) : CountAllPetsUseCase, CreatePetUseCase, AdoptPetUseCase, DeletePetUseCase, DeletePetsByPetOwnerUseCase {
-
-    override fun countAllPets(): UnitReactive<Long> = petOutputPort.countAllPets()
+) : CreatePetUseCase, AdoptPetUseCase, DeletePetUseCase, DeletePetsByPetOwnerUseCase {
 
     override fun createPet(createPetCommand: CreatePetCommand): UnitReactive<Pet> {
         return createPetCommand.ownerIdentityId
