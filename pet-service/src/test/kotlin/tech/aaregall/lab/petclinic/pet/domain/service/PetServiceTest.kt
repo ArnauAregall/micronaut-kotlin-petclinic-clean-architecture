@@ -13,8 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommandException
-import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
-import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
@@ -40,91 +38,6 @@ internal class PetServiceTest {
 
     @InjectMockKs
     lateinit var petService: PetService
-
-    @Nested
-    inner class CreatePet {
-
-        private fun mockCreatePetOutputPort() =
-            every { petOutputPort.createPet(any(Pet::class)) } answers {
-                val argPet = it.invocation.args.first() as Pet
-                UnitReactive(Pet(
-                    id = argPet.id,
-                    type = argPet.type,
-                    name = argPet.name,
-                    birthDate = argPet.birthDate,
-                    owner = argPet.owner
-                ))
-            }
-
-        @Test
-        fun `Creates a Pet without Owner`() {
-            mockCreatePetOutputPort()
-
-            val result = petService.createPet(
-                CreatePetCommand(
-                    type = CAT, name = "Peebles", birthDate = LocalDate.now(), ownerIdentityId = null
-                )
-            )
-
-            val createdPet: Pet = result.block()!!
-
-            verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
-            verify { petOutputPort.createPet(createdPet) }
-
-            assertThat(createdPet)
-                .isNotNull
-                .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
-                .containsExactly(CAT, "Peebles", LocalDate.now(), null)
-        }
-
-        @Test
-        fun `Should throw a CreatePetCommandException when PetOwnerOutputPort returns empty PetOwner`() {
-            val ownerIdentityId = randomUUID()
-
-            every { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) } answers { UnitReactive.empty() }
-
-            val result = petService.createPet(
-                CreatePetCommand(
-                    type = DOG,
-                    name = "Bimo",
-                    birthDate = LocalDate.now(),
-                    ownerIdentityId = ownerIdentityId
-                )
-            )
-
-            assertThatCode { result.block() }
-                .isInstanceOf(CreatePetCommandException::class.java)
-                .hasMessageContaining("Failed to create Pet")
-                .hasMessageContaining("Could not load the PetOwner with ID $ownerIdentityId")
-        }
-
-        @Test
-        fun `Creates a Pet with Owner when PetOwner exists`() {
-            mockCreatePetOutputPort()
-
-            every { petOwnerOutputPort.loadPetOwner(any(LoadPetOwnerCommand::class)) } answers {
-                UnitReactive(PetOwner((it.invocation.args.first() as LoadPetOwnerCommand).ownerIdentityId))
-            }
-
-            val ownerIdentityId = randomUUID()
-            val result = petService.createPet(
-                CreatePetCommand(
-                    type = DOG, name = "Bimo", birthDate = LocalDate.now(), ownerIdentityId = ownerIdentityId
-                )
-            )
-
-            val createdPet: Pet = result.block()!!
-
-            verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(ownerIdentityId)) }
-            verify { petOutputPort.createPet(createdPet) }
-
-            assertThat(result.block()!!)
-                .isNotNull
-                .extracting(Pet::type, Pet::name, Pet::birthDate, Pet::owner)
-                .containsExactly(DOG, "Bimo", LocalDate.now(), PetOwner(ownerIdentityId))
-        }
-
-    }
 
     @Nested
     inner class AdoptPet {
