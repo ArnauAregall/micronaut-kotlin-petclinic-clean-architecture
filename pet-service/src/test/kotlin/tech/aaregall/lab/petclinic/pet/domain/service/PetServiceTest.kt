@@ -18,7 +18,6 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommandE
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
-import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
@@ -45,69 +44,7 @@ internal class PetServiceTest {
     lateinit var petService: PetService
 
 
-    @Nested
-    inner class LoadPet {
 
-        @Test
-        fun `It should return a UnitReactive with the return of PetOutputPort when Pet has no PetOwner`() {
-            val petId = PetId.create()
-
-            every { petOutputPort.loadPetById(petId) } answers {
-                UnitReactive(
-                    Pet(id = petId, type = DOG, name = "Snoopy", birthDate = LocalDate.now())
-                )
-            }
-
-            val result = petService.loadPet(LoadPetCommand(petId))
-
-            assertThat(result)
-                .isInstanceOf(UnitReactive::class.java)
-                .satisfies({
-                    assertThat(it.block()!!)
-                        .isNotNull
-                        .extracting(Pet::id, Pet::type, Pet::name, Pet::birthDate, Pet::owner)
-                        .containsExactly(
-                            petId, DOG, "Snoopy", LocalDate.now(), null
-                        )
-                })
-
-            verify { petOutputPort.loadPetById(petId) }
-            verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
-        }
-
-        @Test
-        fun `It should return a UnitReactive with the return of PetOutputPort and with PetOwner as the return of PetOwnerOutputPort when Pet has PetOwner`() {
-            val petId = PetId.create()
-            val petOwnerId = randomUUID()
-
-            every { petOutputPort.loadPetById(petId) } answers {
-                UnitReactive(
-                    Pet(id = petId, type = CAT, name = "Silvester", birthDate = LocalDate.now(), owner = PetOwner(petOwnerId) )
-                )
-            }
-
-            every { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(petOwnerId)) } answers {
-                UnitReactive(PetOwner(identityId = petOwnerId, firstName = "John", lastName = "Doe"))
-            }
-
-            val result = petService.loadPet(LoadPetCommand(petId))
-
-            assertThat(result)
-                .isInstanceOf(UnitReactive::class.java)
-                .satisfies({
-                    assertThat(it.block()!!)
-                        .isNotNull
-                        .extracting(Pet::id, Pet::type, Pet::name, Pet::birthDate, Pet::owner)
-                        .containsExactly(
-                            petId, CAT, "Silvester", LocalDate.now(), PetOwner(petOwnerId, "John", "Doe")
-                        )
-                })
-
-            verify { petOutputPort.loadPetById(petId) }
-            verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(petOwnerId)) }
-        }
-
-    }
 
     @Nested
     inner class CountAllPets {
