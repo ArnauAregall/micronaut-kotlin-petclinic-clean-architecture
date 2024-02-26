@@ -7,12 +7,9 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
-import org.assertj.core.groups.Tuple.tuple
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import tech.aaregall.lab.petclinic.common.reactive.CollectionReactive
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommandException
@@ -22,7 +19,6 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetCommand
-import tech.aaregall.lab.petclinic.pet.application.ports.input.SearchPetsCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
@@ -31,7 +27,6 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.CAT
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.DOG
-import tech.aaregall.lab.petclinic.pet.domain.model.PetType.RABBIT
 import java.time.LocalDate
 import java.util.UUID.randomUUID
 import kotlin.random.Random
@@ -49,112 +44,6 @@ internal class PetServiceTest {
     @InjectMockKs
     lateinit var petService: PetService
 
-    @Nested
-    inner class SearchPets {
-
-        @Nested
-        @DisplayName("When Pets do not have a PetOwner")
-        inner class WithoutPetOwners {
-
-            @Test
-            fun `Should call PetOutputPort findPets with page arguments`() {
-                every { petOutputPort.findPets(any(Int::class), any(Int::class)) } answers { CollectionReactive() }
-
-                val result = petService.searchPets(SearchPetsCommand(0, 20))
-
-                assertThat(result)
-                    .isInstanceOf(CollectionReactive::class.java)
-                    .satisfies({
-                        assertThat(it.blockList())
-                            .isEmpty()
-                    })
-
-                verify { petOutputPort.findPets(0, 20) }
-                verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
-            }
-
-            @Test
-            fun `Should return a CollectionReactive containing Pets returned by PetOutputPort`() {
-                every { petOutputPort.findPets(any(Int::class), any(Int::class)) } answers {
-                    CollectionReactive(
-                        Pet(id = PetId.create(), type = DOG, name = "Snoopy", birthDate = LocalDate.now()),
-                        Pet(id = PetId.create(), type = CAT, name = "Garfield", birthDate = LocalDate.now()),
-                        Pet(id = PetId.create(), type = RABBIT, name = "Bugs Bunny", birthDate = LocalDate.now())
-                    )
-                }
-
-                val result = petService.searchPets(SearchPetsCommand(0, 3))
-
-                assertThat(result)
-                    .isInstanceOf(CollectionReactive::class.java)
-                    .satisfies({
-                        assertThat(it.blockList())
-                            .isNotEmpty
-                            .hasSize(3)
-                            .extracting(Pet::type, Pet::name)
-                            .containsExactly(
-                                tuple(DOG, "Snoopy"),
-                                tuple(CAT, "Garfield"),
-                                tuple(RABBIT, "Bugs Bunny")
-                            )
-                    })
-
-                verify { petOutputPort.findPets(0, 3) }
-                verify (exactly = 0) { petOwnerOutputPort.loadPetOwner(any()) }
-            }
-
-        }
-
-        @Nested
-        @DisplayName("When Pets have PetOwner")
-        inner class WithPetOwners {
-
-            private fun loadedPetOwner(petOwner: PetOwner): PetOwner =
-                PetOwner(petOwner.identityId, "First Name ${petOwner.identityId}", "Last Name ${petOwner.identityId}")
-
-            @Test
-            fun `Should return a CollectionReactive containing Pets returned by PetOutputPort with PetOwners loaded from PetOwnerOutputPort only once when those are repeated`() {
-                val petOwner1 = PetOwner(randomUUID())
-                val petOwner2 = PetOwner(randomUUID())
-
-                every { petOutputPort.findPets(any(Int::class), any(Int::class)) } answers {
-                    CollectionReactive(
-                        Pet(id = PetId.create(), type = DOG, name = "Snoopy", birthDate = LocalDate.now(), owner = petOwner1),
-                        Pet(id = PetId.create(), type = CAT, name = "Garfield", birthDate = LocalDate.now(), owner = petOwner2),
-                        Pet(id = PetId.create(), type = RABBIT, name = "Bugs Bunny", birthDate = LocalDate.now(), owner = petOwner2)
-                    )
-                }
-
-                every { petOwnerOutputPort.loadPetOwner(any()) } answers {
-                    val ownerIdentityId = (args[0] as LoadPetOwnerCommand).ownerIdentityId
-                    UnitReactive(loadedPetOwner(PetOwner(ownerIdentityId)))
-                }
-
-                val result = petService.searchPets(SearchPetsCommand(0, 3))
-
-                assertThat(result)
-                    .isInstanceOf(CollectionReactive::class.java)
-                    .satisfies({
-                        assertThat(it.blockList())
-                            .isNotEmpty
-                            .hasSize(3)
-                            .extracting(Pet::type, Pet::name, Pet::owner)
-                            .containsExactly(
-                                tuple(DOG, "Snoopy", loadedPetOwner(petOwner1)),
-                                tuple(CAT, "Garfield", loadedPetOwner(petOwner2)),
-                                tuple(RABBIT, "Bugs Bunny", loadedPetOwner(petOwner2))
-                            )
-                    })
-
-                verify { petOutputPort.findPets(0, 3) }
-                verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(petOwner1.identityId)) }
-                verify { petOwnerOutputPort.loadPetOwner(LoadPetOwnerCommand(petOwner2.identityId)) }
-            }
-
-        }
-
-
-    }
 
     @Nested
     inner class LoadPet {
