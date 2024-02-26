@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.pet.domain.service
+package tech.aaregall.lab.petclinic.pet.domain.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -14,13 +14,13 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import java.util.UUID.randomUUID
 
 @ExtendWith(MockKExtension::class)
-internal class PetServiceTest {
+internal class DeletePetsByPetOwnerUseCaseImplTest {
 
     @MockK
     lateinit var petOutputPort: PetOutputPort
 
     @InjectMockKs
-    lateinit var petService: PetService
+    lateinit var useCase: DeletePetsByPetOwnerUseCaseImpl
 
     @Nested
     inner class DeletePetsByPetOwner {
@@ -31,7 +31,7 @@ internal class PetServiceTest {
 
             val command = DeletePetsByPetOwnerCommand(randomUUID())
 
-            petService.deletePetsByPetOwner(command)
+            useCase.deletePetsByPetOwner(command)
 
             verify { petOutputPort.deletePetsByPetOwner(PetOwner(command.ownerIdentityId)) }
         }
