@@ -9,4 +9,6 @@ interface VetOutputPort {
 
     fun createVet(vet: Vet): Vet
 
+    fun loadVet(vetId: VetId): Vet?
+
 }
