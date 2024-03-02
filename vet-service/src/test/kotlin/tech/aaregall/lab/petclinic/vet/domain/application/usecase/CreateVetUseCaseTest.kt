@@ -18,6 +18,8 @@ import tech.aaregall.lab.petclinic.vet.application.usecase.CreateVetUseCase
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
 import tech.aaregall.lab.petclinic.vet.domain.model.Vet
+import tech.aaregall.lab.petclinic.vet.domain.model.VetId
+import java.util.UUID.randomUUID
 
 @ExtendWith(MockKExtension::class)
 internal class CreateVetUseCaseTest {
@@ -32,8 +34,26 @@ internal class CreateVetUseCaseTest {
     lateinit var useCase: CreateVetUseCase
 
     @Test
-    fun `Should throw a CreateVetCommandException when Specialities is empty`() {
-        assertThatCode { useCase.createVet(CreateVetCommand(emptySet()))}
+    fun `Should throw a CreateVetCommandException when Identity ID is not valid`() {
+        val identityId = randomUUID()
+
+        every { vetOutputPort.isValidVetId(VetId(identityId)) } answers { false }
+
+        assertThatCode { useCase.createVet(CreateVetCommand(identityId = identityId, specialitiesIds = emptySet()))}
+            .isInstanceOf(CreateVetCommandException::class.java)
+            .hasMessageContaining("Failed to create Vet")
+            .hasMessageContaining("Vet ID '$identityId' is not valid")
+
+        verify { vetOutputPort.isValidVetId(VetId(identityId)) }
+        verify (exactly = 0) { specialityOutputPort.loadSpeciality(any()) }
+        verify (exactly = 0) { vetOutputPort.createVet(any()) }
+    }
+
+    @Test
+    fun `Should throw a CreateVetCommandException when Identity ID is valid and Specialities is empty`() {
+        every { vetOutputPort.isValidVetId(any()) } answers { true }
+
+        assertThatCode { useCase.createVet(CreateVetCommand(identityId = randomUUID(), specialitiesIds = emptySet()))}
             .isInstanceOf(CreateVetCommandException::class.java)
             .hasMessageContaining("Failed to create Vet")
             .hasMessageContaining("It must have at least one Speciality")
@@ -43,10 +63,11 @@ internal class CreateVetUseCaseTest {
     }
 
     @Test
-    fun `Should throw a CreateVetCommandException when any of the Specialities does not exist`() {
+    fun `Should throw a CreateVetCommandException when Identity ID is valid and any of the Specialities does not exist`() {
         val specialityId1 = SpecialityId.create()
         val specialityId2 = SpecialityId.create()
 
+        every { vetOutputPort.isValidVetId(any()) } answers { true }
         every { specialityOutputPort.loadSpeciality(specialityId1) } answers {
             Speciality(
                 id = args.first() as SpecialityId,
@@ -56,7 +77,7 @@ internal class CreateVetUseCaseTest {
         }
         every { specialityOutputPort.loadSpeciality(specialityId2) } answers { null }
 
-        assertThatCode { useCase.createVet(CreateVetCommand(setOf(specialityId1, specialityId2)))}
+        assertThatCode { useCase.createVet(CreateVetCommand(identityId = randomUUID(), specialitiesIds = setOf(specialityId1, specialityId2)))}
             .isInstanceOf(CreateVetCommandException::class.java)
             .hasMessageContaining("Failed to create Vet")
             .hasMessageContaining("Speciality '$specialityId2' does not exist")
@@ -67,10 +88,11 @@ internal class CreateVetUseCaseTest {
     }
 
     @Test
-    fun `Should return the result of the VetOutputPort when the Vet has at least one Speciality`() {
+    fun `Should return the result of the VetOutputPort when the Vet Identity ID is valid and has at least one Speciality`() {
         val specialityId1 = SpecialityId.create()
         val specialityId2 = SpecialityId.create()
 
+        every { vetOutputPort.isValidVetId(any()) } answers { true }
         every { specialityOutputPort.loadSpeciality(any()) } answers {
             val id = args.first() as SpecialityId
             Speciality(
@@ -82,7 +104,7 @@ internal class CreateVetUseCaseTest {
 
         every { vetOutputPort.createVet(any()) } answers { args.first() as Vet }
 
-        val vet = useCase.createVet(CreateVetCommand(setOf(specialityId1, specialityId2)))
+        val vet = useCase.createVet(CreateVetCommand(identityId = randomUUID(), specialitiesIds = setOf(specialityId1, specialityId2)))
 
         assertThat(vet)
             .isNotNull

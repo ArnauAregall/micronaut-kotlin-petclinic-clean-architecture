@@ -16,6 +16,9 @@ internal class CreateVetUseCase(
 ) : CreateVetInputPort {
 
     override fun createVet(createVetCommand: CreateVetCommand): Vet {
+        val vetId = VetId.of(createVetCommand.identityId)
+        if (!vetOutputPort.isValidVetId(vetId)) throw CreateVetCommandException("Vet ID '$vetId' is not valid")
+
         if (createVetCommand.specialitiesIds.isEmpty()) throw CreateVetCommandException("It must have at least one Speciality")
 
         val specialities = createVetCommand.specialitiesIds
