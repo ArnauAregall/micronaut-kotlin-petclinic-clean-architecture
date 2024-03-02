@@ -13,17 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommandException
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
-import tech.aaregall.lab.petclinic.identity.application.ports.usecase.CreateRoleUseCaseImpl
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.CreateRoleUseCase
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
 
 @ExtendWith(MockKExtension::class)
-internal class CreateRoleUseCaseImplTest {
+internal class CreateRoleUseCaseTest {
 
     @MockK
     lateinit var roleOutputPort: RoleOutputPort
 
     @InjectMockKs
-    lateinit var useCase: CreateRoleUseCaseImpl
+    lateinit var useCase: CreateRoleUseCase
 
     @Nested
     inner class CreateRole {

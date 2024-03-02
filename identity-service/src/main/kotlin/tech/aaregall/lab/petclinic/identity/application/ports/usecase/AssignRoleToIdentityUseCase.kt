@@ -3,15 +3,15 @@ package tech.aaregall.lab.petclinic.identity.application.ports.usecase
 import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommandException
-import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
 
 @UseCase
-internal class AssignRoleToIdentityUseCaseImpl(
+internal class AssignRoleToIdentityUseCase(
     private val identityOutputPort: IdentityOutputPort,
     private val roleOutputPort: RoleOutputPort
-) : AssignRoleToIdentityUseCase {
+) : AssignRoleToIdentityInputPort {
 
     override fun assignRoleToIdentity(assignRoleToIdentityCommand: AssignRoleToIdentityCommand) {
         val identity = identityOutputPort.loadIdentityById(assignRoleToIdentityCommand.identityId)

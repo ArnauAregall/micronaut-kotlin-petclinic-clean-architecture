@@ -12,13 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
-import tech.aaregall.lab.petclinic.identity.application.ports.usecase.CreateIdentityUseCaseImpl
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.CreateIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 
 @ExtendWith(MockKExtension::class)
-internal class CreateIdentityUseCaseImplTest {
+internal class CreateIdentityUseCaseTest {
 
     @MockK
     lateinit var identityOutputPort: IdentityOutputPort
@@ -27,7 +27,7 @@ internal class CreateIdentityUseCaseImplTest {
     lateinit var identityEventPublisher: IdentityEventPublisher
 
     @InjectMockKs
-    lateinit var useCase: CreateIdentityUseCaseImpl
+    lateinit var useCase: CreateIdentityUseCase
 
     @Nested
     inner class CreateIdentity {

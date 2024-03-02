@@ -2,15 +2,15 @@ package tech.aaregall.lab.petclinic.identity.application.ports.usecase
 
 import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.ContactDetailsOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.domain.model.ContactDetails
 
 @UseCase
-internal class UpdateIdentityContactDetailsUseCaseImpl(
+internal class UpdateIdentityContactDetailsUseCase(
     private val identityOutputPort: IdentityOutputPort,
-    private val contactDetailsOutputPort: ContactDetailsOutputPort): UpdateIdentityContactDetailsUseCase {
+    private val contactDetailsOutputPort: ContactDetailsOutputPort): UpdateIdentityContactDetailsInputPort {
 
     override fun updateIdentityContactDetails(updateIdentityContactDetailsCommand: UpdateIdentityContactDetailsCommand): ContactDetails {
         val identity = identityOutputPort.loadIdentityById(updateIdentityContactDetailsCommand.identityId)

@@ -15,7 +15,7 @@ import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleInputPort
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
 import java.time.Instant.now
@@ -71,8 +71,8 @@ internal class RoleControllerIT(private val embeddedServer: EmbeddedServer) {
         }
 
         @Test
-        fun `Should return 400 Bad Request when a Role with the same name already exists no matter case`(createRoleUseCase: CreateRoleUseCase) {
-            val role = createRoleUseCase.createRole(CreateRoleCommand("Admin"))
+        fun `Should return 400 Bad Request when a Role with the same name already exists no matter case`(createRoleInputPort: CreateRoleInputPort) {
+            val role = createRoleInputPort.createRole(CreateRoleCommand("Admin"))
 
             Given {
                 contentType(ContentType.JSON)

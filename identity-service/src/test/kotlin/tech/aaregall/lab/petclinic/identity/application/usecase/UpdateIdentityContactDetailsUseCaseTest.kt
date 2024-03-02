@@ -14,13 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.output.ContactDetailsOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
-import tech.aaregall.lab.petclinic.identity.application.ports.usecase.UpdateIdentityContactDetailsUseCaseImpl
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.UpdateIdentityContactDetailsUseCase
 import tech.aaregall.lab.petclinic.identity.domain.model.ContactDetails
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 
 @ExtendWith(MockKExtension::class)
-internal class UpdateIdentityContactDetailsUseCaseImplTest {
+internal class UpdateIdentityContactDetailsUseCaseTest {
 
     @MockK
     lateinit var identityOutputPort: IdentityOutputPort
@@ -29,7 +29,7 @@ internal class UpdateIdentityContactDetailsUseCaseImplTest {
     lateinit var contactDetailsOutputPort: ContactDetailsOutputPort
 
     @InjectMockKs
-    lateinit var useCase: UpdateIdentityContactDetailsUseCaseImpl
+    lateinit var useCase: UpdateIdentityContactDetailsUseCase
 
     @Nested
     @DisplayName("updateIdentityContactDetails")

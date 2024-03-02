@@ -18,13 +18,13 @@ import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsInputPort
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
 import java.util.UUID
@@ -111,8 +111,8 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
     @Nested
     inner class LoadIdentity(
-        private val createIdentityUseCase: CreateIdentityUseCase,
-        private val updateIdentityContactDetailsUseCase: UpdateIdentityContactDetailsUseCase) {
+        private val createIdentityInputPort: CreateIdentityInputPort,
+        private val updateIdentityContactDetailsInputPort: UpdateIdentityContactDetailsInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -160,7 +160,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return OK with null ContactDetails when Identity exists and does not have ContactDetails`() {
-            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+            val identity = createIdentityInputPort.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
             Given {
                 pathParam("id", identity.id.toString())
                 header(getAuthorizationBearer())
@@ -180,8 +180,8 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return OK with ContactDetails when Identity exists and has ContactDetails`() {
-            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
-            val contactDetails = updateIdentityContactDetailsUseCase.updateIdentityContactDetails(
+            val identity = createIdentityInputPort.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+            val contactDetails = updateIdentityContactDetailsInputPort.updateIdentityContactDetails(
                 UpdateIdentityContactDetailsCommand(identityId = identity.id, email = "foo.bar@test.com", phoneNumber = "123 456 789")
             )
 
@@ -206,7 +206,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return OK with null Roles when Identity exists and does not have Roles`() {
-            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+            val identity = createIdentityInputPort.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
             Given {
                 pathParam("id", identity.id.toString())
                 header(getAuthorizationBearer())
@@ -226,19 +226,19 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return OK with Roles sorted alphabetically when Identity exists and has Roles assigned`(
-            createIdentityUseCase: CreateIdentityUseCase,
-            createRoleUseCase: CreateRoleUseCase,
-            assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase
+            createIdentityInputPort: CreateIdentityInputPort,
+            createRoleInputPort: CreateRoleInputPort,
+            assignRoleToIdentityInputPort: AssignRoleToIdentityInputPort
         ) {
 
-            val identity = createIdentityUseCase.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
+            val identity = createIdentityInputPort.createIdentity(CreateIdentityCommand(firstName = "Foo", lastName = "Bar"))
 
-            val role1 = createRoleUseCase.createRole(CreateRoleCommand("Warrior"))
-            val role2 = createRoleUseCase.createRole(CreateRoleCommand("Knight"))
-            val role3 = createRoleUseCase.createRole(CreateRoleCommand("Paladin"))
+            val role1 = createRoleInputPort.createRole(CreateRoleCommand("Warrior"))
+            val role2 = createRoleInputPort.createRole(CreateRoleCommand("Knight"))
+            val role3 = createRoleInputPort.createRole(CreateRoleCommand("Paladin"))
 
             setOf(role1, role2, role3).forEach {
-                assignRoleToIdentityUseCase.assignRoleToIdentity(
+                assignRoleToIdentityInputPort.assignRoleToIdentity(
                     AssignRoleToIdentityCommand(identityId = identity.id, roleId = it.id))
             }
 
@@ -265,7 +265,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
     }
 
     @Nested
-    inner class UpdateIdentityContactDetails(private val createIdentityUseCase: CreateIdentityUseCase) {
+    inner class UpdateIdentityContactDetails(private val createIdentityInputPort: CreateIdentityInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -334,7 +334,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should not allow blank fields`() {
-            val identityId = createIdentityUseCase.createIdentity(CreateIdentityCommand("Foo", "Bar")).id
+            val identityId = createIdentityInputPort.createIdentity(CreateIdentityCommand("Foo", "Bar")).id
 
             Given {
                 pathParam("id", identityId.toString())
@@ -364,7 +364,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should not allow over-sized length fields`() {
-            val identityId = createIdentityUseCase.createIdentity(CreateIdentityCommand("Foo", "Bar")).id
+            val identityId = createIdentityInputPort.createIdentity(CreateIdentityCommand("Foo", "Bar")).id
 
             Given {
                 pathParam("id", identityId.toString())
@@ -394,7 +394,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return No Content when Contact Details are successfully updated`() {
-            val identityId = createIdentityUseCase.createIdentity(CreateIdentityCommand("John", "Doe")).id
+            val identityId = createIdentityInputPort.createIdentity(CreateIdentityCommand("John", "Doe")).id
 
             Given {
                 pathParam("id", identityId.toString())
@@ -417,7 +417,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
     }
 
     @Nested
-    inner class AssignRoleToIdentity(private val createIdentityUseCase: CreateIdentityUseCase) {
+    inner class AssignRoleToIdentity(private val createIdentityInputPort: CreateIdentityInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -483,7 +483,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return Bad Request when Role does not exist`() {
-            val identity = createIdentityUseCase.createIdentity(
+            val identity = createIdentityInputPort.createIdentity(
                 CreateIdentityCommand(firstName = "Albert", lastName = "Almond")
             )
 
@@ -506,16 +506,16 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return 409 Conflict when Identity already has the Role assigned`(
-            createRoleUseCase: CreateRoleUseCase,
-            assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase
+            createRoleInputPort: CreateRoleInputPort,
+            assignRoleToIdentityInputPort: AssignRoleToIdentityInputPort
         ) {
-            val identity = createIdentityUseCase.createIdentity(
+            val identity = createIdentityInputPort.createIdentity(
                 CreateIdentityCommand(firstName = "Bill", lastName = "Banana")
             )
 
-            val role = createRoleUseCase.createRole(CreateRoleCommand(name = "Role for ${identity.id}"))
+            val role = createRoleInputPort.createRole(CreateRoleCommand(name = "Role for ${identity.id}"))
 
-            assignRoleToIdentityUseCase.assignRoleToIdentity(
+            assignRoleToIdentityInputPort.assignRoleToIdentity(
                 AssignRoleToIdentityCommand(identityId = identity.id, roleId = role.id)
             )
 
@@ -537,12 +537,12 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
         }
 
         @Test
-        fun `Should return 200 OK when Identity does not have the Role assigned`(createRoleUseCase: CreateRoleUseCase) {
-            val identity = createIdentityUseCase.createIdentity(
+        fun `Should return 200 OK when Identity does not have the Role assigned`(createRoleInputPort: CreateRoleInputPort) {
+            val identity = createIdentityInputPort.createIdentity(
                 CreateIdentityCommand(firstName = "Catherine", lastName = "Carrot")
             )
 
-            val role = createRoleUseCase.createRole(CreateRoleCommand(name = "Role for ${identity.id}"))
+            val role = createRoleInputPort.createRole(CreateRoleCommand(name = "Role for ${identity.id}"))
 
             Given {
                 pathParam("id", identity.id.toString())
@@ -564,7 +564,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
     }
 
     @Nested
-    inner class RevokeRoleFromIdentity(private val createIdentityUseCase: CreateIdentityUseCase) {
+    inner class RevokeRoleFromIdentity(private val createIdentityInputPort: CreateIdentityInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -635,7 +635,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return Bad Request when Role does not exist`() {
-            val identity = createIdentityUseCase.createIdentity(
+            val identity = createIdentityInputPort.createIdentity(
                 CreateIdentityCommand(firstName = "Amelia", lastName = "Apricot")
             )
 
@@ -653,12 +653,12 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
         }
 
         @Test
-        fun `Should return 409 Conflict when Identity does not have the Role assigned`(createRoleUseCase: CreateRoleUseCase) {
-            val identity = createIdentityUseCase.createIdentity(
+        fun `Should return 409 Conflict when Identity does not have the Role assigned`(createRoleInputPort: CreateRoleInputPort) {
+            val identity = createIdentityInputPort.createIdentity(
                 CreateIdentityCommand(firstName = "Eric", lastName = "Egg")
             )
 
-            val role = createRoleUseCase.createRole(CreateRoleCommand(name = "A new Role ${identity.id}"))
+            val role = createRoleInputPort.createRole(CreateRoleCommand(name = "A new Role ${identity.id}"))
 
             Given {
                 pathParam("id", identity.id.toString())
@@ -674,16 +674,16 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return 204 No Content when Identity has the Role assigned`(
-            createRoleUseCase: CreateRoleUseCase,
-            assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase) {
+            createRoleInputPort: CreateRoleInputPort,
+            assignRoleToIdentityInputPort: AssignRoleToIdentityInputPort) {
 
-            val identity = createIdentityUseCase.createIdentity(
+            val identity = createIdentityInputPort.createIdentity(
                 CreateIdentityCommand(firstName = "Daisy", lastName = "Doughnut")
             )
 
-            val role = createRoleUseCase.createRole(CreateRoleCommand(name = "Role for ${identity.id}"))
+            val role = createRoleInputPort.createRole(CreateRoleCommand(name = "Role for ${identity.id}"))
 
-            assignRoleToIdentityUseCase.assignRoleToIdentity(
+            assignRoleToIdentityInputPort.assignRoleToIdentity(
                 AssignRoleToIdentityCommand(identityId = identity.id, roleId = role.id)
             )
 
@@ -702,7 +702,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
     }
 
     @Nested
-    inner class DeleteIdentity(private val createIdentityUseCase: CreateIdentityUseCase) {
+    inner class DeleteIdentity(private val createIdentityInputPort: CreateIdentityInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -732,7 +732,7 @@ internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) 
 
         @Test
         fun `Should return No Content when Identity exists`() {
-            val identity = createIdentityUseCase.createIdentity(
+            val identity = createIdentityInputPort.createIdentity(
                 CreateIdentityCommand(firstName = "John", lastName = "Doe")
             )
 

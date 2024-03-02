@@ -3,15 +3,15 @@ package tech.aaregall.lab.petclinic.identity.application.ports.usecase
 import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommandException
-import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
 
 @UseCase
-internal class RevokeRoleFromIdentityUseCaseImpl(
+internal class RevokeRoleFromIdentityUseCase(
     private val identityOutputPort: IdentityOutputPort,
     private val roleOutputPort: RoleOutputPort
-): RevokeRoleFromIdentityUseCase {
+): RevokeRoleFromIdentityInputPort {
 
     override fun revokeRoleFromIdentity(revokeRoleFromIdentityCommand: RevokeRoleFromIdentityCommand) {
         val identity = identityOutputPort.loadIdentityById(revokeRoleFromIdentityCommand.identityId)

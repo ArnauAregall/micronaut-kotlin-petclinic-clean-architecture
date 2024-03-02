@@ -12,13 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
-import tech.aaregall.lab.petclinic.identity.application.ports.usecase.DeleteIdentityUseCaseImpl
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.DeleteIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityDeletedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 
 @ExtendWith(MockKExtension::class)
-internal class DeleteIdentityUseCaseImplTest {
+internal class DeleteIdentityUseCaseTest {
 
     @MockK
     lateinit var identityOutputPort: IdentityOutputPort
@@ -27,7 +27,7 @@ internal class DeleteIdentityUseCaseImplTest {
     lateinit var identityEventPublisher: IdentityEventPublisher
 
     @InjectMockKs
-    lateinit var useCase: DeleteIdentityUseCaseImpl
+    lateinit var useCase: DeleteIdentityUseCase
 
     @Nested
     inner class DeleteIdentity {

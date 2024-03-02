@@ -16,16 +16,16 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.Status
 import jakarta.validation.Valid
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityUseCase
-import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityInputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.DeleteIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsUseCase
+import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsInputPort
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 import tech.aaregall.lab.petclinic.identity.infrastructure.adapters.input.http.dto.request.AssignRoleToIdentityRequest
@@ -37,18 +37,18 @@ import java.util.UUID
 
 @Controller("/api/identities")
 private open class IdentityController(
-    private val createIdentityUseCase: CreateIdentityUseCase,
-    private val loadIdentityUseCase: LoadIdentityUseCase,
-    private val updateIdentityContactDetailsUseCase: UpdateIdentityContactDetailsUseCase,
-    private val deleteIdentityUseCase: DeleteIdentityUseCase,
-    private val assignRoleToIdentityUseCase: AssignRoleToIdentityUseCase,
-    private val revokeRoleFromIdentityUseCase: RevokeRoleFromIdentityUseCase,
+    private val createIdentityInputPort: CreateIdentityInputPort,
+    private val loadIdentityUseCase: LoadIdentityInputPort,
+    private val updateIdentityContactDetailsInputPort: UpdateIdentityContactDetailsInputPort,
+    private val deleteIdentityInputPort: DeleteIdentityInputPort,
+    private val assignRoleToIdentityInputPort: AssignRoleToIdentityInputPort,
+    private val revokeRoleFromIdentityInputPort: RevokeRoleFromIdentityInputPort,
     private val identityHttpMapper: IdentityHttpMapper) {
 
     @Post
     open fun createIdentity(@Body @Valid createIdentityRequest: CreateIdentityRequest): HttpResponse<IdentityResponse> =
         created(identityHttpMapper.mapToResponse(
-            createIdentityUseCase.createIdentity(identityHttpMapper.mapCreateRequestToCommand(createIdentityRequest))))
+            createIdentityInputPort.createIdentity(identityHttpMapper.mapCreateRequestToCommand(createIdentityRequest))))
 
     @Get("/{id}")
     fun loadIdentity(@PathVariable id: UUID): HttpResponse<IdentityResponse> =
@@ -59,7 +59,7 @@ private open class IdentityController(
     @Patch("/{id}/contact-details")
     @Status(HttpStatus.NO_CONTENT)
     open fun updateIdentityContactDetails(@PathVariable id: UUID, @Body @Valid updateIdentityContactDetailsRequest: UpdateIdentityContactDetailsRequest) {
-        updateIdentityContactDetailsUseCase.updateIdentityContactDetails(
+        updateIdentityContactDetailsInputPort.updateIdentityContactDetails(
             UpdateIdentityContactDetailsCommand(
                 IdentityId.of(id),
                 updateIdentityContactDetailsRequest.email,
@@ -71,7 +71,7 @@ private open class IdentityController(
     @Put("/{id}/role")
     @Status(HttpStatus.OK)
     open fun assignRoleToIdentity(@PathVariable id: UUID, @Body @Valid assignRoleToIdentityRequest: AssignRoleToIdentityRequest) =
-        assignRoleToIdentityUseCase.assignRoleToIdentity(
+        assignRoleToIdentityInputPort.assignRoleToIdentity(
             AssignRoleToIdentityCommand(
                 identityId = IdentityId.of(id), roleId = RoleId.of(assignRoleToIdentityRequest.roleId)
             )
@@ -80,7 +80,7 @@ private open class IdentityController(
     @Delete("/{id}/role/{roleId}")
     @Status(HttpStatus.NO_CONTENT)
     fun revokeRoleFromIdentity(@PathVariable id: UUID, @PathVariable roleId: UUID) =
-        revokeRoleFromIdentityUseCase.revokeRoleFromIdentity(
+        revokeRoleFromIdentityInputPort.revokeRoleFromIdentity(
             RevokeRoleFromIdentityCommand(
                 identityId = IdentityId.of(id), roleId = RoleId.of(roleId)
             )
@@ -89,6 +89,6 @@ private open class IdentityController(
     @Delete("/{id}")
     @Status(HttpStatus.NO_CONTENT)
     fun deleteIdentity(@PathVariable id: UUID) =
-        deleteIdentityUseCase.deleteIdentity(DeleteIdentityCommand(IdentityId.of(id)))
+        deleteIdentityInputPort.deleteIdentity(DeleteIdentityCommand(IdentityId.of(id)))
 
 }

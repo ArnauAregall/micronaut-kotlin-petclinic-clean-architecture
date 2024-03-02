@@ -2,7 +2,7 @@ package tech.aaregall.lab.petclinic.identity.application.ports.input
 
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 
-fun interface CreateIdentityUseCase {
+fun interface CreateIdentityInputPort {
 
     fun createIdentity(createIdentityCommand: CreateIdentityCommand): Identity
 

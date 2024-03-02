@@ -10,18 +10,18 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
-import tech.aaregall.lab.petclinic.identity.application.ports.usecase.LoadIdentityUseCaseImpl
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.LoadIdentityUseCase
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 
 @ExtendWith(MockKExtension::class)
-internal class LoadIdentityUseCaseImplTest {
+internal class LoadIdentityUseCaseTest {
 
     @MockK
     lateinit var identityOutputPort: IdentityOutputPort
 
     @InjectMockKs
-    lateinit var useCase: LoadIdentityUseCaseImpl
+    lateinit var useCase: LoadIdentityUseCase
 
     @Nested
     inner class LoadIdentity {
