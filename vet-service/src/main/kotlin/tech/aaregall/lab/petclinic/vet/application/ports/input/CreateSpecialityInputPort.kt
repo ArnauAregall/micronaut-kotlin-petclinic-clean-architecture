@@ -2,7 +2,7 @@ package tech.aaregall.lab.petclinic.vet.application.ports.input
 
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 
-fun interface CreateSpecialityUseCase {
+fun interface CreateSpecialityInputPort {
 
     fun createSpeciality(createSpecialityCommand: CreateSpecialityCommand): Speciality
 

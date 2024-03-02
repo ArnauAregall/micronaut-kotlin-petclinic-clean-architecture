@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.vet.domain.service
+package tech.aaregall.lab.petclinic.vet.domain.application.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -13,16 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityCommandException
 import tech.aaregall.lab.petclinic.vet.application.ports.output.SpecialityOutputPort
+import tech.aaregall.lab.petclinic.vet.application.usecase.CreateSpecialityUseCase
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 
 @ExtendWith(MockKExtension::class)
-internal class SpecialityServiceTest {
+internal class CreateSpecialityUseCaseTest {
 
     @MockK
     lateinit var specialityOutputPort: SpecialityOutputPort
 
     @InjectMockKs
-    lateinit var specialityService: SpecialityService
+    lateinit var createSpecialityUseCase: CreateSpecialityUseCase
 
     @Nested
     inner class CreateSpeciality {
@@ -33,7 +34,7 @@ internal class SpecialityServiceTest {
 
             every { specialityOutputPort.specialityExistsByName(name) } answers { true }
 
-            assertThatCode { specialityService.createSpeciality(CreateSpecialityCommand(name)) }
+            assertThatCode { createSpecialityUseCase.createSpeciality(CreateSpecialityCommand(name)) }
                 .isInstanceOf(CreateSpecialityCommandException::class.java)
                 .hasMessageContaining("Failed to create Speciality")
                 .hasMessageContaining("Speciality with name '$name' already exists")
@@ -49,7 +50,7 @@ internal class SpecialityServiceTest {
             every { specialityOutputPort.specialityExistsByName(name) } answers { false }
             every { specialityOutputPort.createSpeciality(any()) } answers { args.first() as Speciality }
 
-            val result = specialityService.createSpeciality(CreateSpecialityCommand(name))
+            val result = createSpecialityUseCase.createSpeciality(CreateSpecialityCommand(name))
 
             assertThat(result)
                 .isNotNull
@@ -71,7 +72,7 @@ internal class SpecialityServiceTest {
             every { specialityOutputPort.specialityExistsByName(name) } answers { false }
             every { specialityOutputPort.createSpeciality(any()) } answers { args.first() as Speciality }
 
-            val result = specialityService.createSpeciality(CreateSpecialityCommand(name, description))
+            val result = createSpecialityUseCase.createSpeciality(CreateSpecialityCommand(name, description))
 
             assertThat(result)
                 .isNotNull
