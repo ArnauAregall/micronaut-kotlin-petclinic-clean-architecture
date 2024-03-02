@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.vet.domain.application.usecase
+package tech.aaregall.lab.petclinic.vet.application.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityCommandException
 import tech.aaregall.lab.petclinic.vet.application.ports.output.SpecialityOutputPort
-import tech.aaregall.lab.petclinic.vet.application.usecase.CreateSpecialityUseCase
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 
 @ExtendWith(MockKExtension::class)

@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.vet.domain.application.usecase
+package tech.aaregall.lab.petclinic.vet.application.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -14,7 +14,6 @@ import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateVetCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateVetCommandException
 import tech.aaregall.lab.petclinic.vet.application.ports.output.SpecialityOutputPort
 import tech.aaregall.lab.petclinic.vet.application.ports.output.VetOutputPort
-import tech.aaregall.lab.petclinic.vet.application.usecase.CreateVetUseCase
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
 import tech.aaregall.lab.petclinic.vet.domain.model.Vet
