@@ -16,7 +16,6 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.AdoptPetCommandEx
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
-import tech.aaregall.lab.petclinic.pet.application.ports.usecase.AdoptPetUseCase
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner

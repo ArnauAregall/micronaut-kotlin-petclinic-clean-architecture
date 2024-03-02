@@ -13,7 +13,6 @@ import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
-import tech.aaregall.lab.petclinic.pet.application.ports.usecase.DeletePetUseCase
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType

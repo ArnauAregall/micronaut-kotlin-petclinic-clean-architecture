@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
-import tech.aaregall.lab.petclinic.pet.application.ports.usecase.CountAllPetsUseCase
 import kotlin.random.Random
 import kotlin.random.nextLong
 
