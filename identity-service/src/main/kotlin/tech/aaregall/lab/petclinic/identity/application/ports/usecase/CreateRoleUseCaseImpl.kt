@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.domain.usecase
+package tech.aaregall.lab.petclinic.identity.application.ports.usecase
 
 import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommand

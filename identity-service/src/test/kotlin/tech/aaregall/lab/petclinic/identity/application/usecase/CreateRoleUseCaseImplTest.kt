@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.domain.usecase
+package tech.aaregall.lab.petclinic.identity.application.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommandException
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.CreateRoleUseCaseImpl
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
 
 @ExtendWith(MockKExtension::class)

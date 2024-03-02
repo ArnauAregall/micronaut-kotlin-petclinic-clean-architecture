@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.domain.usecase
+package tech.aaregall.lab.petclinic.identity.application.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -9,17 +9,18 @@ import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
-import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommandException
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommand
+import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommandException
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.RevokeRoleFromIdentityUseCaseImpl
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
 import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 
 @ExtendWith(MockKExtension::class)
-internal class AssignRoleToIdentityUseCaseImplTest {
+internal class RevokeRoleFromIdentityUseCaseImplTest {
 
     @MockK
     lateinit var identityOutputPort: IdentityOutputPort
@@ -28,10 +29,10 @@ internal class AssignRoleToIdentityUseCaseImplTest {
     lateinit var roleOutputPort: RoleOutputPort
 
     @InjectMockKs
-    lateinit var useCase: AssignRoleToIdentityUseCaseImpl
+    lateinit var useCase: RevokeRoleFromIdentityUseCaseImpl
 
     @Nested
-    inner class AssignRoleToIdentity {
+    inner class RevokeRoleFromIdentity {
 
         @Test
         fun `Throws IllegalArgumentException when Identity does not exist`() {
@@ -40,19 +41,19 @@ internal class AssignRoleToIdentityUseCaseImplTest {
             every { identityOutputPort.loadIdentityById(identityId) } answers { null }
 
             assertThatCode {
-                useCase.assignRoleToIdentity(
-                    AssignRoleToIdentityCommand(
+                useCase.revokeRoleFromIdentity(
+                    RevokeRoleFromIdentityCommand(
                         identityId,
                         RoleId.create()
                     )
                 )
             }
                 .isInstanceOf(IllegalArgumentException::class.java)
-                .hasMessage("Cannot assign roles to a non existing Identity")
+                .hasMessage("Cannot revoke a Role from a non existing Identity")
 
             verify { identityOutputPort.loadIdentityById(identityId) }
             verify (exactly = 0) { roleOutputPort.loadRoleById(any()) }
-            verify (exactly = 0) { roleOutputPort.assignRoleToIdentity(any(), any()) }
+            verify (exactly = 0) { roleOutputPort.revokeRoleFromIdentity(any(), any()) }
         }
 
         @Test
@@ -67,64 +68,64 @@ internal class AssignRoleToIdentityUseCaseImplTest {
             every { roleOutputPort.loadRoleById(roleId) } answers { null }
 
             assertThatCode {
-                useCase.assignRoleToIdentity(
-                    AssignRoleToIdentityCommand(
+                useCase.revokeRoleFromIdentity(
+                    RevokeRoleFromIdentityCommand(
                         identityId,
                         roleId
                     )
                 )
             }
                 .isInstanceOf(IllegalArgumentException::class.java)
-                .hasMessage("Cannot assign a non existing Role to Identity $identityId")
+                .hasMessage("Cannot revoke a non existing Role from Identity $identityId")
 
             verify { identityOutputPort.loadIdentityById(identityId) }
             verify { roleOutputPort.loadRoleById(roleId) }
-            verify (exactly = 0) { roleOutputPort.assignRoleToIdentity(any(), any()) }
+            verify (exactly = 0) { roleOutputPort.revokeRoleFromIdentity(any(), any()) }
         }
 
         @Test
-        fun `Throws AssignRolesToIdentityCommandException when Identity already has the Role assigned`() {
+        fun `Throws RevokeRoleFromIdentityCommandException when Identity does not have the Role assigned`() {
             val identityId = IdentityId.create()
             val roleId = RoleId.create()
 
             every { identityOutputPort.loadIdentityById(identityId) } answers {
-                Identity(id = identityId, firstName = "Foo", lastName = "Bar", roles = listOf(Role(id = roleId, name = "Mage")))
+                Identity(id = identityId, firstName = "Foo", lastName = "Bar", roles = listOf(Role(id = RoleId.create(), name = "Paladin")))
             }
 
             every { roleOutputPort.loadRoleById(roleId) } answers { Role(id = roleId, name = "Mage") }
 
             assertThatCode {
-                useCase.assignRoleToIdentity(
-                    AssignRoleToIdentityCommand(
+                useCase.revokeRoleFromIdentity(
+                    RevokeRoleFromIdentityCommand(
                         identityId,
                         roleId
                     )
                 )
             }
-                .isInstanceOf(AssignRoleToIdentityCommandException::class.java)
-                .hasMessageContaining("Failed assigning Role to Identity")
-                .hasMessageContaining("Identity $identityId already has Role $roleId assigned")
+                .isInstanceOf(RevokeRoleFromIdentityCommandException::class.java)
+                .hasMessageContaining("Failed revoking Role from Identity")
+                .hasMessageContaining("Identity $identityId does not have the Role $roleId assigned")
 
             verify { identityOutputPort.loadIdentityById(identityId) }
             verify { roleOutputPort.loadRoleById(roleId) }
-            verify (exactly = 0) { roleOutputPort.assignRoleToIdentity(any(), any()) }
+            verify (exactly = 0) { roleOutputPort.revokeRoleFromIdentity(any(), any()) }
         }
 
         @Test
-        fun `Should call RoleOutputPort when both Identity and Role exist and Identity does not have the Role yet`() {
+        fun `Should call RoleOutputPort when both Identity and Role exist and Identity has the Role assigned`() {
             val identityId = IdentityId.create()
             val roleId = RoleId.create()
 
-            val mockIdentity = Identity(id = identityId, firstName = "Foo", lastName = "Bar", roles = listOf(Role(id = RoleId.create(), name = "Mage")))
             val mockRole = Role(id = roleId, name = "Warrior")
+            val mockIdentity = Identity(id = identityId, firstName = "Foo", lastName = "Bar", roles = listOf(mockRole))
 
-            every { identityOutputPort.loadIdentityById(identityId) } answers { mockIdentity }
+            every { identityOutputPort.loadIdentityById(identityId)} answers { mockIdentity }
             every { roleOutputPort.loadRoleById(roleId) } answers { mockRole  }
-            every { roleOutputPort.assignRoleToIdentity(mockIdentity, mockRole) } answers { nothing }
+            every { roleOutputPort.revokeRoleFromIdentity(mockIdentity, mockRole) } answers { nothing }
 
             assertThatCode {
-                useCase.assignRoleToIdentity(
-                    AssignRoleToIdentityCommand(
+                useCase.revokeRoleFromIdentity(
+                    RevokeRoleFromIdentityCommand(
                         identityId,
                         roleId
                     )
@@ -134,7 +135,7 @@ internal class AssignRoleToIdentityUseCaseImplTest {
 
             verify { identityOutputPort.loadIdentityById(identityId) }
             verify { roleOutputPort.loadRoleById(roleId) }
-            verify { roleOutputPort.assignRoleToIdentity(mockIdentity, mockRole) }
+            verify { roleOutputPort.revokeRoleFromIdentity(mockIdentity, mockRole) }
         }
 
     }

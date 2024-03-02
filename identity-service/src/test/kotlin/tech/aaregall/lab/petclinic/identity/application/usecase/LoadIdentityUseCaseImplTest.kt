@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.domain.usecase
+package tech.aaregall.lab.petclinic.identity.application.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.LoadIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.usecase.LoadIdentityUseCaseImpl
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 
