@@ -10,18 +10,18 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
-import tech.aaregall.lab.petclinic.pet.application.ports.usecase.CountAllPetsUseCaseImpl
+import tech.aaregall.lab.petclinic.pet.application.ports.usecase.CountAllPetsUseCase
 import kotlin.random.Random
 import kotlin.random.nextLong
 
 @ExtendWith(MockKExtension::class)
-internal class CountAllPetsUseCaseImplTest {
+internal class CountAllPetsUseCaseTest {
 
     @MockK
     lateinit var petOutputPort: PetOutputPort
 
     @InjectMockKs
-    lateinit var useCase: CountAllPetsUseCaseImpl
+    lateinit var useCase: CountAllPetsUseCase
 
     @Nested
     inner class CountAllPets {

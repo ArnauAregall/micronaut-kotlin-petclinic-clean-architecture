@@ -4,12 +4,12 @@ import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetCommandException
-import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetInputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 
 @UseCase
-internal class DeletePetUseCaseImpl(private val petOutputPort: PetOutputPort): DeletePetUseCase {
+internal class DeletePetUseCase(private val petOutputPort: PetOutputPort): DeletePetInputPort {
 
     override fun deletePet(deletePetCommand: DeletePetCommand): UnitReactive<Unit> =
         UnitReactive(

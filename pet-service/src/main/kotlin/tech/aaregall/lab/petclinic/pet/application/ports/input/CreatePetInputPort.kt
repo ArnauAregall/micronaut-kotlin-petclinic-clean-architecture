@@ -6,7 +6,7 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import java.time.LocalDate
 import java.util.UUID
 
-fun interface CreatePetUseCase {
+fun interface CreatePetInputPort {
 
     fun createPet(createPetCommand: CreatePetCommand): UnitReactive<Pet>
 

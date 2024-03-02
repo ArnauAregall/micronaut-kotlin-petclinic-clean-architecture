@@ -4,7 +4,7 @@ import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 
-fun interface LoadPetUseCase {
+fun interface LoadPetInputPort {
 
     fun loadPet(loadPetCommand: LoadPetCommand): UnitReactive<Pet>
 

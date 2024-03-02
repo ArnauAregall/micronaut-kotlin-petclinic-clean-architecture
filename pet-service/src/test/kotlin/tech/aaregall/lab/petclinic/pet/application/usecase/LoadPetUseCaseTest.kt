@@ -14,7 +14,7 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.LoadPetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
-import tech.aaregall.lab.petclinic.pet.application.ports.usecase.LoadPetUseCaseImpl
+import tech.aaregall.lab.petclinic.pet.application.ports.usecase.LoadPetUseCase
 import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
@@ -23,7 +23,7 @@ import java.time.LocalDate
 import java.util.UUID.randomUUID
 
 @ExtendWith(MockKExtension::class)
-internal class LoadPetUseCaseImplTest {
+internal class LoadPetUseCaseTest {
 
     @MockK
     lateinit var petOutputPort: PetOutputPort
@@ -32,7 +32,7 @@ internal class LoadPetUseCaseImplTest {
     lateinit var petOwnerOutputPort: PetOwnerOutputPort
 
     @InjectMockKs
-    lateinit var useCase: LoadPetUseCaseImpl
+    lateinit var useCase: LoadPetUseCase
 
     @Nested
     inner class LoadPet {

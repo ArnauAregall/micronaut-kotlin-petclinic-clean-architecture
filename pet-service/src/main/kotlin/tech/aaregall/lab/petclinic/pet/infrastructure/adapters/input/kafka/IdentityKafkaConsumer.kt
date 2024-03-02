@@ -8,7 +8,7 @@ import io.micronaut.messaging.annotation.MessageHeader
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory.getLogger
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
-import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerInputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import java.util.UUID
@@ -17,7 +17,7 @@ import java.util.UUID
 @KafkaListener(offsetReset = OffsetReset.EARLIEST)
 class IdentityKafkaConsumer(
     private val petOwnerOutputPort: PetOwnerOutputPort,
-    private val deletePetsByPetOwnerUseCase: DeletePetsByPetOwnerUseCase) {
+    private val deletePetsByPetOwnerInputPort: DeletePetsByPetOwnerInputPort) {
 
     private val logger = getLogger(this::class.java)
 
@@ -27,7 +27,7 @@ class IdentityKafkaConsumer(
             "DELETE" -> {
                 val identityId = UUID.fromString(key)
                 petOwnerOutputPort.deletePetOwner(PetOwner(identityId))
-                deletePetsByPetOwnerUseCase.deletePetsByPetOwner(DeletePetsByPetOwnerCommand(identityId))
+                deletePetsByPetOwnerInputPort.deletePetsByPetOwner(DeletePetsByPetOwnerCommand(identityId))
             }
 
             else -> logger.info("Ignoring action $actionHeader for record with ID $key")

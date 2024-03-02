@@ -4,7 +4,7 @@ import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommandException
-import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetInputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
@@ -13,10 +13,10 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 
 @UseCase
-internal class CreatePetUseCaseImpl(
+internal class CreatePetUseCase(
     private val petOutputPort: PetOutputPort,
     private val petOwnerOutputPort: PetOwnerOutputPort
-) : CreatePetUseCase {
+) : CreatePetInputPort {
 
     override fun createPet(createPetCommand: CreatePetCommand): UnitReactive<Pet> =
         createPetCommand.ownerIdentityId

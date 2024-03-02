@@ -5,7 +5,7 @@ import tech.aaregall.lab.petclinic.pet.domain.model.Pet
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 import java.util.UUID
 
-fun interface AdoptPetUseCase {
+fun interface AdoptPetInputPort {
 
     fun adoptPet(adoptPetCommand: AdoptPetCommand): UnitReactive<Pet>
 

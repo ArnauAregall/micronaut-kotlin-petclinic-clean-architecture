@@ -3,7 +3,7 @@ package tech.aaregall.lab.petclinic.pet.application.ports.input
 import tech.aaregall.lab.petclinic.common.reactive.UnitReactive
 import tech.aaregall.lab.petclinic.pet.domain.model.PetId
 
-fun interface DeletePetUseCase {
+fun interface DeletePetInputPort {
 
     fun deletePet(deletePetCommand: DeletePetCommand): UnitReactive<Unit>
 

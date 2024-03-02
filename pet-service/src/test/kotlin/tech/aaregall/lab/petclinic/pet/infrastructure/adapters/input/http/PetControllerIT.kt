@@ -32,7 +32,7 @@ import org.mockserver.model.JsonBody.json
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
-import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetUseCase
+import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetInputPort
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
 import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
@@ -70,7 +70,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
     }
 
     @Nested
-    inner class SearchPets(private val createPetUseCase: CreatePetUseCase, private val r2dbc: R2dbcOperations) {
+    inner class SearchPets(private val createPetInputPort: CreatePetInputPort, private val r2dbc: R2dbcOperations) {
 
         // TODO Find a cleaner solution to not depend on r2dbc, maybe something more elegant like @CleanDatabase
         @BeforeEach
@@ -131,7 +131,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
                     )
                 )
             )
-                .flatMap { createPetUseCase.createPet(it).toMono() }
+                .flatMap { createPetInputPort.createPet(it).toMono() }
                 .collectList()
                 .block()!!
 
@@ -171,7 +171,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
     }
 
     @Nested
-    inner class LoadPet(private val createPetUseCase: CreatePetUseCase) {
+    inner class LoadPet(private val createPetInputPort: CreatePetInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -220,7 +220,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
         @Test
         fun `Should return 200 OK with null Owner details when Pet exists and does not have a PetOwner`() {
-            val pet = createPetUseCase.createPet(
+            val pet = createPetInputPort.createPet(
                 CreatePetCommand(
                     type = PetType.CAT,
                     name = "Silvester",
@@ -252,7 +252,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
             val ownerIdentityId = randomUUID()
             mockGetIdentityResponse(ownerIdentityId, HttpStatus.OK)
 
-            val pet = createPetUseCase.createPet(
+            val pet = createPetInputPort.createPet(
                 CreatePetCommand(
                     type = PetType.BIRD,
                     name = "Tweety",
@@ -284,7 +284,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
     }
 
     @Nested
-    inner class AdoptPet(private val createPetUseCase: CreatePetUseCase) {
+    inner class AdoptPet(private val createPetInputPort: CreatePetInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization token`() {
@@ -366,7 +366,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
         @Test
         fun `Should return 400 Bad Request when PetOwner does not exist`() {
-            val pet = createPetUseCase.createPet(
+            val pet = createPetInputPort.createPet(
                 CreatePetCommand(
                     type = PetType.DOG,
                     name = "Snoopy",
@@ -403,7 +403,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
         @Test
         fun `Should return 200 OK with new PetOwner details when both Pet and PetOwner exist`() {
-            val pet = createPetUseCase.createPet(
+            val pet = createPetInputPort.createPet(
                 CreatePetCommand(
                     type = PetType.DOG,
                     name = "Poppy",
@@ -443,7 +443,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
     }
 
     @Nested
-    inner class DeletePet(private val createPetUseCase: CreatePetUseCase) {
+    inner class DeletePet(private val createPetInputPort: CreatePetInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {
@@ -497,7 +497,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
         @Test
         fun `Should return 204 No Content when Pet exits`() {
-            val pet = createPetUseCase.createPet(
+            val pet = createPetInputPort.createPet(
                 CreatePetCommand(
                     type = PetType.DOG,
                     name = "Snoopy",
