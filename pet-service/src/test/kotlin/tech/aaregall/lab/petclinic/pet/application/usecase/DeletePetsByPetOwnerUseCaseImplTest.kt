@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.pet.domain.usecase
+package tech.aaregall.lab.petclinic.pet.application.usecase
 
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOutputPort
+import tech.aaregall.lab.petclinic.pet.application.ports.usecase.DeletePetsByPetOwnerUseCaseImpl
 import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import java.util.UUID.randomUUID
 

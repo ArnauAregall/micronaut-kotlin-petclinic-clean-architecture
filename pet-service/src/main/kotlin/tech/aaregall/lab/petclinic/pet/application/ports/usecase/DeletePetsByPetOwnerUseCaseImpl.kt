@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.pet.domain.usecase
+package tech.aaregall.lab.petclinic.pet.application.ports.usecase
 
 import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
