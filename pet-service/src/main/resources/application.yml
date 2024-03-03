@@ -35,7 +35,7 @@ r2dbc:
     default:
       dialect: postgres
       options:
-        currentSchema: pet_service
+        currentSchema: ${micronaut.application.name}
 
 flyway:
   datasources:

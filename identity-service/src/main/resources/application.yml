@@ -27,3 +27,12 @@ datasources:
   default:
     db-type: postgres
     driver-class-name: org.postgresql.Driver
+    schema: ${micronaut.application.name}
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+      locations:
+        - db/migrations
+      default-schema: ${datasources.default.schema}

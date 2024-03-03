@@ -27,6 +27,7 @@ dependencies {
     implementation("io.micronaut:micronaut-http-client")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     testImplementation(project(":test-resources"))
