@@ -2,5 +2,14 @@
   {
     "name" : "java.util.UUID[]",
     "unsafeAllocated" : true
+  },
+  {
+    "name": "org.flywaydb.database.postgresql.PostgreSQLConfigurationExtension",
+    "allPublicMethods": true
+  },
+  {
+    "name": "tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.persistence.IdentityRoleId",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true
   }
 ]
