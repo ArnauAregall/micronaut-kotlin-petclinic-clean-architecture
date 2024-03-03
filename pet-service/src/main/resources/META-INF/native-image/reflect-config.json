@@ -1,0 +1,6 @@
+[
+  {
+    "name": "org.flywaydb.database.postgresql.PostgreSQLConfigurationExtension",
+    "allPublicMethods": true
+  }
+]
