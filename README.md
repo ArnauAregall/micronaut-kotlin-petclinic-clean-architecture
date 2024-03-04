@@ -56,7 +56,7 @@ docker compose up
 
 - Open your browser and head to [Master Realm Admin Console](http://keycloak.local:8082/admin/master/console/) page.
 - Login with Keycloak Administrator credentials.
-- Create a new realm by importing the test realm file `./test-resources/src/main/resources/keycloak/test-petclinic-realm.json`.
+- Create a new realm named `petclinic` by importing the file `./keycloak/realm/petclinic-realm.json`.
 
 **3. identity-service**
 
