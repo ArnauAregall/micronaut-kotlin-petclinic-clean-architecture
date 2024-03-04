@@ -1,3 +1,5 @@
+import io.micronaut.gradle.docker.NativeImageDockerfile
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.jpa")
@@ -73,4 +75,7 @@ micronaut {
     }
 }
 
+tasks.withType<NativeImageDockerfile> {
+    jdkVersion.set("21")
+}
 
