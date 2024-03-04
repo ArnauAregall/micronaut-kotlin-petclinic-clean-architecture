@@ -23,30 +23,53 @@ The goal is to mimic the well known project [Spring PetClinic](https://spring-pe
 
 ## Running the application
 
-### 1. Infrastructure dependencies
+**Add the following entry to your `/etc/hosts`**:
 
-```shell
-docker-compose up
+```
+# Required for Keycloak issuer matching 
+127.0.0.1 keycloak.local
 ```
 
-### 2. Import Keycloak OpenID realm
+### Containerized with `docker-compose`
 
-- Open your browser and head to [Master Realm Admin Console](http://localhost:8082/admin/master/console/) page.
-- Login with Keycloak username and password.
-- Create a new realm by importing the test realm file `./test-resources/src/main/resources/keycloak/test-petclinic-realm.json`.
+**Build services Docker images**:
 
-### 3. identity-service
+```
+./gradlew :identity-service:dockerBuildNative && ./gradlew :pet-service:dockerBuildNative
+```
+
+**Start all the applications and infrastructure containers**:
+
+```
+docker compose --profile petclinic up
+```
+
+### Local development mode
+
+**1. Start infrastructure dependencies containers**
 
 ```shell
-./gradlew :identity-service:nativeCompile
+docker compose up
+```
+
+**2. Import Keycloak OpenID realm**
+
+- Open your browser and head to [Master Realm Admin Console](http://keycloak.local:8082/admin/master/console/) page.
+- Login with Keycloak Administrator credentials.
+- Create a new realm by importing the test realm file `./test-resources/src/main/resources/keycloak/test-petclinic-realm.json`.
+
+**3. identity-service**
+
+```shell
+./gradlew :identity-service:nativeCompile # or from your IDE with the env vars below
 
 export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxx; ./identity-service/build/native/nativeCompile/identity-service
 ```
 
-### 4. pet-service
+**4. pet-service**
 
 ```shell
-./gradlew :pet-service:nativeCompile
+./gradlew :pet-service:nativeCompile # or from your IDE with the env vars below
 
 export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxxx; ./pet-service/build/native/nativeCompile/pet-service
 ```
