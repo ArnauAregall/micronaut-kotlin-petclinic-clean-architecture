@@ -1,4 +1,4 @@
-version: '3'
+version: '3.4'
 services:
 
   zookeeper:
@@ -12,12 +12,13 @@ services:
     image: 'confluentinc/cp-kafka:latest'
     depends_on:
       - zookeeper
+    hostname: kafka
     ports:
       - '9092:9092'
       - '29092:9092'
     environment:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
@@ -40,13 +41,24 @@ services:
     image: 'quay.io/keycloak/keycloak:latest'
     depends_on:
       - postgres
-    command: ['start-dev']
+    command: ['start-dev', '--health-enabled=true']
     hostname: keycloak
+    networks:
+      default:
+        aliases:
+          - keycloak.local
     ports:
-      - '8082:8080'
+      - '8082:8082'
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 8082
+      KC_HOSTNAME_URL: http://keycloak.local:8082/
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8082;echo -e \"GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     image: 'postgres:latest'
@@ -64,6 +76,31 @@ services:
       - '6379:6379'
     volumes:
       - redis_data:/data
+
+  identity-service:
+    profiles:
+      - petclinic
+    image: 'identity-service:latest'
+    ports:
+      - '8080:8080'
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+    restart: always
+    environment:
+      DATASOURCES_DEFAULT_URL: jdbc:postgresql://postgres:5432/postgres
+      DATASOURCES_DEFAULT_USERNAME: postgres
+      DATASOURCES_DEFAULT_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MICRONAUT_SECURITY_OAUTH2_CLIENTS_KEYCLOAK_OPENID_ISSUER: http://keycloak.local:8082/realms/petclinic
+      OAUTH2_CLIENT_SECRET: identity-service-secret
+
+    # TODO: Add pet-service
+
 
 volumes:
   postgres_data:
