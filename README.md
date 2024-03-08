@@ -32,10 +32,10 @@ The goal is to mimic the well known project [Spring PetClinic](https://spring-pe
 
 ### Containerized with `docker-compose`
 
-**Build services Docker images**:
+**Build Micronaut applications Docker images**:
 
 ```
-./gradlew :identity-service:dockerBuildNative && ./gradlew :pet-service:dockerBuildNative
+./gradlew dockerBuildNative
 ```
 
 **Start all the applications and infrastructure containers**:
@@ -52,13 +52,7 @@ docker compose --profile petclinic up
 docker compose up
 ```
 
-**2. Import Keycloak OpenID realm**
-
-- Open your browser and head to [Master Realm Admin Console](http://keycloak.local:8082/admin/master/console/) page.
-- Login with Keycloak Administrator credentials.
-- Create a new realm named `petclinic` by importing the file `./keycloak/realm/petclinic-realm.json`.
-
-**3. identity-service**
+**2. identity-service**
 
 ```shell
 ./gradlew :identity-service:nativeCompile # or from your IDE with the env vars below
@@ -66,7 +60,7 @@ docker compose up
 export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxx; ./identity-service/build/native/nativeCompile/identity-service
 ```
 
-**4. pet-service**
+**3. pet-service**
 
 ```shell
 ./gradlew :pet-service:nativeCompile # or from your IDE with the env vars below
@@ -78,7 +72,13 @@ export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxxx; ./pet-service/build
 
 ### Keycloak notes
 
-OpenID client settings:
+**How to import Keycloak OpenID realm**
+
+- Open your browser and head to [Master Realm Admin Console](http://keycloak.local:8082/admin/master/console/) page.
+- Login with Keycloak Administrator credentials.
+- Create a new realm named `petclinic` by importing the file `./keycloak/realm/petclinic-realm.json`.
+
+**OpenID client settings**:
 
 - Valid Redirect URIs:
 
