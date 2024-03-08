@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("io.micronaut.application")
+    id("io.micronaut.library")
     id("io.micronaut.test-resources")
 }
 
