@@ -1,3 +1,4 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import io.micronaut.gradle.docker.NativeImageDockerfile
 
 plugins {
@@ -67,6 +68,10 @@ micronaut {
         deduceEnvironment.set(true)
         optimizeNetty.set(true)
     }
+}
+
+tasks.withType<DockerBuildImage> {
+    images.add("${project.group}/${project.name}")
 }
 
 tasks.withType<NativeImageDockerfile> {
