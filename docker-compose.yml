@@ -99,7 +99,32 @@ services:
       MICRONAUT_SECURITY_OAUTH2_CLIENTS_KEYCLOAK_OPENID_ISSUER: http://keycloak.local:8082/realms/petclinic
       OAUTH2_CLIENT_SECRET: identity-service-secret
 
-    # TODO: Add pet-service
+  pet-service:
+    profiles:
+      - petclinic
+    image: 'pet-service:latest'
+    ports:
+      - '8083:8080'
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+    restart: always
+    environment:
+      DATASOURCES_DEFAULT_URL: jdbc:postgresql://postgres:5432/postgres
+      DATASOURCES_DEFAULT_USERNAME: postgres
+      DATASOURCES_DEFAULT_PASSWORD: postgres
+      R2DBC_DATASOURCES_DEFAULT_URL: r2dbc:postgresql://postgres:5432/postgres
+      R2DBC_DATASOURCES_DEFAULT_USERNAME: postgres
+      R2DBC_DATASOURCES_DEFAULT_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_URI: redis://redis:6379
+      MICRONAUT_HTTP_SERVICES_IDENTITY-SERVICE_URL: http://identity-service:8080
+      MICRONAUT_SECURITY_OAUTH2_CLIENTS_KEYCLOAK_OPENID_ISSUER: http://keycloak.local:8082/realms/petclinic
+      OAUTH2_CLIENT_SECRET: pet-service-secret
 
 
 volumes:
