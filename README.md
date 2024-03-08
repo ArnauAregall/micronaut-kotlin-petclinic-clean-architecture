@@ -8,6 +8,7 @@ Tech stack:
 
 - Kotlin
 - Gradle
+- GraalVM
 - Micronaut
 - Postgres
 - Hibernate / R2DBC
@@ -19,6 +20,18 @@ Tech stack:
 
 The goal is to mimic the well known project [Spring PetClinic](https://spring-petclinic.github.io/) but using Micronaut and following a distributed architecture design.
 
+----
+## Requirements
+
+The application requires **JDK 21** on a GraalVM distribution.
+
+Is recommended to use [SDKMAN!](https://sdkman.io/) to install the JDK. 
+
+````shell
+$ curl -s "https://get.sdkman.io" | bash
+$ sdk install java 21.0.2-graalce
+$ sdk use java 21.0.2-graalce
+````
 ----
 
 ## Running the application
@@ -57,7 +70,7 @@ docker compose up
 ```shell
 ./gradlew :identity-service:nativeCompile # or from your IDE with the env vars below
 
-export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxx; ./identity-service/build/native/nativeCompile/identity-service
+export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=identity-service-secret; ./identity-service/build/native/nativeCompile/identity-service
 ```
 
 **3. pet-service**
@@ -65,7 +78,7 @@ export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxx; ./identity-service/b
 ```shell
 ./gradlew :pet-service:nativeCompile # or from your IDE with the env vars below
 
-export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=xxxx; ./pet-service/build/native/nativeCompile/pet-service
+export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=pet-service-secret; ./pet-service/build/native/nativeCompile/pet-service
 ```
 
 ----
