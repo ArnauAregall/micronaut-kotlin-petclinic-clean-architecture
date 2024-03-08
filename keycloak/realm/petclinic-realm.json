@@ -839,7 +839,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "pet-service-secret",
       "redirectUris": [
         "http://localhost:8083/oauth/callback/keycloak"
       ],
