@@ -43,6 +43,8 @@ $ sdk use java 21.0.2-graalce
 127.0.0.1 keycloak.local
 ```
 
+Also see `.env` file for needed environment variables.
+
 ### Containerized with `docker-compose`
 
 **Build Micronaut applications Docker images**:
@@ -70,7 +72,7 @@ docker compose up
 ```shell
 ./gradlew :identity-service:nativeCompile # or from your IDE with the env vars below
 
-export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=identity-service-secret; ./identity-service/build/native/nativeCompile/identity-service
+export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=${IDENTITY_SERVICE_OAUTH2_CLIENT_SECRET}; ./identity-service/build/native/nativeCompile/identity-service
 ```
 
 **3. pet-service**
@@ -78,7 +80,7 @@ export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=identity-service-secret; 
 ```shell
 ./gradlew :pet-service:nativeCompile # or from your IDE with the env vars below
 
-export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=pet-service-secret; ./pet-service/build/native/nativeCompile/pet-service
+export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=${PET_SERVICE_OAUTH2_CLIENT_SECRET}; ./pet-service/build/native/nativeCompile/pet-service
 ```
 
 ----
