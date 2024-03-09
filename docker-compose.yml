@@ -52,8 +52,8 @@ services:
     volumes:
       - ./keycloak/realm:/opt/keycloak/data/import
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HTTP_PORT: 8082
       KC_HOSTNAME_URL: http://keycloak.local:8082/
     healthcheck:
@@ -68,7 +68,7 @@ services:
       - '5432:5432'
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -95,11 +95,11 @@ services:
     restart: always
     environment:
       DATASOURCES_DEFAULT_URL: jdbc:postgresql://postgres:5432/postgres
-      DATASOURCES_DEFAULT_USERNAME: postgres
-      DATASOURCES_DEFAULT_PASSWORD: postgres
+      DATASOURCES_DEFAULT_USERNAME: ${POSTGRES_USERNAME}
+      DATASOURCES_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       MICRONAUT_SECURITY_OAUTH2_CLIENTS_KEYCLOAK_OPENID_ISSUER: http://keycloak.local:8082/realms/petclinic
-      OAUTH2_CLIENT_SECRET: identity-service-secret
+      OAUTH2_CLIENT_SECRET: ${IDENTITY_SERVICE_OAUTH2_CLIENT_SECRET}
 
   pet-service:
     profiles:
@@ -117,16 +117,16 @@ services:
     restart: always
     environment:
       DATASOURCES_DEFAULT_URL: jdbc:postgresql://postgres:5432/postgres
-      DATASOURCES_DEFAULT_USERNAME: postgres
-      DATASOURCES_DEFAULT_PASSWORD: postgres
+      DATASOURCES_DEFAULT_USERNAME: ${POSTGRES_USERNAME}
+      DATASOURCES_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
       R2DBC_DATASOURCES_DEFAULT_URL: r2dbc:postgresql://postgres:5432/postgres
-      R2DBC_DATASOURCES_DEFAULT_USERNAME: postgres
-      R2DBC_DATASOURCES_DEFAULT_PASSWORD: postgres
+      R2DBC_DATASOURCES_DEFAULT_USERNAME: ${POSTGRES_USERNAME}
+      R2DBC_DATASOURCES_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       REDIS_URI: redis://redis:6379
       MICRONAUT_HTTP_SERVICES_IDENTITY-SERVICE_URL: http://identity-service:8080
       MICRONAUT_SECURITY_OAUTH2_CLIENTS_KEYCLOAK_OPENID_ISSUER: http://keycloak.local:8082/realms/petclinic
-      OAUTH2_CLIENT_SECRET: pet-service-secret
+      OAUTH2_CLIENT_SECRET: ${PET_SERVICE_OAUTH2_CLIENT_SECRET}
 
 
 volumes:
