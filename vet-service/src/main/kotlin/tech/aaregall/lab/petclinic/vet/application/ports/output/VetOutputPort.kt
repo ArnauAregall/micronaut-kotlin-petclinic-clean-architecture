@@ -11,4 +11,6 @@ interface VetOutputPort {
 
     fun loadVet(vetId: VetId): Vet?
 
+    fun deleteVet(vet: Vet)
+
 }
