@@ -10,7 +10,9 @@ Tech stack:
 - Gradle
 - GraalVM
 - Micronaut
+- Project Reactor
 - Postgres
+- Flyway
 - Hibernate / R2DBC
 - Apache Kafka
 - Redis
