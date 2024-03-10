@@ -128,6 +128,12 @@ services:
       MICRONAUT_SECURITY_OAUTH2_CLIENTS_KEYCLOAK_OPENID_ISSUER: http://keycloak.local:8082/realms/petclinic
       OAUTH2_CLIENT_SECRET: ${PET_SERVICE_OAUTH2_CLIENT_SECRET}
 
+  vet-service:
+    profiles:
+      - petclinic
+    image: 'tech.aaregall.lab.petclinic/vet-service:latest'
+    ports:
+      - '8084:8080'
 
 volumes:
   postgres_data:
