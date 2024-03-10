@@ -7,6 +7,8 @@ interface VetOutputPort {
 
     fun isValidVetId(vetId: VetId): Boolean
 
+    fun findVets(pageNumber: Int, pageSize: Int): Collection<Vet>?
+
     fun createVet(vet: Vet): Vet
 
     fun loadVet(vetId: VetId): Vet?
