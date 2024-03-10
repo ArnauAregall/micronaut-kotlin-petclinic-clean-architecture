@@ -58,8 +58,8 @@ internal class SearchSpecialitiesUseCaseTest {
                 .isEqualTo(specialities)
         }
 
-        private fun findSpecialitiesResults(): Stream<Arguments> {
-            return Stream.of(
+        private fun findSpecialitiesResults(): Stream<Arguments> =
+            Stream.of(
                 arguments(emptySet<Speciality>()),
                 arguments(
                     IntRange(start = 1, endInclusive = 50).map { index ->
@@ -67,7 +67,6 @@ internal class SearchSpecialitiesUseCaseTest {
                     }.toSet()
                 )
             )
-        }
 
     }
 
