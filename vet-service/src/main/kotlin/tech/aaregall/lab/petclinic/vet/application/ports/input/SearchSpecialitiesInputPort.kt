@@ -4,7 +4,7 @@ import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 
 fun interface SearchSpecialitiesInputPort {
 
-    fun searchSpecialities(searchSpecialitiesCommand: SearchSpecialitiesCommand): Collection<Speciality>?
+    fun searchSpecialities(searchSpecialitiesCommand: SearchSpecialitiesCommand): Collection<Speciality>
 
 }
 

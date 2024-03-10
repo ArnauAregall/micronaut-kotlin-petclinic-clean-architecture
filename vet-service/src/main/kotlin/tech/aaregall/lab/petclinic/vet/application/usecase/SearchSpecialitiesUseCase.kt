@@ -9,7 +9,7 @@ import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 @UseCase
 internal class SearchSpecialitiesUseCase(private val specialityOutputPort: SpecialityOutputPort): SearchSpecialitiesInputPort {
 
-    override fun searchSpecialities(searchSpecialitiesCommand: SearchSpecialitiesCommand): Collection<Speciality>? =
+    override fun searchSpecialities(searchSpecialitiesCommand: SearchSpecialitiesCommand): Collection<Speciality> =
         specialityOutputPort.findSpecialities(searchSpecialitiesCommand.pageNumber, searchSpecialitiesCommand.pageSize)
             .orEmpty()
 
