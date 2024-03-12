@@ -24,8 +24,13 @@ class MockServerSpec: TestResourcesPropertyProvider {
 
     }
 
-    override fun provide(testProperties: MutableMap<String, Any>?): MutableMap<String, String> {
-        return mutableMapOf("micronaut.http.services.identity-service.url" to mockServerContainer.endpoint)
+    override fun provide(testProperties: MutableMap<String, Any>): MutableMap<String, String> {
+        val map = mutableMapOf<String, String>()
+        testProperties.filterKeys { it.startsWith("micronaut.http") && it.contains("url") }
+            .keys.forEach {
+                map[it] = mockServerContainer.endpoint
+            }
+        return map
     }
 
 }
