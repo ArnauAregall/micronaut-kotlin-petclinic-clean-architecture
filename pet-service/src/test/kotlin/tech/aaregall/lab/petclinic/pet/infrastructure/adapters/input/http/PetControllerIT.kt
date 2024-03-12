@@ -34,10 +34,10 @@ import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetInputPort
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType
-import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec
-import tech.aaregall.lab.petclinic.pet.spec.MockServerSpec.Companion.getMockServerClient
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
+import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerSpec
+import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerSpec.Companion.getMockServerClient
 import java.time.LocalDate
 import java.util.UUID
 import java.util.UUID.randomUUID

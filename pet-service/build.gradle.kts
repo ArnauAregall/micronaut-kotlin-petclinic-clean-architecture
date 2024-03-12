@@ -36,8 +36,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("io.mockk:mockk:${project.properties["mockkVersion"]}")
-    testImplementation("org.mock-server:mockserver-client-java:${project.properties["testcontainersMockserverVersion"]}")
-    testImplementation("org.testcontainers:mockserver")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:r2dbc")
 }

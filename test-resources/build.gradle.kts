@@ -10,8 +10,10 @@ version = "0.1"
 dependencies {
     implementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
     implementation("org.testcontainers:testcontainers")
+    implementation("org.testcontainers:mockserver")
     implementation("io.rest-assured:kotlin-extensions:${project.properties["restAssuredKotlinExtensionsVersion"]}")
     implementation("com.github.dasniko:testcontainers-keycloak:${project.properties["testcontainersKeycloakVersion"]}")
+    api("org.mock-server:mockserver-client-java:${project.properties["testcontainersMockserverVersion"]}")
 }
 
 tasks.test {
