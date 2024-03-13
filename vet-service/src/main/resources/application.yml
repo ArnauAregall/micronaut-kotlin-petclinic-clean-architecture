@@ -1,3 +1,14 @@
 micronaut:
   application:
     name: vet-service
+
+  http:
+    services:
+      identity-service:
+        url: "http://identity-service"
+
+app:
+  ports:
+    output:
+      vet-id-validation:
+        required-identity-role-name: "VET"
