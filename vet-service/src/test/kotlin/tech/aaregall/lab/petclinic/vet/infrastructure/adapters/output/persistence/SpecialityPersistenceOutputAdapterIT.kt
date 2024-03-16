@@ -18,9 +18,11 @@ internal class SpecialityPersistenceOutputAdapterIT(
     private val jdbc: JdbcOperations,
     private val outputAdapter: SpecialityPersistenceOutputAdapter) {
 
+    private fun runSql(sql: String) = jdbc.execute { c -> c.prepareCall(sql).execute() }
+
     @BeforeEach
     fun setUp() {
-        jdbc.execute { c -> c.prepareCall("TRUNCATE TABLE speciality CASCADE").execute() }
+        runSql("TRUNCATE TABLE speciality CASCADE")
     }
 
     @Nested
@@ -35,10 +37,7 @@ internal class SpecialityPersistenceOutputAdapterIT(
 
         @Test
         fun `Should return false when no matching names on the table`() {
-            jdbc.execute { c ->
-                c.prepareCall("INSERT INTO speciality VALUES ('${randomUUID()}', 'Surgery'), ('${randomUUID()}', 'Bar')")
-                    .execute()
-            }
+            runSql("INSERT INTO speciality VALUES ('${randomUUID()}', 'Surgery'), ('${randomUUID()}', 'Bar')")
 
             val result = outputAdapter.specialityExistsByName("Dentistry")
 
@@ -47,7 +46,7 @@ internal class SpecialityPersistenceOutputAdapterIT(
 
         @Test
         fun `Should return true when a name matches exactly`() {
-            jdbc.execute { c -> c.prepareCall("INSERT INTO speciality VALUES ('${randomUUID()}', 'Surgery')").execute() }
+            runSql("INSERT INTO speciality VALUES ('${randomUUID()}', 'Surgery')")
 
             val result = outputAdapter.specialityExistsByName("Surgery")
 
@@ -56,7 +55,7 @@ internal class SpecialityPersistenceOutputAdapterIT(
 
         @Test
         fun `Should return true when a name matches ignore case`() {
-            jdbc.execute { c -> c.prepareCall("INSERT INTO speciality VALUES ('${randomUUID()}', 'Surgery')").execute() }
+            runSql("INSERT INTO speciality VALUES ('${randomUUID()}', 'Surgery')")
 
             val result = outputAdapter.specialityExistsByName("sUrGeRy")
 
@@ -65,7 +64,7 @@ internal class SpecialityPersistenceOutputAdapterIT(
 
         @Test
         fun `Should return true when a name contains the given name`() {
-            jdbc.execute { c -> c.prepareCall("INSERT INTO speciality VALUES ('${randomUUID()}', 'Cardiology Speciality')").execute() }
+            runSql("INSERT INTO speciality VALUES ('${randomUUID()}', 'Cardiology Speciality')")
 
             val result = outputAdapter.specialityExistsByName("cardiology")
 
