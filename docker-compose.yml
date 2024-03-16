@@ -134,6 +134,13 @@ services:
     image: 'tech.aaregall.lab.petclinic/vet-service:latest'
     ports:
       - '8084:8080'
+    depends_on:
+      postgres:
+        condition: service_started
+    environment:
+      DATASOURCES_DEFAULT_URL: jdbc:postgresql://postgres:5432/postgres
+      DATASOURCES_DEFAULT_USERNAME: ${POSTGRES_USERNAME}
+      DATASOURCES_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
 
 volumes:
   postgres_data:
