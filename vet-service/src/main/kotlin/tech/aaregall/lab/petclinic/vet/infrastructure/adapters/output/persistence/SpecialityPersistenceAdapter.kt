@@ -9,7 +9,7 @@ import tech.aaregall.lab.petclinic.vet.domain.model.Vet
 import java.sql.ResultSet
 
 @Singleton
-internal class SpecialityPersistenceOutputAdapter(private val jdbc: JdbcOperations): SpecialityOutputPort {
+internal class SpecialityPersistenceAdapter(private val jdbc: JdbcOperations): SpecialityOutputPort {
 
     override fun specialityExistsByName(name: String): Boolean =
         jdbc.execute { conn ->

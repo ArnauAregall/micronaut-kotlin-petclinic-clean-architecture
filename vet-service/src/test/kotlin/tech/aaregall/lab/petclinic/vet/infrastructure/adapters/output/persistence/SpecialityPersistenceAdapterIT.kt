@@ -15,9 +15,9 @@ import java.util.UUID.nameUUIDFromBytes
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
-internal class SpecialityPersistenceOutputAdapterIT(
+internal class SpecialityPersistenceAdapterIT(
     private val jdbc: JdbcOperations,
-    private val outputAdapter: SpecialityPersistenceOutputAdapter) {
+    private val outputAdapter: SpecialityPersistenceAdapter) {
 
     private fun runSql(sql: String) = jdbc.execute { c -> c.prepareCall(sql).execute() }
 
