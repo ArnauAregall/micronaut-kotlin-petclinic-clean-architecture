@@ -32,9 +32,22 @@ internal class SpecialityPersistenceOutputAdapter(private val jdbc: JdbcOperatio
                 }
         }
 
-    override fun createSpeciality(speciality: Speciality): Speciality {
-        TODO("Not yet implemented")
-    }
+    override fun createSpeciality(speciality: Speciality): Speciality =
+        jdbc.execute { conn ->
+            conn.prepareStatement("INSERT INTO speciality (id, name, description) VALUES (?::uuid,?,?)", arrayOf("id", "name", "description"))
+                .use { statement ->
+                    statement.setString(1, speciality.id.toString())
+                    statement.setString(2, speciality.name)
+                    statement.setString(3, speciality.description)
+                    statement.executeUpdate()
+                    val rs = statement.generatedKeys
+                    if (rs.next()) {
+                        return@execute mapRow(rs)
+                    } else {
+                       error("Failed persisting Speciality, no rows returned [$speciality]")
+                    }
+                }
+        }
 
     override fun loadSpeciality(specialityId: SpecialityId): Speciality? {
         TODO("Not yet implemented")

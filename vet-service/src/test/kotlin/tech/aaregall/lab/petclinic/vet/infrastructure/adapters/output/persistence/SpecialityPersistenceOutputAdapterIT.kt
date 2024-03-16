@@ -128,9 +128,25 @@ internal class SpecialityPersistenceOutputAdapterIT(
     inner class CreateSpeciality {
 
         @Test
-        fun `Not yet implemented`() {
-            assertThatCode { outputAdapter.createSpeciality(Speciality(SpecialityId.create(), "Foo")) }
-                .isInstanceOf(NotImplementedError::class.java)
+        fun `Should return the Speciality passed as argument and insert a row in the table`() {
+            val speciality = Speciality(SpecialityId.create(), "Surgery", "Surgery speciality description")
+
+            val result = outputAdapter.createSpeciality(speciality)
+
+            assertThat(result).isNotNull.isEqualTo(result)
+
+            jdbc.execute { c -> c.prepareStatement("""
+                SELECT EXISTS (
+                    SELECT 1 
+                    FROM speciality 
+                    WHERE id = '${speciality.id}' 
+                    AND name = '${speciality.name}' 
+                    AND description = '${speciality.description}'
+                )
+            """.trimIndent()).executeQuery().use {
+                it.next()
+                assertThat(it.getBoolean(1)).isTrue()
+            }}
         }
     }
 
