@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm")
     id("io.micronaut.application")
     id("io.micronaut.aot")
+    id("io.micronaut.test-resources")
 }
 
 version = "0.1"
@@ -24,6 +25,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
     testImplementation(project(":test-resources"))
+    testImplementation("org.testcontainers:postgresql")
     testImplementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
     testImplementation("org.junit.jupiter:junit-jupiter:${project.properties["junitJupiterVersion"]}")
     testImplementation("org.assertj:assertj-core:${project.properties["assertjVersion"]}")
