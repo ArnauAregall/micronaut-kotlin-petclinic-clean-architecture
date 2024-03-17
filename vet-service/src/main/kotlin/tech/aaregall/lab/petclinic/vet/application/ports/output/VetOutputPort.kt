@@ -1,5 +1,6 @@
 package tech.aaregall.lab.petclinic.vet.application.ports.output
 
+import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.Vet
 import tech.aaregall.lab.petclinic.vet.domain.model.VetId
 
@@ -12,5 +13,7 @@ interface VetOutputPort {
     fun loadVet(vetId: VetId): Vet?
 
     fun deleteVet(vet: Vet)
+
+    fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet
 
 }

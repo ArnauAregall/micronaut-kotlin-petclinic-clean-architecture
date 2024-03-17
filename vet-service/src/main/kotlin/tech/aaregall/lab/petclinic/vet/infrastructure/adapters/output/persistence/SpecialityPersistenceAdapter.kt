@@ -5,7 +5,6 @@ import jakarta.inject.Singleton
 import tech.aaregall.lab.petclinic.vet.application.ports.output.SpecialityOutputPort
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
-import tech.aaregall.lab.petclinic.vet.domain.model.Vet
 import java.sql.ResultSet
 
 @Singleton
@@ -59,10 +58,6 @@ internal class SpecialityPersistenceAdapter(private val jdbc: JdbcOperations): S
                     }
                 }
         }
-
-    override fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet {
-        TODO("Not yet implemented")
-    }
 
     private val mapRow: (ResultSet) -> Speciality = { rs ->
         Speciality(

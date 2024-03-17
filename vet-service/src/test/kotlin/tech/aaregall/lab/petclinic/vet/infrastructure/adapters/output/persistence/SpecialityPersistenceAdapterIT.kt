@@ -3,14 +3,11 @@ package tech.aaregall.lab.petclinic.vet.infrastructure.adapters.output.persisten
 import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
-import tech.aaregall.lab.petclinic.vet.domain.model.Vet
-import tech.aaregall.lab.petclinic.vet.domain.model.VetId
 import java.util.UUID.nameUUIDFromBytes
 import java.util.UUID.randomUUID
 
@@ -174,16 +171,6 @@ internal class SpecialityPersistenceAdapterIT(
                 .containsExactly(specialityId, "Behaviorism", "Description for Behaviorism")
         }
 
-    }
-
-    @Nested
-    inner class SetVetSpecialities {
-
-        @Test
-        fun `Not yet implemented`() {
-            assertThatCode { outputAdapter.setVetSpecialities(Vet(VetId.create(), emptySet()), emptySet()) }
-                .isInstanceOf(NotImplementedError::class.java)
-        }
     }
 
 }

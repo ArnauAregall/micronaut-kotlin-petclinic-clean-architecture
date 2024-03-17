@@ -20,6 +20,6 @@ internal class SetVetSpecialitiesUseCase(private val vetOutputPort: VetOutputPor
         val specialities = setVetSpecialitiesCommand.specialitiesIds
             .map { specialityOutputPort.loadSpeciality(it) ?: throw SetVetSpecialitiesCommandException("Speciality '$it' does not exist") }
 
-        return specialityOutputPort.setVetSpecialities(vet, specialities)
+        return vetOutputPort.setVetSpecialities(vet, specialities)
     }
 }

@@ -44,7 +44,7 @@ internal class SetVetSpecialitiesUseCaseTest {
 
         verify { vetOutputPort.loadVet(vetId) }
         verify (exactly = 0) { specialityOutputPort.loadSpeciality(any()) }
-        verify (exactly = 0) { specialityOutputPort.setVetSpecialities(any(), any()) }
+        verify (exactly = 0) { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
     @Test
@@ -58,7 +58,7 @@ internal class SetVetSpecialitiesUseCaseTest {
 
         verify { vetOutputPort.loadVet(any()) }
         verify (exactly = 0) { specialityOutputPort.loadSpeciality(any()) }
-        verify (exactly = 0) { specialityOutputPort.setVetSpecialities(any(), any()) }
+        verify (exactly = 0) { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
     @Test
@@ -79,7 +79,7 @@ internal class SetVetSpecialitiesUseCaseTest {
 
         verify { vetOutputPort.loadVet(any()) }
         verify (exactly = 2) { specialityOutputPort.loadSpeciality(any()) }
-        verify (exactly = 0) { specialityOutputPort.setVetSpecialities(any(), any()) }
+        verify (exactly = 0) { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
     @Test
@@ -92,7 +92,7 @@ internal class SetVetSpecialitiesUseCaseTest {
         every { vetOutputPort.loadVet(vet.id) } answers { vet }
         every { specialityOutputPort.loadSpeciality(speciality1.id) } answers { speciality1 }
         every { specialityOutputPort.loadSpeciality(speciality2.id) } answers { speciality2 }
-        every { specialityOutputPort.setVetSpecialities(vet, any()) } answers {
+        every { vetOutputPort.setVetSpecialities(vet, any()) } answers {
             Vet(id =(args.first() as Vet).id, specialities = args.last() as Collection<Speciality>)
         }
 
@@ -111,7 +111,7 @@ internal class SetVetSpecialitiesUseCaseTest {
 
         verify { vetOutputPort.loadVet(any()) }
         verify (exactly = 2) { specialityOutputPort.loadSpeciality(any()) }
-        verify { specialityOutputPort.setVetSpecialities(any(), any()) }
+        verify { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
 }
