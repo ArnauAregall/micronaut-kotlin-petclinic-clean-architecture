@@ -49,9 +49,16 @@ internal class SpecialityPersistenceAdapter(private val jdbc: JdbcOperations): S
                 }
         }
 
-    override fun loadSpeciality(specialityId: SpecialityId): Speciality? {
-        TODO("Not yet implemented")
-    }
+    override fun loadSpeciality(specialityId: SpecialityId): Speciality? =
+        jdbc.execute { conn ->
+            conn.prepareStatement("SELECT * FROM speciality WHERE id = ?::uuid")
+                .use { statement ->
+                    statement.setString(1, specialityId.toString())
+                    statement.executeQuery().use {
+                        if (it.next()) mapRow(it) else null
+                    }
+                }
+        }
 
     override fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet {
         TODO("Not yet implemented")

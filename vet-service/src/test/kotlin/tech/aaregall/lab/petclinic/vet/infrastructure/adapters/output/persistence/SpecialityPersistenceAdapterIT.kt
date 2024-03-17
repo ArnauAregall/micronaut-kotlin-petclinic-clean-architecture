@@ -154,10 +154,26 @@ internal class SpecialityPersistenceAdapterIT(
     inner class LoadSpeciality {
 
         @Test
-        fun `Not yet implemented`() {
-            assertThatCode { outputAdapter.loadSpeciality(SpecialityId.create()) }
-                .isInstanceOf(NotImplementedError::class.java)
+        fun `Should return null when Speciality with the given SpecialityId does not exist`() {
+            val result = outputAdapter.loadSpeciality(SpecialityId.create())
+
+            assertThat(result).isNull()
         }
+
+        @Test
+        fun `Should return the Speciality when Speciality with the given SpecialityId exists`() {
+            val specialityId = SpecialityId.create()
+            runSql("INSERT INTO speciality (id, name, description) VALUES ('${specialityId}', 'Behaviorism', 'Description for Behaviorism')")
+
+            val result = outputAdapter.loadSpeciality(specialityId)
+
+            assertThat(result)
+                .isNotNull
+                .isInstanceOf(Speciality::class.java)
+                .extracting("id", "name", "description")
+                .containsExactly(specialityId, "Behaviorism", "Description for Behaviorism")
+        }
+
     }
 
     @Nested
