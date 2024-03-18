@@ -13,4 +13,6 @@ interface SpecialityOutputPort {
 
     fun loadSpeciality(specialityId: SpecialityId): Speciality?
 
+    fun countAll(): Int
+
 }
