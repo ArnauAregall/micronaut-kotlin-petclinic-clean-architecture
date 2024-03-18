@@ -59,6 +59,16 @@ internal class SpecialityPersistenceAdapter(private val jdbc: JdbcOperations): S
                 }
         }
 
+    override fun countAll(): Int =
+        jdbc.execute { conn ->
+            conn.prepareStatement("SELECT COUNT(id) FROM speciality")
+                .use { statement ->
+                    statement.executeQuery().use {
+                        if (it.next()) it.getInt(1) else 0
+                    }
+                }
+        }
+
     private val mapRow: (ResultSet) -> Speciality = { rs ->
         Speciality(
             id = SpecialityId.of(rs.getString("id")),

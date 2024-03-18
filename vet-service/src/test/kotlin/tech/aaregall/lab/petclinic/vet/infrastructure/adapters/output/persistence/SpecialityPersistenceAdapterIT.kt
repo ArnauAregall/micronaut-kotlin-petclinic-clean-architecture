@@ -6,6 +6,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
 import java.util.UUID.nameUUIDFromBytes
@@ -169,6 +171,33 @@ internal class SpecialityPersistenceAdapterIT(
                 .isInstanceOf(Speciality::class.java)
                 .extracting("id", "name", "description")
                 .containsExactly(specialityId, "Behaviorism", "Description for Behaviorism")
+        }
+
+    }
+
+    @Nested
+    inner class CountAll {
+
+        @Test
+        fun `Should return zero when there are no records on the table`() {
+            val result = outputAdapter.countAll()
+
+            assertThat(result).isZero()
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = [1, 10, 50])
+        fun `Should return the total number of records on the table`(totalRecords: Int) {
+            runSql(buildString {
+                append("INSERT INTO speciality (id, name, description) VALUES ")
+                append((1..totalRecords).joinToString(", ") { index ->
+                    "('${nameUUIDFromBytes(index.toString().toByteArray())}', 'Speciality $index', 'Description for Speciality $index')"
+                })
+            })
+
+            val result = outputAdapter.countAll()
+
+            assertThat(result).isEqualTo(totalRecords)
         }
 
     }
