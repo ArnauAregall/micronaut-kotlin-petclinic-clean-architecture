@@ -85,6 +85,14 @@ export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=${IDENTITY_SERVICE_OAUTH2
 export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=${PET_SERVICE_OAUTH2_CLIENT_SECRET}; ./pet-service/build/native/nativeCompile/pet-service
 ```
 
+**4. vet-service**
+
+```shell
+./gradlew :vet-service:nativeCompile # or from your IDE with the env vars below
+
+export MICRONAUT_ENVIRONMENTS=dev OAUTH2_CLIENT_SECRET=${VET_SERVICE_OAUTH2_CLIENT_SECRET}; ./vet-service/build/native/nativeCompile/vet-service
+```
+
 ----
 
 ### Keycloak notes
