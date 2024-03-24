@@ -1,3 +1,13 @@
+micronaut:
+  security:
+    oauth2:
+      clients:
+        keycloak:
+          openid:
+            issuer: 'http://keycloak.local:8082/realms/petclinic'
+  server:
+    port: 8084
+
 datasources:
   default:
     url: jdbc:postgresql://localhost:5432/postgres
