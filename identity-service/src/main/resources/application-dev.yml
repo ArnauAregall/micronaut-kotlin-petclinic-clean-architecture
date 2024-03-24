@@ -4,7 +4,7 @@ micronaut:
       clients:
         keycloak:
           openid:
-            issuer: 'http://localhost:8082/realms/petclinic'
+            issuer: 'http://keycloak.local:8082/realms/petclinic'
 
 datasources:
   default:
