@@ -8,13 +8,6 @@ import java.util.UUID
 internal class SpecialityTest {
 
     @Test
-    fun `Name cannot be blank`() {
-        assertThatCode { Speciality(id = SpecialityId.create(), name = "")}
-            .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessage("name cannot be blank")
-    }
-
-    @Test
     fun `Should create a Speciality with a random SpecialityId without description`() {
         val speciality = Speciality(id = SpecialityId.create(), name = "Surgery")
 
@@ -84,6 +77,20 @@ internal class SpecialityTest {
                         .containsExactly("Surgery", "Sample description")
                 }
             )
+    }
+
+    @Test
+    fun `Name cannot be blank`() {
+        assertThatCode { Speciality(id = SpecialityId.create(), name = "")}
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessage("name cannot be blank")
+    }
+
+    @Test
+    fun `Description cannot be blank when provided`() {
+        assertThatCode { Speciality(id = SpecialityId.create(), name = "Surgery", description = "")}
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessage("description cannot be blank")
     }
 
 }

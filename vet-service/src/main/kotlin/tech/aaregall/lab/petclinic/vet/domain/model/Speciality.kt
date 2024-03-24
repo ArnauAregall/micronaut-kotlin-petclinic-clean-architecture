@@ -5,6 +5,10 @@ import java.util.UUID
 data class Speciality(val id: SpecialityId, val name: String, val description: String? = null) {
     init {
         require(name.isNotBlank()) { "name cannot be blank" }
+
+        description?.let {
+            require(it.isNotBlank()) { "description cannot be blank" }
+        }
     }
 }
 
