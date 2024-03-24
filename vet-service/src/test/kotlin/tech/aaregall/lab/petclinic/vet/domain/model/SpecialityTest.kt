@@ -1,10 +1,18 @@
 package tech.aaregall.lab.petclinic.vet.domain.model
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
 internal class SpecialityTest {
+
+    @Test
+    fun `Name cannot be blank`() {
+        assertThatCode { Speciality(id = SpecialityId.create(), name = "")}
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessage("name cannot be blank")
+    }
 
     @Test
     fun `Should create a Speciality with a random SpecialityId without description`() {

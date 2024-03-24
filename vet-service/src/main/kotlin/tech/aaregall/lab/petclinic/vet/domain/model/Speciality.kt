@@ -2,7 +2,11 @@ package tech.aaregall.lab.petclinic.vet.domain.model
 
 import java.util.UUID
 
-data class Speciality(val id: SpecialityId, val name: String, val description: String? = null)
+data class Speciality(val id: SpecialityId, val name: String, val description: String? = null) {
+    init {
+        require(name.isNotBlank()) { "name cannot be blank" }
+    }
+}
 
 data class SpecialityId(private val value: UUID) {
 
