@@ -19,6 +19,7 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jdbc")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("io.micronaut.flyway:micronaut-flyway")
+    implementation("io.micronaut.validation:micronaut-validation")
     runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -30,6 +31,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${project.properties["junitJupiterVersion"]}")
     testImplementation("org.assertj:assertj-core:${project.properties["assertjVersion"]}")
     testImplementation("io.mockk:mockk:${project.properties["mockkVersion"]}")
+    testImplementation("io.rest-assured:kotlin-extensions:${project.properties["restAssuredKotlinExtensionsVersion"]}")
 }
 
 application {
