@@ -14,4 +14,4 @@ interface PetOwnerOutputPort {
 
 data class LoadPetOwnerCommand(val ownerIdentityId: UUID)
 
-class LoadPetOwnerCommandException(message: String, cause: Throwable? = null) : IllegalStateException("Failed loading PetOwner: $message", cause)
+class LoadPetOwnerCommandException(message: String, cause: Throwable? = null) : RuntimeException("Failed loading PetOwner: $message", cause)
