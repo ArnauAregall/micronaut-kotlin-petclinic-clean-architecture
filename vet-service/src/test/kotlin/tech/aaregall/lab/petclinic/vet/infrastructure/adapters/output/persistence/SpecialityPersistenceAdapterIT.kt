@@ -10,15 +10,12 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
+import tech.aaregall.lab.petclinic.vet.infrastructure.adapters.output.persistence.SqlHelper.Companion.runSql
 import java.util.UUID.nameUUIDFromBytes
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
-internal class SpecialityPersistenceAdapterIT(
-    private val jdbc: JdbcOperations,
-    private val outputAdapter: SpecialityPersistenceAdapter) {
-
-    private fun runSql(sql: String) = jdbc.execute { c -> c.prepareCall(sql).execute() }
+internal class SpecialityPersistenceAdapterIT(private val outputAdapter: SpecialityPersistenceAdapter) {
 
     @BeforeEach
     fun setUp() {
@@ -127,7 +124,7 @@ internal class SpecialityPersistenceAdapterIT(
     inner class CreateSpeciality {
 
         @Test
-        fun `Should return the Speciality passed as argument and insert a row in the table`() {
+        fun `Should return the Speciality passed as argument and insert a row in the table`(jdbc: JdbcOperations) {
             val speciality = Speciality(SpecialityId.create(), "Surgery", "Surgery speciality description")
 
             val result = outputAdapter.createSpeciality(speciality)
