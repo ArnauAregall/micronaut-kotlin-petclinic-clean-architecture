@@ -16,16 +16,12 @@ class MockServerPropsProvider: TestResourcesPropertyProvider {
                 .also {
                     it.start()
                 }
-
-        private val mockServerClient: MockServerClient =
-            MockServerClient(mockServerContainer.host, mockServerContainer.serverPort)
-
-        fun getMockServerClient(): MockServerClient = mockServerClient
-
     }
 
     override fun provide(testProperties: MutableMap<String, Any>): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
+        map["test.mockserver.host"] = mockServerContainer.host
+        map["test.mockserver.port"] = mockServerContainer.serverPort.toString()
         testProperties.filterKeys { it.startsWith("micronaut.http") && it.contains("url") }
             .keys.forEach {
                 map[it] = mockServerContainer.endpoint

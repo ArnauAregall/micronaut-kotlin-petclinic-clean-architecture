@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.mockserver.client.MockServerClient
 import org.mockserver.model.Header
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
@@ -23,21 +24,21 @@ import org.mockserver.verify.VerificationTimes.once
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.output.LoadPetOwnerCommandException
 import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider
-import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider.Companion.getMockServerClient
 import java.util.UUID
 
 @MicronautTest
 @TestResourcesProperties(providers = [MockServerPropsProvider::class])
 internal class PetOwnerHttpAdapterIT(
     private val petOwnerHttpAdapter: PetOwnerHttpAdapter,
-    private val redisConnection: StatefulRedisConnection<String, String>) {
+    private val redisConnection: StatefulRedisConnection<String, String>,
+    private val mockServerClient: MockServerClient) {
 
     @Value("\${app.ports.output.pet-owner.required-identity-role-name}")
     lateinit var requiredIdentityRoleName: String
 
     @AfterEach
     fun tearDown() {
-        getMockServerClient().reset()
+        mockServerClient.reset()
     }
 
     fun getCachedPetOwner(identityId: UUID): String? = redisConnection.sync().get("pet-owner:$identityId")
@@ -50,7 +51,7 @@ internal class PetOwnerHttpAdapterIT(
         fun `Should return and cache a PetOwner when Identity Service response is 200 OK and Identity has the required role`() {
             val identityId = UUID.randomUUID()
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(request().withMethod(GET.name).withPath("/api/identities/$identityId"))
                 .respond(
                     response()
@@ -74,7 +75,7 @@ internal class PetOwnerHttpAdapterIT(
 
             assertThat(getCachedPetOwner(identityId)).isNotNull
 
-            getMockServerClient()
+            mockServerClient
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
         }
 
@@ -82,7 +83,7 @@ internal class PetOwnerHttpAdapterIT(
         fun `Should return null when Identity Service response is 200 OK and Identity does not have the required role`() {
             val identityId = UUID.randomUUID()
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(request().withMethod(GET.name).withPath("/api/identities/$identityId"))
                 .respond(
                     response()
@@ -101,7 +102,7 @@ internal class PetOwnerHttpAdapterIT(
 
             assertThat(petOwner.block()).isNull()
 
-            getMockServerClient()
+            mockServerClient
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
         }
 
@@ -109,7 +110,7 @@ internal class PetOwnerHttpAdapterIT(
         fun `Should return null when Identity Service response is 404 Not Found`() {
             val identityId = UUID.randomUUID()
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(request().withMethod(GET.name).withPath("/api/identities/$identityId"))
                 .respond(
                     response().withStatusCode(NOT_FOUND.code)
@@ -119,7 +120,7 @@ internal class PetOwnerHttpAdapterIT(
 
             assertThat(petOwner.block()).isNull()
 
-            getMockServerClient()
+            mockServerClient
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
         }
 
@@ -129,7 +130,7 @@ internal class PetOwnerHttpAdapterIT(
         fun `Should throw a controlled exception when Identity Service response is not 200 or 404`(httpStatus: HttpStatus) {
             val identityId = UUID.randomUUID()
 
-            getMockServerClient()
+            mockServerClient
                 .reset()
                 .`when`(request().withMethod(GET.name).withPath("/api/identities/$identityId"))
                 .respond(
@@ -141,7 +142,7 @@ internal class PetOwnerHttpAdapterIT(
                 .hasMessageContaining("Failed loading PetOwner")
                 .hasMessageContaining("HTTP call to Identity Service returned not expected response status")
 
-            getMockServerClient()
+            mockServerClient
                 .verify(request().withMethod(GET.name).withPath("/api/identities/$identityId"), once())
         }
 
@@ -154,7 +155,7 @@ internal class PetOwnerHttpAdapterIT(
         fun `Should invalidate PetOwner cache`() {
             val identityId = UUID.randomUUID()
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(request())
                 .respond(
                     response()

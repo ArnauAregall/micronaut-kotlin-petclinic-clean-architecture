@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.mockserver.client.MockServerClient
 import org.mockserver.model.Header
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
@@ -37,20 +38,19 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakFixture.Companion.getAuthorizationBearer
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakPropsProvider
 import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider
-import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider.Companion.getMockServerClient
 import java.time.LocalDate
 import java.util.UUID
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
 @TestResourcesProperties(providers = [MockServerPropsProvider::class, KeycloakPropsProvider::class])
-internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
+internal class PetControllerIT(private val embeddedServer: EmbeddedServer, private val mockServerClient: MockServerClient) {
 
     @Value("\${app.ports.output.pet-owner.required-identity-role-name}")
     lateinit var requiredIdentityRoleName: String
 
     private fun mockGetIdentityResponse(identityId: UUID, httpStatus: HttpStatus) {
-        getMockServerClient()
+        mockServerClient
             .`when`(request().withMethod(GET.name).withPath("/api/identities/$identityId"))
             .respond {
                 val response = response()

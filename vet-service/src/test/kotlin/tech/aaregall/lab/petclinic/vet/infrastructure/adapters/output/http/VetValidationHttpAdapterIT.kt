@@ -11,17 +11,19 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.JsonBody.json
 import org.mockserver.verify.VerificationTimes.once
 import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider
-import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider.Companion.getMockServerClient
 import tech.aaregall.lab.petclinic.vet.domain.model.VetId
 
 @MicronautTest
 @TestResourcesProperties(providers = [MockServerPropsProvider::class])
-internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: VetValidationHttpAdapter) {
+internal class VetValidationHttpAdapterIT(
+    private val vetValidationHttpAdapter: VetValidationHttpAdapter,
+    private val mockServerClient: MockServerClient) {
 
     @Value("\${app.ports.output.vet-id-validation.required-identity-role-name}")
     lateinit var requiredIdentityRoleName: String
@@ -36,7 +38,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             val getIdentityRequest = request().withMethod(GET.name).withPath("/api/identities/$vetId")
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(getIdentityRequest)
                 .respond(response().withStatusCode(nonOkHttpStatus.code))
 
@@ -44,7 +46,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             assertThat(result).isFalse()
 
-            getMockServerClient().verify(getIdentityRequest, once())
+            mockServerClient.verify(getIdentityRequest, once())
         }
 
         @Test
@@ -53,7 +55,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             val getIdentityRequest = request().withMethod(GET.name).withPath("/api/identities/$vetId")
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(getIdentityRequest)
                 .respond(response().withStatusCode(OK.code).withBody(json("")))
 
@@ -61,7 +63,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             assertThat(result).isFalse()
 
-            getMockServerClient().verify(getIdentityRequest, once())
+            mockServerClient.verify(getIdentityRequest, once())
         }
 
         @Test
@@ -70,7 +72,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             val getIdentityRequest = request().withMethod(GET.name).withPath("/api/identities/$vetId")
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(getIdentityRequest)
                 .respond(response().withStatusCode(OK.code).withBody(json("""
                         {
@@ -82,7 +84,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             assertThat(result).isFalse()
 
-            getMockServerClient().verify(getIdentityRequest, once())
+            mockServerClient.verify(getIdentityRequest, once())
         }
 
         @Test
@@ -91,7 +93,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             val getIdentityRequest = request().withMethod(GET.name).withPath("/api/identities/$vetId")
 
-            getMockServerClient()
+            mockServerClient
                 .`when`(getIdentityRequest)
                 .respond(response().withStatusCode(OK.code).withBody(json("""
                         {
@@ -103,7 +105,7 @@ internal class VetValidationHttpAdapterIT(private val vetValidationHttpAdapter: 
 
             assertThat(result).isTrue()
 
-            getMockServerClient().verify(getIdentityRequest, once())
+            mockServerClient.verify(getIdentityRequest, once())
         }
 
     }
