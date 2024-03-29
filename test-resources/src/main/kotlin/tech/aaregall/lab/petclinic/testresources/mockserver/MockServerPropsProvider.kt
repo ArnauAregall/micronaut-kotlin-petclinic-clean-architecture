@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.test.spec.mockserver
+package tech.aaregall.lab.petclinic.testresources.mockserver
 
 import io.micronaut.core.annotation.ReflectiveAccess
 import io.micronaut.test.extensions.testresources.TestResourcesPropertyProvider

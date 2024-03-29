@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.test.spec.keycloak
+package tech.aaregall.lab.petclinic.testresources.keycloak
 
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Value

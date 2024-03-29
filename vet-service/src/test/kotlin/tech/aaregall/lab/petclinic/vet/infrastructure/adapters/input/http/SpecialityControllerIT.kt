@@ -21,8 +21,8 @@ import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakFixture.Companion.getAuthorizationBearer
-import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider
+import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakFixture.Companion.getAuthorizationBearer
+import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakPropsProvider
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityInputPort
 

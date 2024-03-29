@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.test.spec.keycloak
+package tech.aaregall.lab.petclinic.testresources.keycloak
 
 import dasniko.testcontainers.keycloak.KeycloakContainer
 import io.micronaut.core.annotation.ReflectiveAccess

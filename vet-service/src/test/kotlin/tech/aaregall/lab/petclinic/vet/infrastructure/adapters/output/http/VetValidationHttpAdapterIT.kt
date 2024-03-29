@@ -15,8 +15,8 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.JsonBody.json
 import org.mockserver.verify.VerificationTimes.once
-import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerPropsProvider
-import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerPropsProvider.Companion.getMockServerClient
+import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider
+import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider.Companion.getMockServerClient
 import tech.aaregall.lab.petclinic.vet.domain.model.VetId
 
 @MicronautTest
