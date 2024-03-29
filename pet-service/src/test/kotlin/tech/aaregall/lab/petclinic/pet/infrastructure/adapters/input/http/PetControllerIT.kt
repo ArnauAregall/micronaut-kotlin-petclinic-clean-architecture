@@ -36,14 +36,14 @@ import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetInputPor
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider.Companion.getAuthorizationBearer
-import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerSpec
-import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerSpec.Companion.getMockServerClient
+import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerPropsProvider
+import tech.aaregall.lab.petclinic.test.spec.mockserver.MockServerPropsProvider.Companion.getMockServerClient
 import java.time.LocalDate
 import java.util.UUID
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
-@TestResourcesProperties(providers = [MockServerSpec::class, KeycloakPropsProvider::class])
+@TestResourcesProperties(providers = [MockServerPropsProvider::class, KeycloakPropsProvider::class])
 internal class PetControllerIT(private val embeddedServer: EmbeddedServer) {
 
     @Value("\${app.ports.output.pet-owner.required-identity-role-name}")

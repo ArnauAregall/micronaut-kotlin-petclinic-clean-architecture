@@ -7,7 +7,7 @@ import org.testcontainers.containers.MockServerContainer
 import org.testcontainers.utility.DockerImageName
 
 @ReflectiveAccess
-class MockServerSpec: TestResourcesPropertyProvider {
+class MockServerPropsProvider: TestResourcesPropertyProvider {
 
     companion object {
         private val mockServerContainer: MockServerContainer =
