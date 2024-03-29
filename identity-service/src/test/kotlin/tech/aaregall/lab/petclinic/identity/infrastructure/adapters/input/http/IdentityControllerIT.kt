@@ -25,12 +25,12 @@ import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCo
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleInputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.UpdateIdentityContactDetailsInputPort
-import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
-import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider.Companion.getAuthorizationBearer
 import java.util.UUID
 
 @MicronautTest(transactional = false)
-@TestResourcesProperties(providers = [KeycloakSpec::class])
+@TestResourcesProperties(providers = [KeycloakPropsProvider::class])
 internal class IdentityControllerIT(private val embeddedServer: EmbeddedServer) {
 
     @Nested

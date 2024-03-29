@@ -11,7 +11,7 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 
 @ReflectiveAccess
-class KeycloakSpec: TestResourcesPropertyProvider {
+class KeycloakPropsProvider: TestResourcesPropertyProvider {
 
     companion object {
         private val keycloakContainer: KeycloakContainer = KeycloakContainer()
@@ -45,6 +45,7 @@ class KeycloakSpec: TestResourcesPropertyProvider {
 
     override fun provide(testProperties: MutableMap<String, Any>?): MutableMap<String, String> {
         return mutableMapOf(
+            "test.keycloak.openid-connect.token-url" to getTokenUrl(),
             "micronaut.security.oauth2.clients.keycloak.openid.issuer" to "http://localhost:${keycloakContainer.httpPort}/realms/petclinic",
             "micronaut.security.oauth2.clients.keycloak.client-id" to "system-test-client",
             "micronaut.security.oauth2.clients.keycloak.client-secret" to "system-test-client-secret"

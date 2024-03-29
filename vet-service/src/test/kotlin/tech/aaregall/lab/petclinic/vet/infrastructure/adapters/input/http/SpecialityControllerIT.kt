@@ -21,13 +21,13 @@ import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec
-import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakSpec.Companion.getAuthorizationBearer
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider.Companion.getAuthorizationBearer
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityInputPort
 
 @MicronautTest(transactional = false)
-@TestResourcesProperties(providers = [KeycloakSpec::class])
+@TestResourcesProperties(providers = [KeycloakPropsProvider::class])
 internal class SpecialityControllerIT(private val embeddedServer: EmbeddedServer, private val jdbc: JdbcOperations) {
 
     @BeforeEach
