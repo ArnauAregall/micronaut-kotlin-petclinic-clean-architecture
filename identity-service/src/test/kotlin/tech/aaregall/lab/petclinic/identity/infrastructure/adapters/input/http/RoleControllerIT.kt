@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.CreateRoleInputPort
+import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakFixture.Companion.getAuthorizationBearer
 import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider
-import tech.aaregall.lab.petclinic.test.spec.keycloak.KeycloakPropsProvider.Companion.getAuthorizationBearer
 import java.time.Instant.now
 
 @MicronautTest(transactional = false)
