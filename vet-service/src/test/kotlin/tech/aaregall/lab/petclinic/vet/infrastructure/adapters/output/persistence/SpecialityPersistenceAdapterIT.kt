@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import tech.aaregall.lab.petclinic.testresources.postgres.PostgresFixture.Companion.runSql
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
-import tech.aaregall.lab.petclinic.vet.infrastructure.adapters.output.persistence.SqlHelper.Companion.runSql
 import java.util.UUID.nameUUIDFromBytes
 import java.util.UUID.randomUUID
 

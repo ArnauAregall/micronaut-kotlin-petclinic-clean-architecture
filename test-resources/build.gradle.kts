@@ -9,6 +9,7 @@ version = "0.1"
 
 dependencies {
     implementation("io.micronaut.testresources:micronaut-test-resources-extensions-core")
+    implementation("io.micronaut.data:micronaut-data-jdbc")
     implementation("org.testcontainers:testcontainers")
     implementation("org.testcontainers:mockserver")
     implementation("io.rest-assured:kotlin-extensions:${project.properties["restAssuredKotlinExtensionsVersion"]}")
