@@ -53,9 +53,20 @@ internal class VetPersistenceAdapter(private val jdbc: JdbcOperations): VetOutpu
                 }
         }
 
-    override fun createVet(vet: Vet): Vet {
-        TODO("Not yet implemented")
-    }
+    override fun createVet(vet: Vet): Vet =
+        jdbc.execute { conn ->
+            conn.prepareStatement("INSERT INTO vet (id) VALUES (?::uuid)", arrayOf("id"))
+                .use { statement ->
+                    statement.setString(1, vet.id.toString())
+                    statement.executeUpdate()
+                    val rs = statement.generatedKeys
+                    if (rs.next()) {
+                        return@execute Vet(id = VetId.of(rs.getString("id")))
+                    } else {
+                        error("Failed persisting Vet, no rows returned [$vet]")
+                    }
+                }
+        }
 
     override fun loadVet(vetId: VetId): Vet? {
         TODO("Not yet implemented")

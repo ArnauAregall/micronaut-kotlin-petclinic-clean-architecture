@@ -1,5 +1,6 @@
 package tech.aaregall.lab.petclinic.vet.infrastructure.adapters.output.persistence
 
+import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
@@ -97,9 +98,19 @@ internal class VetPersistenceAdapterIT(private val outputAdapter: VetPersistence
     inner class CreateVet {
 
         @Test
-        fun `Not yet implemented`() {
-            assertThatCode { outputAdapter.createVet(Vet(id = VetId.create())) }
-                .isInstanceOf(NotImplementedError::class.java)
+        fun `Should return the Vet passed as argument and insert a row in the table`(jdbc: JdbcOperations) {
+            val vet = Vet(id = VetId.create())
+
+            val result = outputAdapter.createVet(vet)
+
+            assertThat(result).isNotNull.isEqualTo(vet)
+
+            jdbc.execute { c ->
+                c.prepareStatement("SELECT EXISTS (SELECT 1 FROM vet WHERE id = '${vet.id}')").executeQuery().use {
+                    it.next()
+                    assertThat(it.getBoolean(1)).isTrue()
+                }
+            }
         }
 
     }
