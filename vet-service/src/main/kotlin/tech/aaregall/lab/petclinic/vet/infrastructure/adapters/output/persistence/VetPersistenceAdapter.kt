@@ -95,9 +95,33 @@ internal class VetPersistenceAdapter(private val jdbc: JdbcOperations): VetOutpu
             }
         }
 
-    override fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet {
-        TODO("Not yet implemented")
-    }
+    override fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet =
+        jdbc.execute { conn ->
+            conn.autoCommit = false
+            try {
+                conn.prepareStatement("DELETE FROM vet_speciality WHERE vet_id = ?::uuid").use { statement ->
+                    statement.setString(1, vet.id.toString())
+                    statement.executeUpdate()
+                }
+
+                conn.prepareStatement("INSERT INTO vet_speciality (vet_id, speciality_id) VALUES (?::uuid, ?::uuid)").use { statement ->
+                    specialities.forEach { speciality ->
+                        statement.setString(1, vet.id.toString())
+                        statement.setString(2, speciality.id.toString())
+                        statement.addBatch()
+                    }
+                    statement.executeBatch()
+                }
+
+                conn.commit()
+            } catch (e: Exception) {
+                conn.rollback()
+                error("Failed setting Vet specialities: ${e.message} [vet=${vet}, specialities=${specialities}]")
+            } finally {
+                conn.autoCommit = true
+            }
+            loadVet(vet.id)!!
+        }
 
     private val mapVetSpecialities: (Vet, ResultSet) -> Vet = { vet, rs ->
         rs.getString("speciality_id")?.let {

@@ -3,7 +3,6 @@ package tech.aaregall.lab.petclinic.vet.infrastructure.adapters.output.persisten
 import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.InstanceOfAssertFactories.list
 import org.assertj.core.groups.Tuple.tuple
 import org.junit.jupiter.api.BeforeEach
@@ -241,9 +240,115 @@ internal class VetPersistenceAdapterIT(private val outputAdapter: VetPersistence
     inner class SetVetSpecialities {
 
         @Test
-        fun `Not yet implemented`() {
-            assertThatCode { outputAdapter.setVetSpecialities(Vet(VetId.create()), emptySet()) }
-                .isInstanceOf(NotImplementedError::class.java)
+        fun `Should assign the given Specialities to the given Vet when it does not have any`(jdbc: JdbcOperations) {
+            val specialities = listOf(
+                Speciality(SpecialityId.create(), "Surgery", "The surgery is..."),
+                Speciality(SpecialityId.create(), "Oncology", "The oncology is..."),
+                Speciality(SpecialityId.create(), "Dermatology", "The dermatology is...")
+            )
+            runSql(buildString {
+                append("INSERT INTO speciality(id, name, description) VALUES ")
+                append(specialities.joinToString(",") {
+                    "('${it.id}', '${it.name}', '${it.description}')"
+                })
+            })
+
+            val vet = Vet(id = VetId.create())
+            runSql("INSERT INTO vet (id) VALUES ('${vet.id}')")
+
+            val result = outputAdapter.setVetSpecialities(vet, specialities)
+
+            assertThat(result)
+                .isNotNull
+                .extracting(Vet::specialities)
+                .satisfies({
+                    assertThat(it)
+                        .asInstanceOf(list(Speciality::class.java))
+                        .usingRecursiveComparison()
+                        .isEqualTo(specialities)
+                })
+
+            jdbc.execute { conn ->
+                conn.prepareStatement("""
+                    SELECT vs.speciality_id as speciality_id 
+                    FROM vet_speciality vs 
+                    WHERE vs.vet_id = '${vet.id}' 
+                """.trimIndent()).executeQuery().use {
+                    val actualSpecialitiesIds = mutableListOf<SpecialityId>()
+                    while (it.next()) {
+                        actualSpecialitiesIds.add(SpecialityId.of(it.getString("speciality_id")))
+                    }
+
+                    assertThat(actualSpecialitiesIds)
+                        .hasSize(specialities.size)
+                        .usingRecursiveComparison()
+                        .isEqualTo(specialities.map(Speciality::id))
+                }
+            }
+        }
+
+        @Test
+        fun `Should override the Vet specialities with the given Specialities`(jdbc: JdbcOperations) {
+            runSql("""
+                INSERT INTO speciality (id, name) VALUES
+                ('${randomUUID()}', 'Old Speciality 1'),
+                ('${randomUUID()}', 'Old Speciality 2'),
+                ('${randomUUID()}', 'Old Speciality 3')
+            """.trimIndent())
+
+            val vet = Vet(id = VetId.create())
+            runSql("INSERT INTO vet (id) VALUES ('${vet.id}')")
+
+            runSql("""
+                INSERT INTO vet_speciality (vet_id, speciality_id)
+                SELECT '${vet.id}', s.id FROM speciality s
+            """.trimIndent())
+
+            val newSpecialities = listOf(
+                Speciality(SpecialityId.create(), "New Speciality 1"),
+                Speciality(SpecialityId.create(), "New Speciality 2"),
+                Speciality(SpecialityId.create(), "New Speciality 3")
+            )
+            runSql(buildString {
+                append("INSERT INTO speciality(id, name) VALUES ")
+                append(newSpecialities.joinToString(",") {
+                    "('${it.id}', '${it.name}')"
+                })
+            })
+
+            val result = outputAdapter.setVetSpecialities(vet, newSpecialities)
+
+            assertThat(result)
+                .extracting(Vet::specialities)
+                .satisfies({
+                    assertThat(it)
+                        .asInstanceOf(list(Speciality::class.java))
+                        .allSatisfy { speciality ->
+                            assertThat(speciality.name)
+                                .contains("New")
+                                .doesNotContain("Old")
+                        }
+                        .usingRecursiveComparison()
+                        .isEqualTo(newSpecialities)
+                })
+
+            jdbc.execute { conn ->
+                conn.prepareStatement("""
+                    SELECT vs.speciality_id as speciality_id 
+                    FROM vet_speciality vs 
+                    WHERE vs.vet_id = '${vet.id}' 
+                """.trimIndent()).executeQuery().use {
+                    val actualSpecialitiesIds = mutableListOf<SpecialityId>()
+                    while (it.next()) {
+                        actualSpecialitiesIds.add(SpecialityId.of(it.getString("speciality_id")))
+                    }
+
+                    assertThat(actualSpecialitiesIds)
+                        .hasSize(newSpecialities.size)
+                        .usingRecursiveComparison()
+                        .isEqualTo(newSpecialities.map(Speciality::id))
+                }
+            }
         }
 
     }
