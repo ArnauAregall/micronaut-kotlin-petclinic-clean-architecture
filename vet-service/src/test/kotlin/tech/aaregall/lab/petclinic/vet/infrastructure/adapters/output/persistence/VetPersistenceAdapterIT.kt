@@ -172,9 +172,67 @@ internal class VetPersistenceAdapterIT(private val outputAdapter: VetPersistence
     inner class DeleteVet {
 
         @Test
-        fun `Not yet implemented`() {
-            assertThatCode { outputAdapter.deleteVet(Vet(VetId.create())) }
-                .isInstanceOf(NotImplementedError::class.java)
+        fun `Should return false when the given Vet does not exist`() {
+            val vet = Vet(id = VetId.create())
+
+            val result = outputAdapter.deleteVet(vet)
+
+            assertThat(result).isFalse()
+        }
+
+        @Test
+        fun `Should delete Vet and return true when the given Vet exists and does not have any Speciality`(jdbc: JdbcOperations) {
+            val vet = Vet(id = VetId.create())
+            runSql("INSERT INTO vet (id) VALUES ('${vet.id}')")
+
+            val result = outputAdapter.deleteVet(vet)
+
+            assertThat(result).isTrue()
+
+            jdbc.execute { c ->
+                c.prepareStatement("SELECT EXISTS (SELECT 1 FROM vet WHERE id = '${vet.id}')").executeQuery().use {
+                    it.next()
+                    assertThat(it.getBoolean(1)).isFalse()
+                }
+            }
+        }
+
+        @Test
+        fun `Should delete Vet, it's vet_specialities entries and return true when the given Vet exists has Specialities`(jdbc: JdbcOperations) {
+            runSql("""
+                INSERT INTO speciality (id, name) VALUES
+                ('${randomUUID()}', 'Speciality 1'),
+                ('${randomUUID()}', 'Speciality 2'),
+                ('${randomUUID()}', 'Speciality 3')
+            """.trimIndent())
+
+            val vet = Vet(id = VetId.create())
+            runSql("INSERT INTO vet (id) VALUES ('${vet.id}')")
+
+            runSql("""
+                INSERT INTO vet_speciality (vet_id, speciality_id)
+                SELECT '${vet.id}', s.id FROM speciality s
+            """.trimIndent())
+
+            val result = outputAdapter.deleteVet(vet)
+
+            assertThat(result).isTrue()
+
+            jdbc.execute { c ->
+                c.prepareStatement("""
+                    SELECT 
+                        EXISTS (SELECT 1 FROM vet WHERE id = '${vet.id}') 
+                            AS vet_exists,
+                        COUNT(vs.*) 
+                            AS vet_speciality_count 
+                        FROM vet_speciality vs 
+                        WHERE vs.vet_id = '${vet.id}' 
+                """.trimIndent()).executeQuery().use {
+                    it.next()
+                    assertThat(it.getBoolean("vet_exists")).isFalse()
+                    assertThat(it.getInt("vet_speciality_count")).isZero()
+                }
+            }
         }
 
     }

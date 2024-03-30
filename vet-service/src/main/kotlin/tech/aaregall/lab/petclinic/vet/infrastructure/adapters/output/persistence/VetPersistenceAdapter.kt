@@ -87,9 +87,13 @@ internal class VetPersistenceAdapter(private val jdbc: JdbcOperations): VetOutpu
             }
         }
 
-    override fun deleteVet(vet: Vet) {
-        TODO("Not yet implemented")
-    }
+    override fun deleteVet(vet: Vet): Boolean =
+        jdbc.execute { conn ->
+            conn.prepareStatement("DELETE FROM vet v WHERE v.id = ?::uuid").use { statement ->
+                statement.setString(1, vet.id.toString())
+                statement.executeUpdate() == 1
+            }
+        }
 
     override fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet {
         TODO("Not yet implemented")
