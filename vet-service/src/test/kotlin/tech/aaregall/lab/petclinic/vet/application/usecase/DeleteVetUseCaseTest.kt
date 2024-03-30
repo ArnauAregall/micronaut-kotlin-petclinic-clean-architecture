@@ -47,7 +47,7 @@ internal class DeleteVetUseCaseTest {
             val vet = Vet(id = VetId.create(), specialities = emptySet())
 
             every { vetOutputPort.loadVet(vet.id) } answers { vet }
-            every { vetOutputPort.deleteVet(vet) } answers { nothing }
+            every { vetOutputPort.deleteVet(vet) } answers { true }
 
             assertThatCode { useCase.deleteVet(DeleteVetCommand(vet.id)) }
                 .doesNotThrowAnyException()

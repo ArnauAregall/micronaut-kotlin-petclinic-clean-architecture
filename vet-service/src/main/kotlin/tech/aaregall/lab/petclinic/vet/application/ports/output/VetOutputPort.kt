@@ -12,7 +12,7 @@ interface VetOutputPort {
 
     fun loadVet(vetId: VetId): Vet?
 
-    fun deleteVet(vet: Vet)
+    fun deleteVet(vet: Vet): Boolean
 
     fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet
 
