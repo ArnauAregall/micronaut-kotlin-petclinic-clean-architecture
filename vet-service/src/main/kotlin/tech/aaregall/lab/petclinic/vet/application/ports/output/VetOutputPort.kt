@@ -16,4 +16,6 @@ interface VetOutputPort {
 
     fun setVetSpecialities(vet: Vet, specialities: Collection<Speciality>): Vet
 
+    fun countAll(): Int
+
 }

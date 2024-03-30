@@ -123,6 +123,16 @@ internal class VetPersistenceAdapter(private val jdbc: JdbcOperations): VetOutpu
             loadVet(vet.id)!!
         }
 
+    override fun countAll(): Int =
+        jdbc.execute { conn ->
+            conn.prepareStatement("SELECT COUNT(id) FROM vet")
+                .use { statement ->
+                    statement.executeQuery().use {
+                        if (it.next()) it.getInt(1) else 0
+                    }
+                }
+        }
+
     private val mapVetSpecialities: (Vet, ResultSet) -> Vet = { vet, rs ->
         rs.getString("speciality_id")?.let {
             val speciality = Speciality(

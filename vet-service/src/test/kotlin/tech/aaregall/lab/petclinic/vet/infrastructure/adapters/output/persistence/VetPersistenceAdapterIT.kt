@@ -8,10 +8,13 @@ import org.assertj.core.groups.Tuple.tuple
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import tech.aaregall.lab.petclinic.vet.domain.model.Speciality
 import tech.aaregall.lab.petclinic.vet.domain.model.SpecialityId
 import tech.aaregall.lab.petclinic.vet.domain.model.Vet
 import tech.aaregall.lab.petclinic.vet.domain.model.VetId
+import java.util.UUID.nameUUIDFromBytes
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
@@ -349,6 +352,33 @@ internal class VetPersistenceAdapterIT(private val outputAdapter: VetPersistence
                         .isEqualTo(newSpecialities.map(Speciality::id))
                 }
             }
+        }
+
+    }
+
+    @Nested
+    inner class CountAll {
+
+        @Test
+        fun `Should return zero when there are no records on the table`() {
+            val result = outputAdapter.countAll()
+
+            assertThat(result).isZero()
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = [1, 10, 50])
+        fun `Should return the total number of records on the table`(totalRecords: Int) {
+            runSql(buildString {
+                append("INSERT INTO vet (id) VALUES ")
+                append((1..totalRecords).joinToString(", ") { index ->
+                    "('${nameUUIDFromBytes(index.toString().toByteArray())}')"
+                })
+            })
+
+            val result = outputAdapter.countAll()
+
+            assertThat(result).isEqualTo(totalRecords)
         }
 
     }
