@@ -51,6 +51,7 @@ internal class CreateVetUseCaseTest {
         verify (exactly = 0) { vetValidationOutputPort.isValidVetId(VetId(identityId)) }
         verify (exactly = 0) { specialityOutputPort.loadSpeciality(any()) }
         verify (exactly = 0) { vetOutputPort.createVet(any()) }
+        verify (exactly = 0) { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
     @Test
@@ -69,6 +70,7 @@ internal class CreateVetUseCaseTest {
         verify { vetValidationOutputPort.isValidVetId(VetId(identityId)) }
         verify (exactly = 0) { specialityOutputPort.loadSpeciality(any()) }
         verify (exactly = 0) { vetOutputPort.createVet(any()) }
+        verify (exactly = 0) { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
     @Test
@@ -87,6 +89,7 @@ internal class CreateVetUseCaseTest {
         verify { vetValidationOutputPort.isValidVetId(VetId(identityId)) }
         verify (exactly = 0) { specialityOutputPort.loadSpeciality(any()) }
         verify (exactly = 0) { vetOutputPort.createVet(any()) }
+        verify (exactly = 0) { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
     @Test
@@ -116,6 +119,7 @@ internal class CreateVetUseCaseTest {
         verify { specialityOutputPort.loadSpeciality(specialityId1) }
         verify { specialityOutputPort.loadSpeciality(specialityId2) }
         verify (exactly = 0) { vetOutputPort.createVet(any()) }
+        verify (exactly = 0) { vetOutputPort.setVetSpecialities(any(), any()) }
     }
 
     @Test
@@ -135,6 +139,9 @@ internal class CreateVetUseCaseTest {
             )
         }
         every { vetOutputPort.createVet(any()) } answers { args.first() as Vet }
+        every { vetOutputPort.setVetSpecialities(any(), any()) } answers {
+            Vet(id = (args.first() as Vet).id, specialities = args.last() as Collection<Speciality>)
+        }
 
         val result = useCase.createVet(CreateVetCommand(identityId = identityId, specialitiesIds = setOf(specialityId1, specialityId2)))
 
@@ -157,6 +164,7 @@ internal class CreateVetUseCaseTest {
         verify { specialityOutputPort.loadSpeciality(specialityId1) }
         verify { specialityOutputPort.loadSpeciality(specialityId2) }
         verify { vetOutputPort.createVet(any()) }
+        verify { vetOutputPort.setVetSpecialities(any(Vet::class), any()) }
     }
 
 

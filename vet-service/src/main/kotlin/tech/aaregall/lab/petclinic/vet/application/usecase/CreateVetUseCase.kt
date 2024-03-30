@@ -32,8 +32,8 @@ internal class CreateVetUseCase(
                     ?: throw CreateVetCommandException("Speciality '$it' does not exist")
             }
 
-        val vet = Vet(id = vetId, specialities = specialities)
+        val vet = vetOutputPort.createVet(Vet(id = vetId, specialities = specialities))
 
-        return vetOutputPort.createVet(vet)
+        return vetOutputPort.setVetSpecialities(vet, specialities)
     }
 }
