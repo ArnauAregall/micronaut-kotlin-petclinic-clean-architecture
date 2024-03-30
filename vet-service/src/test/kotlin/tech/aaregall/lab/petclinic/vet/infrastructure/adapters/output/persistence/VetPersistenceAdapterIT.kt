@@ -20,7 +20,10 @@ internal class VetPersistenceAdapterIT(private val outputAdapter: VetPersistence
 
     @BeforeEach
     fun setUp() {
-        runSql("TRUNCATE TABLE vet CASCADE")
+        runSql("""
+            TRUNCATE TABLE vet CASCADE;
+            TRUNCATE TABLE speciality CASCADE;
+        """.trimIndent())
     }
 
     @Nested
@@ -119,9 +122,48 @@ internal class VetPersistenceAdapterIT(private val outputAdapter: VetPersistence
     inner class LoadVet {
 
         @Test
-        fun `Not yet implemented`() {
-            assertThatCode { outputAdapter.loadVet(VetId.create()) }
-                .isInstanceOf(NotImplementedError::class.java)
+        fun `Should return null when Vet with the given VetId does not exist`() {
+            val result = outputAdapter.loadVet(VetId.create())
+
+            assertThat(result).isNull()
+        }
+
+        @Test
+        fun `Should return the Vet with it's Specialities when Vet with the given VetId exists`() {
+            val specialities = listOf(
+                Speciality(SpecialityId.create(), "Surgery", "The surgery is..."),
+                Speciality(SpecialityId.create(), "Oncology", "The oncology is..."),
+                Speciality(SpecialityId.create(), "Dermatology", "The dermatology is...")
+            )
+            runSql(buildString {
+                append("INSERT INTO speciality(id, name, description) VALUES ")
+                append(specialities.joinToString(",") {
+                    "('${it.id}', '${it.name}', '${it.description}')"
+                })
+            })
+
+            val vetId = VetId.create()
+            runSql("INSERT INTO vet (id) VALUES ('$vetId')")
+
+            runSql("""
+                INSERT INTO vet_speciality (vet_id, speciality_id)
+                SELECT '$vetId', s.id FROM speciality s
+            """.trimIndent())
+
+            val result = outputAdapter.loadVet(vetId)
+
+            assertThat(result)
+                .isNotNull
+                .satisfies({
+                    assertThat(it!!.id).isEqualTo(vetId)
+                })
+                .satisfies({
+                    assertThat(it!!.specialities)
+                        .asInstanceOf(list(Speciality::class.java))
+                        .hasSize(specialities.size)
+                        .usingRecursiveComparison()
+                        .isEqualTo(specialities)
+                })
         }
 
     }
