@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.publisher
+package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.kafka
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
@@ -15,8 +15,8 @@ import tech.aaregall.lab.petclinic.identity.spec.KafkaRecord
 import java.time.Duration
 
 @MicronautTest
-internal class IdentityEventPublisherAdapterIT(
-    private val identityEventPublisherAdapter: IdentityEventPublisherAdapter,
+internal class IdentityKafkaProducerIT(
+    private val identityKafkaProducer: IdentityKafkaProducer,
     private val kafkaConsumerSpec: KafkaConsumerSpec) {
 
     @AfterEach
@@ -29,7 +29,7 @@ internal class IdentityEventPublisherAdapterIT(
         fun `Should publish and consume the event from Kafka 'identity' topic with CREATE action header`() {
             val domainEvent = IdentityCreatedEvent(Identity(id = IdentityId.create(), firstName = "John", lastName = "Doe"))
 
-            identityEventPublisherAdapter.publishIdentityCreatedEvent(domainEvent)
+            identityKafkaProducer.publishIdentityCreatedEvent(domainEvent)
 
             await().atMost(Duration.ofSeconds(5)).until { kafkaConsumerSpec.hasConsumedRecords() }
 
@@ -60,7 +60,7 @@ internal class IdentityEventPublisherAdapterIT(
         fun `Should publish and consume the event from Kafka 'identity' topic with DELETE action header`() {
             val domainEvent = IdentityDeletedEvent(IdentityId.create())
 
-            identityEventPublisherAdapter.publishIdentityDeletedEvent(domainEvent)
+            identityKafkaProducer.publishIdentityDeletedEvent(domainEvent)
 
             await().atMost(Duration.ofSeconds(5)).until { kafkaConsumerSpec.hasConsumedRecords() }
 

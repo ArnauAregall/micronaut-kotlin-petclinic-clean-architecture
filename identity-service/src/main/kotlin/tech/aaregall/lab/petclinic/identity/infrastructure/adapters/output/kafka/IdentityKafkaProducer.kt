@@ -1,4 +1,4 @@
-package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.publisher
+package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.kafka
 
 import io.micronaut.configuration.kafka.annotation.KafkaClient
 import io.micronaut.configuration.kafka.annotation.KafkaKey
@@ -15,10 +15,10 @@ import tech.aaregall.lab.petclinic.identity.domain.event.IdentityDeletedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 
 @Singleton
-internal class IdentityEventPublisherAdapter(private val identityKafkaClient: IdentityKafkaClient): IdentityEventPublisher {
+internal class IdentityKafkaProducer(private val identityKafkaClient: IdentityKafkaClient): IdentityEventPublisher {
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(IdentityEventPublisherAdapter::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(IdentityKafkaProducer::class.java)
     }
 
     override fun publishIdentityCreatedEvent(identityCreatedEvent: IdentityCreatedEvent) {
