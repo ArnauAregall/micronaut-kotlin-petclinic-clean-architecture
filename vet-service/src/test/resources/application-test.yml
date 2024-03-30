@@ -1,0 +1,4 @@
+test-resources:
+  containers:
+    kafka:
+      image-name: "confluentinc/cp-kafka:latest"
