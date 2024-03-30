@@ -19,6 +19,9 @@ internal class CreateVetUseCase(
 
     override fun createVet(createVetCommand: CreateVetCommand): Vet {
         val vetId = VetId.of(createVetCommand.identityId)
+
+        if (vetOutputPort.loadVet(vetId) != null) throw CreateVetCommandException("Vet with Identity ID '$vetId' already exists")
+
         if (!vetValidationOutputPort.isValidVetId(vetId)) throw CreateVetCommandException("Vet ID '$vetId' is not valid")
 
         if (createVetCommand.specialitiesIds.isEmpty()) throw CreateVetCommandException("It must have at least one Speciality")
@@ -29,7 +32,7 @@ internal class CreateVetUseCase(
                     ?: throw CreateVetCommandException("Speciality '$it' does not exist")
             }
 
-        val vet = Vet(id = VetId.create(), specialities = specialities)
+        val vet = Vet(id = vetId, specialities = specialities)
 
         return vetOutputPort.createVet(vet)
     }
