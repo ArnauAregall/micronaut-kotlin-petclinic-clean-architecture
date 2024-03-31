@@ -12,4 +12,4 @@ fun interface SetVetSpecialitiesInputPort {
 
 data class SetVetSpecialitiesCommand(val vetId: VetId, val specialitiesIds: Collection<SpecialityId>)
 
-class SetVetSpecialitiesCommandException(message: String, cause: Throwable? = null) : IllegalStateException("Failed to set Vet Specialities: $message", cause)
+class SetVetSpecialitiesCommandException(message: String, cause: Throwable? = null) : IllegalArgumentException("Failed to set Vet Specialities: $message", cause)
