@@ -5,18 +5,23 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpResponse.created
 import io.micronaut.http.HttpResponse.ok
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.Status
 import io.micronaut.scheduling.TaskExecutors
 import io.micronaut.scheduling.annotation.ExecuteOn
 import jakarta.validation.Valid
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CountAllVetsInputPort
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateVetCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateVetInputPort
+import tech.aaregall.lab.petclinic.vet.application.ports.input.DeleteVetCommand
+import tech.aaregall.lab.petclinic.vet.application.ports.input.DeleteVetInputPort
 import tech.aaregall.lab.petclinic.vet.application.ports.input.SearchVetsCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.SearchVetsInputPort
 import tech.aaregall.lab.petclinic.vet.application.ports.input.SetVetSpecialitiesCommand
@@ -33,7 +38,8 @@ private open class VetController(
     private val searchVetsInputPort: SearchVetsInputPort,
     private val countAllVetsInputPort: CountAllVetsInputPort,
     private val createVetInputPort: CreateVetInputPort,
-    private val setVetSpecialitiesInputPort: SetVetSpecialitiesInputPort) {
+    private val setVetSpecialitiesInputPort: SetVetSpecialitiesInputPort,
+    private val deleteVetInputPort: DeleteVetInputPort) {
 
     @Get
     open fun searchVets(pageable: Pageable): HttpResponse<Page<VetResponse>> =
@@ -71,5 +77,10 @@ private open class VetController(
                 )
             ).let { VetResponse.fromVet(it) }
         )
+
+    @Delete("/{id}")
+    @Status(HttpStatus.NO_CONTENT)
+    open fun deleteVet(@PathVariable id: UUID) = deleteVetInputPort.deleteVet(DeleteVetCommand(VetId(id)))
+
 
 }

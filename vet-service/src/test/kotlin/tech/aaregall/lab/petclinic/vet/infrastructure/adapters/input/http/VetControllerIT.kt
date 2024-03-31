@@ -4,7 +4,9 @@ import io.micronaut.context.annotation.Value
 import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.http.HttpMethod.GET
 import io.micronaut.http.HttpStatus.BAD_REQUEST
+import io.micronaut.http.HttpStatus.CONFLICT
 import io.micronaut.http.HttpStatus.CREATED
+import io.micronaut.http.HttpStatus.NO_CONTENT
 import io.micronaut.http.HttpStatus.OK
 import io.micronaut.http.HttpStatus.UNAUTHORIZED
 import io.micronaut.runtime.server.EmbeddedServer
@@ -576,6 +578,83 @@ internal class VetControllerIT(
                     "specialities.size()", equalTo(2),
                     "specialities.id", containsInAnyOrder(speciality1.id.toString(), speciality2.id.toString())
                 )
+            }
+        }
+
+    }
+
+    @Nested
+    inner class DeleteVet {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                pathParam("id", randomUUID().toString())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/vets/{id}")
+            } Then {
+                statusCode(UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when ID is not a UUID`() {
+            Given {
+                pathParam("id", "something")
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/vets/{id}")
+            } Then {
+                statusCode(BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return Conflict when Vet does not exist`() {
+            Given {
+                pathParam("id", randomUUID().toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/vets/{id}")
+            } Then {
+                statusCode(CONFLICT.code)
+                body(
+                    "message", equalTo("Conflict"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("Failed to delete Vet"),
+                        containsString("Cannot delete a non existing Vet")
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `Should return No Content when existing Vet is deleted`(createVetInputPort: CreateVetInputPort, createSpecialityInputPort: CreateSpecialityInputPort) {
+            val vet = createSpecialityInputPort.createSpeciality(CreateSpecialityCommand(name = "Dermatology"))
+                .let {
+                    createVetInputPort.createVet(
+                        CreateVetCommand(identityId = givenValidIdentityId(), specialitiesIds = setOf(it.id))
+                    )
+                }
+
+            Given {
+                pathParam("id", vet.id.toString())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                delete("/api/vets/{id}")
+            } Then {
+                statusCode(NO_CONTENT.code)
             }
         }
 
