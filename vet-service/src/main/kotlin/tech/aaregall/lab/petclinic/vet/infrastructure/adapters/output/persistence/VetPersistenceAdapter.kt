@@ -17,7 +17,7 @@ internal class VetPersistenceAdapter(private val jdbc: JdbcOperations): VetOutpu
             conn.prepareStatement("""
                 WITH paginated_vets AS (
                     SELECT id FROM vet 
-                    ORDER BY id OFFSET ? LIMIT ?
+                    ORDER BY created_at OFFSET ? LIMIT ?
                 )
                 SELECT
                     v.id            AS vet_id,
@@ -27,13 +27,12 @@ internal class VetPersistenceAdapter(private val jdbc: JdbcOperations): VetOutpu
                 FROM paginated_vets v
                 LEFT JOIN vet_speciality vs on v.id = vs.vet_id
                 LEFT JOIN speciality s on s.id = vs.speciality_id
-                ORDER BY v.id
             """.trimIndent())
                 .use { statement ->
                     statement.setInt(1, (maxOf(1, pageNumber) - 1) * pageSize)
                     statement.setInt(2, pageSize)
                     statement.executeQuery().use { rs ->
-                        val vetMap = HashMap<VetId, Vet>()
+                        val vetMap = LinkedHashMap<VetId, Vet>()
 
                         while (rs.next()) {
                             val vetId = VetId.of(rs.getString("vet_id"))
