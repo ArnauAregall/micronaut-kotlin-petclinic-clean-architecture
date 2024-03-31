@@ -402,4 +402,183 @@ internal class VetControllerIT(
 
     }
 
+    @Nested
+    inner class SetVetSpecialities {
+
+        @Test
+        fun `Should return Unauthorized when no Authorization header`() {
+            Given {
+                pathParam("id", randomUUID().toString())
+                contentType(JSON)
+                body("""
+                    {
+                        "specialities_ids": ["${randomUUID()}", "${randomUUID()}"]
+                    }
+                """.trimIndent())
+            } When {
+                port(embeddedServer.port)
+                put("/api/vets/{id}/specialities")
+            } Then {
+                statusCode(UNAUTHORIZED.code)
+                body("message", equalTo("Unauthorized"))
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when ID is not a UUID`() {
+            Given {
+                pathParam("id", "something")
+                contentType(JSON)
+                body("""
+                    {
+                        "specialities_ids": ["${randomUUID()}", "${randomUUID()}"]
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                put("/api/vets/{id}/specialities")
+            } Then {
+                statusCode(BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", containsString("Invalid UUID string")
+                )
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when Specialities IDs is empty`() {
+            Given {
+                pathParam("id", randomUUID().toString())
+                contentType(JSON)
+                body("""
+                    {
+                        "specialities_ids": []
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                put("/api/vets/{id}/specialities")
+            } Then {
+                statusCode(BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("Specialities IDs cannot be empty")
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when Vet does not exist`() {
+            Given {
+                pathParam("id", randomUUID().toString())
+                contentType(JSON)
+                body("""
+                    {
+                        "specialities_ids": ["${randomUUID()}", "${randomUUID()}"]
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                put("/api/vets/{id}/specialities")
+            } Then {
+                statusCode(BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("Failed to set Vet Specialities"),
+                        containsString("Cannot set Vet Specialities for a non existing Vet")
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `Should return Bad Request when a Speciality does not exist`(
+            createVetInputPort: CreateVetInputPort,
+            createSpecialityInputPort: CreateSpecialityInputPort) {
+
+            val vet = createSpecialityInputPort.createSpeciality(CreateSpecialityCommand(name = "Dermatology"))
+                .let {
+                    createVetInputPort.createVet(
+                        CreateVetCommand(identityId = givenValidIdentityId(), specialitiesIds = setOf(it.id))
+                    )
+                }
+
+            val nonExistingSpecialityId = randomUUID()
+
+            Given {
+                pathParam("id", vet.id.toString())
+                contentType(JSON)
+                body("""
+                    {
+                        "specialities_ids": ["${vet.specialities.first().id}", "$nonExistingSpecialityId"]
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                put("/api/vets/{id}/specialities")
+            } Then {
+                statusCode(BAD_REQUEST.code)
+                body(
+                    "message", equalTo("Bad Request"),
+                    "_embedded.errors.size()", equalTo(1),
+                    "_embedded.errors[0].message", allOf(
+                        containsString("Failed to set Vet Specialities"),
+                        containsString("Speciality"),
+                        containsString(nonExistingSpecialityId.toString()),
+                        containsString("does not exist")
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `Should return 200 OK with the expected Vet response with the new Specialities`(
+            createVetInputPort: CreateVetInputPort,
+            createSpecialityInputPort: CreateSpecialityInputPort) {
+
+            val vet = createSpecialityInputPort.createSpeciality(CreateSpecialityCommand(name = "Dermatology"))
+                .let {
+                    createVetInputPort.createVet(
+                        CreateVetCommand(identityId = givenValidIdentityId(), specialitiesIds = setOf(it.id))
+                    )
+                }
+
+            val speciality1 = createSpecialityInputPort.createSpeciality(CreateSpecialityCommand(name = "Surgery"))
+            val speciality2 = createSpecialityInputPort.createSpeciality(CreateSpecialityCommand(name = "Ophthalmology"))
+
+            Given {
+                pathParam("id", vet.id.toString())
+                contentType(JSON)
+                body("""
+                    {
+                        "specialities_ids": ["${speciality1.id}", "${speciality2.id}"]
+                    }
+                """.trimIndent())
+                header(getAuthorizationBearer())
+            } When {
+                port(embeddedServer.port)
+                put("/api/vets/{id}/specialities")
+            } Then {
+                statusCode(OK.code)
+                body(
+                    "id", equalTo(vet.id.toString()),
+                    "specialities.size()", equalTo(2),
+                    "specialities.id", containsInAnyOrder(speciality1.id.toString(), speciality2.id.toString())
+                )
+            }
+        }
+
+    }
+
 }
