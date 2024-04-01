@@ -10,6 +10,7 @@ import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import tech.aaregall.lab.petclinic.identity.spec.KafkaConsumerSpec
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityDeletedEvent
+import tech.aaregall.lab.petclinic.identity.domain.event.IdentityUpdatedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
@@ -57,6 +58,48 @@ internal class IdentityKafkaProducerIT(
                             },
                             {
                                 record -> assertThat(record.body)
+                                .extracting("roles")
+                                .asInstanceOf(list(String::class.java))
+                                .containsExactlyInAnyOrder("FOO", "BAR")
+                            }
+                        )
+                })
+        }
+
+    }
+
+    @Nested
+    inner class PublishIdentityUpdatedEvent {
+
+        @Test
+        fun `Should publish and consume the event from Kafka 'identity' topic with UPDATE action header`() {
+            val identity = Identity(
+                id = IdentityId.create(), firstName = "John", lastName = "Doe",
+                roles = setOf(Role(id = RoleId.create(), name = "FOO"), Role(id = RoleId.create(), name = "BAR"))
+            )
+            val domainEvent = IdentityUpdatedEvent(identity)
+
+            identityKafkaProducer.publishIdentityUpdatedEvent(domainEvent)
+
+            await().atMost(Duration.ofSeconds(5)).until { kafkaConsumerSpec.hasConsumedRecords() }
+
+            assertThat(kafkaConsumerSpec.get(domainEvent.identity.id.toString()))
+                .isNotNull
+                .isNotEmpty()
+                .hasSize(1)
+                .first()
+                .satisfies({
+                    assertThat(it as KafkaRecord)
+                        .satisfies({ record ->
+                            assertThat(record.getActionHeader()).isEqualTo("UPDATE")
+                        })
+                        .satisfies(
+                            { record -> assertThat(record.body)
+                                .extracting("firstName", "lastName")
+                                .containsExactly("John", "Doe")
+                            },
+                            {
+                                    record -> assertThat(record.body)
                                 .extracting("roles")
                                 .asInstanceOf(list(String::class.java))
                                 .containsExactlyInAnyOrder("FOO", "BAR")

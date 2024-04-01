@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityDeletedEvent
+import tech.aaregall.lab.petclinic.identity.domain.event.IdentityUpdatedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 
 @Singleton
@@ -26,6 +27,12 @@ internal class IdentityKafkaProducer(private val identityKafkaClient: IdentityKa
         logger.info("Publishing Identity Created Event [identity={}, time={}]", identityCreatedEvent.identity, identityCreatedEvent.date)
         identityKafkaClient.produceRecord(identityCreatedEvent.identity.id.toString(), "CREATE",
             toRecord(identityCreatedEvent.identity))
+    }
+
+    override fun publishIdentityUpdatedEvent(identityUpdatedEvent: IdentityUpdatedEvent) {
+        logger.info("Publishing Identity Updated Event [identity={}, time={}]", identityUpdatedEvent.identity, identityUpdatedEvent.date)
+        identityKafkaClient.produceRecord(identityUpdatedEvent.identity.id.toString(), "UPDATE",
+            toRecord(identityUpdatedEvent.identity))
     }
 
     override fun publishIdentityDeletedEvent(identityDeletedEvent: IdentityDeletedEvent) {
