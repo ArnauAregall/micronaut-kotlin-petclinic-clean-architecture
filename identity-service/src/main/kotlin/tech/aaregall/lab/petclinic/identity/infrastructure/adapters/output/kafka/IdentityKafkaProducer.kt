@@ -3,6 +3,7 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.kafk
 import io.micronaut.configuration.kafka.annotation.KafkaClient
 import io.micronaut.configuration.kafka.annotation.KafkaKey
 import io.micronaut.configuration.kafka.annotation.Topic
+import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
 import io.micronaut.serde.annotation.Serdeable
 import jakarta.annotation.Nullable
@@ -23,24 +24,24 @@ internal class IdentityKafkaProducer(private val identityKafkaClient: IdentityKa
 
     override fun publishIdentityCreatedEvent(identityCreatedEvent: IdentityCreatedEvent) {
         logger.info("Publishing Identity Created Event [identity={}, time={}]", identityCreatedEvent.identity, identityCreatedEvent.date)
-        identityKafkaClient.sendIdentityCreated(identityCreatedEvent.identity.id.toString(),
-            toKafkaEvent(identityCreatedEvent.identity))
+        identityKafkaClient.produceRecord(identityCreatedEvent.identity.id.toString(), "CREATE",
+            toRecord(identityCreatedEvent.identity))
     }
 
     override fun publishIdentityDeletedEvent(identityDeletedEvent: IdentityDeletedEvent) {
         logger.info("Publishing Identity Deleted Event [identityId={}, time={}]", identityDeletedEvent.identityId, identityDeletedEvent.date)
-        identityKafkaClient.sendIdentityDeleted(identityDeletedEvent.identityId.toString(), null)
+        identityKafkaClient.produceRecord(identityDeletedEvent.identityId.toString(), "DELETE")
     }
 
-    private fun toKafkaEvent(identity: Identity): IdentityCreatedKafkaEvent =
-        IdentityCreatedKafkaEvent(
+    private fun toRecord(identity: Identity): IdentityRecord =
+        IdentityRecord(
             firstName = identity.firstName,
             lastName = identity.lastName
         )
 }
 
 @Serdeable
-internal data class IdentityCreatedKafkaEvent(val firstName: String, val lastName: String)
+internal data class IdentityRecord(val firstName: String, val lastName: String)
 
 @KafkaClient
 internal interface IdentityKafkaClient {
@@ -50,11 +51,8 @@ internal interface IdentityKafkaClient {
     }
 
     @Topic("identity")
-    @MessageHeader(name = ACTION_HEADER, value = "CREATE")
-    fun sendIdentityCreated(@KafkaKey id: String, identityCreatedKafkaEvent: IdentityCreatedKafkaEvent)
-
-    @Topic("identity")
-    @MessageHeader(name = ACTION_HEADER, value = "DELETE")
-    fun sendIdentityDeleted(@KafkaKey id: String, @Nullable body: Any?)
+    fun produceRecord(@KafkaKey id: String,
+                      @MessageHeader(name = ACTION_HEADER) action: String,
+                      @MessageBody @Nullable identityRecord: IdentityRecord? = null)
 
 }
