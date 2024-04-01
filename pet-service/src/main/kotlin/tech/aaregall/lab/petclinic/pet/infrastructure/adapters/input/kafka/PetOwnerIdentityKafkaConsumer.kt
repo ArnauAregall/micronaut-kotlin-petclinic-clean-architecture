@@ -15,7 +15,7 @@ import java.util.UUID
 
 @Singleton
 @KafkaListener(offsetReset = OffsetReset.EARLIEST)
-class IdentityKafkaConsumer(
+class PetOwnerIdentityKafkaConsumer(
     private val petOwnerOutputPort: PetOwnerOutputPort,
     private val deletePetsByPetOwnerInputPort: DeletePetsByPetOwnerInputPort) {
 

@@ -23,7 +23,7 @@ import java.time.Duration
 import java.util.UUID.randomUUID
 
 @MicronautTest
-internal class IdentityKafkaConsumerIT {
+internal class PetOwnerIdentityKafkaConsumerIT {
 
     @Singleton
     @Replaces(PetOwnerOutputPort::class)
