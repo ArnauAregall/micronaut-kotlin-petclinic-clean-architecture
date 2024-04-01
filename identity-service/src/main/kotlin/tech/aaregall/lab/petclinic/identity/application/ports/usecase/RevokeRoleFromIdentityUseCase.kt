@@ -4,13 +4,16 @@ import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityCommandException
 import tech.aaregall.lab.petclinic.identity.application.ports.input.RevokeRoleFromIdentityInputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
+import tech.aaregall.lab.petclinic.identity.domain.event.IdentityUpdatedEvent
 
 @UseCase
 internal class RevokeRoleFromIdentityUseCase(
     private val identityOutputPort: IdentityOutputPort,
-    private val roleOutputPort: RoleOutputPort
+    private val roleOutputPort: RoleOutputPort,
+    private val identityEventPublisher: IdentityEventPublisher
 ): RevokeRoleFromIdentityInputPort {
 
     override fun revokeRoleFromIdentity(revokeRoleFromIdentityCommand: RevokeRoleFromIdentityCommand) {
@@ -25,5 +28,8 @@ internal class RevokeRoleFromIdentityUseCase(
         }
 
         roleOutputPort.revokeRoleFromIdentity(identity, role)
+
+        val updatedIdentity = identityOutputPort.loadIdentityById(identity.id)!!
+        identityEventPublisher.publishIdentityUpdatedEvent(IdentityUpdatedEvent(updatedIdentity))
     }
 }
