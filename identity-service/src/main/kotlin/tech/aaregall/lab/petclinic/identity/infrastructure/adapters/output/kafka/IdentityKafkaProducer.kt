@@ -36,12 +36,13 @@ internal class IdentityKafkaProducer(private val identityKafkaClient: IdentityKa
     private fun toRecord(identity: Identity): IdentityRecord =
         IdentityRecord(
             firstName = identity.firstName,
-            lastName = identity.lastName
+            lastName = identity.lastName,
+            roles = identity.roles.orEmpty().map { it.name }.toList()
         )
 }
 
 @Serdeable
-internal data class IdentityRecord(val firstName: String, val lastName: String)
+internal data class IdentityRecord(val firstName: String, val lastName: String, val roles: Collection<String>)
 
 @KafkaClient
 internal interface IdentityKafkaClient {

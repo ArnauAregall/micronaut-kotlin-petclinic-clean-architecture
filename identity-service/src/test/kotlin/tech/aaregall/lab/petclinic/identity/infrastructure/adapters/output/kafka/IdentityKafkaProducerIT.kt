@@ -2,6 +2,7 @@ package tech.aaregall.lab.petclinic.identity.infrastructure.adapters.output.kafk
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.InstanceOfAssertFactories.list
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -11,6 +12,8 @@ import tech.aaregall.lab.petclinic.identity.domain.event.IdentityCreatedEvent
 import tech.aaregall.lab.petclinic.identity.domain.event.IdentityDeletedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
+import tech.aaregall.lab.petclinic.identity.domain.model.Role
+import tech.aaregall.lab.petclinic.identity.domain.model.RoleId
 import tech.aaregall.lab.petclinic.identity.spec.KafkaRecord
 import java.time.Duration
 
@@ -27,7 +30,11 @@ internal class IdentityKafkaProducerIT(
 
         @Test
         fun `Should publish and consume the event from Kafka 'identity' topic with CREATE action header`() {
-            val domainEvent = IdentityCreatedEvent(Identity(id = IdentityId.create(), firstName = "John", lastName = "Doe"))
+            val identity = Identity(
+                id = IdentityId.create(), firstName = "John", lastName = "Doe",
+                roles = setOf(Role(id = RoleId.create(), name = "FOO"), Role(id = RoleId.create(), name = "BAR"))
+            )
+            val domainEvent = IdentityCreatedEvent(identity)
 
             identityKafkaProducer.publishIdentityCreatedEvent(domainEvent)
 
@@ -43,11 +50,18 @@ internal class IdentityKafkaProducerIT(
                         .satisfies({ record ->
                             assertThat(record.getActionHeader()).isEqualTo("CREATE")
                         })
-                        .satisfies({ record ->
-                            assertThat(record.body)
+                        .satisfies(
+                            { record -> assertThat(record.body)
                                 .extracting("firstName", "lastName")
                                 .containsExactly("John", "Doe")
-                        })
+                            },
+                            {
+                                record -> assertThat(record.body)
+                                .extracting("roles")
+                                .asInstanceOf(list(String::class.java))
+                                .containsExactlyInAnyOrder("FOO", "BAR")
+                            }
+                        )
                 })
         }
 
