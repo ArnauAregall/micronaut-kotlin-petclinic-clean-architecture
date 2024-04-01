@@ -11,9 +11,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommandException
+import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.usecase.AssignRoleToIdentityUseCase
+import tech.aaregall.lab.petclinic.identity.domain.event.IdentityUpdatedEvent
 import tech.aaregall.lab.petclinic.identity.domain.model.Identity
 import tech.aaregall.lab.petclinic.identity.domain.model.IdentityId
 import tech.aaregall.lab.petclinic.identity.domain.model.Role
@@ -27,6 +29,9 @@ internal class AssignRoleToIdentityUseCaseTest {
 
     @MockK
     lateinit var roleOutputPort: RoleOutputPort
+
+    @MockK
+    lateinit var identityEventPublisher: IdentityEventPublisher
 
     @InjectMockKs
     lateinit var useCase: AssignRoleToIdentityUseCase
@@ -54,6 +59,7 @@ internal class AssignRoleToIdentityUseCaseTest {
             verify { identityOutputPort.loadIdentityById(identityId) }
             verify (exactly = 0) { roleOutputPort.loadRoleById(any()) }
             verify (exactly = 0) { roleOutputPort.assignRoleToIdentity(any(), any()) }
+            verify (exactly = 0) { identityEventPublisher.publishIdentityUpdatedEvent(any()) }
         }
 
         @Test
@@ -81,6 +87,7 @@ internal class AssignRoleToIdentityUseCaseTest {
             verify { identityOutputPort.loadIdentityById(identityId) }
             verify { roleOutputPort.loadRoleById(roleId) }
             verify (exactly = 0) { roleOutputPort.assignRoleToIdentity(any(), any()) }
+            verify (exactly = 0) { identityEventPublisher.publishIdentityUpdatedEvent(any()) }
         }
 
         @Test
@@ -109,6 +116,7 @@ internal class AssignRoleToIdentityUseCaseTest {
             verify { identityOutputPort.loadIdentityById(identityId) }
             verify { roleOutputPort.loadRoleById(roleId) }
             verify (exactly = 0) { roleOutputPort.assignRoleToIdentity(any(), any()) }
+            verify (exactly = 0) { identityEventPublisher.publishIdentityUpdatedEvent(any()) }
         }
 
         @Test
@@ -122,6 +130,7 @@ internal class AssignRoleToIdentityUseCaseTest {
             every { identityOutputPort.loadIdentityById(identityId) } answers { mockIdentity }
             every { roleOutputPort.loadRoleById(roleId) } answers { mockRole  }
             every { roleOutputPort.assignRoleToIdentity(mockIdentity, mockRole) } answers { nothing }
+            every { identityEventPublisher.publishIdentityUpdatedEvent(IdentityUpdatedEvent(mockIdentity)) } answers { nothing }
 
             assertThatCode {
                 useCase.assignRoleToIdentity(
@@ -133,9 +142,10 @@ internal class AssignRoleToIdentityUseCaseTest {
             }
                 .doesNotThrowAnyException()
 
-            verify { identityOutputPort.loadIdentityById(identityId) }
+            verify (exactly = 2) { identityOutputPort.loadIdentityById(identityId) }
             verify { roleOutputPort.loadRoleById(roleId) }
             verify { roleOutputPort.assignRoleToIdentity(mockIdentity, mockRole) }
+            verify { identityEventPublisher.publishIdentityUpdatedEvent(IdentityUpdatedEvent(mockIdentity)) }
         }
 
     }

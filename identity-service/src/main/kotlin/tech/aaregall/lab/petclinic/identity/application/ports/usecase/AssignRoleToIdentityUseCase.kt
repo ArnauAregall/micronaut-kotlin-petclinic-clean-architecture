@@ -4,13 +4,16 @@ import tech.aaregall.lab.petclinic.common.UseCase
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommand
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityCommandException
 import tech.aaregall.lab.petclinic.identity.application.ports.input.AssignRoleToIdentityInputPort
+import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityEventPublisher
 import tech.aaregall.lab.petclinic.identity.application.ports.output.IdentityOutputPort
 import tech.aaregall.lab.petclinic.identity.application.ports.output.RoleOutputPort
+import tech.aaregall.lab.petclinic.identity.domain.event.IdentityUpdatedEvent
 
 @UseCase
 internal class AssignRoleToIdentityUseCase(
     private val identityOutputPort: IdentityOutputPort,
-    private val roleOutputPort: RoleOutputPort
+    private val roleOutputPort: RoleOutputPort,
+    private val identityEventPublisher: IdentityEventPublisher
 ) : AssignRoleToIdentityInputPort {
 
     override fun assignRoleToIdentity(assignRoleToIdentityCommand: AssignRoleToIdentityCommand) {
@@ -25,5 +28,8 @@ internal class AssignRoleToIdentityUseCase(
         }
 
         roleOutputPort.assignRoleToIdentity(identity, role)
+
+        val updatedIdentity = identityOutputPort.loadIdentityById(identity.id)!!
+        identityEventPublisher.publishIdentityUpdatedEvent(IdentityUpdatedEvent(updatedIdentity))
     }
 }
