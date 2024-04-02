@@ -10,14 +10,17 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 
 @Context
-class KeycloakFixture(@Value("\${test.keycloak.openid-connect.token-url:unknown-keycloak-token-url}") private val tokenUrl: String) {
+class KeycloakFixture(
+    @Value("\${test.keycloak.openid-connect.token-url:unknown-keycloak-token-url}") private val tokenUrl: String,
+    @Value("\${micronaut.security.oauth2.clients.keycloak.client-id}") private val clientId: String,
+    @Value("\${micronaut.security.oauth2.clients.keycloak.client-secret}") private val clientSecret: String) {
 
     private fun getJwtToken(): String =
         Given {
             contentType(ContentType.URLENC)
             formParam("grant_type", "password")
-            formParam("client_id", "system-test-client")
-            formParam("client_secret", "system-test-client-secret")
+            formParam("client_id", clientId)
+            formParam("client_secret", clientSecret)
             formParam("username", "system_test_user")
             formParam("password", "system_test_user")
         } When {
