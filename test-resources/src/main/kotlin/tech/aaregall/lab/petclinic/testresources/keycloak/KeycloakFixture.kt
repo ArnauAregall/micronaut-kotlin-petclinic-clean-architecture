@@ -8,6 +8,7 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
+import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakUser.SYSTEM_TEST_USER
 
 @Context
 class KeycloakFixture(
@@ -15,14 +16,14 @@ class KeycloakFixture(
     @Value("\${micronaut.security.oauth2.clients.keycloak.client-id}") private val clientId: String,
     @Value("\${micronaut.security.oauth2.clients.keycloak.client-secret}") private val clientSecret: String) {
 
-    private fun getJwtToken(): String =
+    private fun getJwtToken(keycloakUser: KeycloakUser): String =
         Given {
             contentType(ContentType.URLENC)
             formParam("grant_type", "password")
             formParam("client_id", clientId)
             formParam("client_secret", clientSecret)
-            formParam("username", "system_test_user")
-            formParam("password", "system_test_user")
+            formParam("username", keycloakUser.username)
+            formParam("password", keycloakUser.password)
         } When {
             post(tokenUrl)
         } Then {
@@ -36,7 +37,8 @@ class KeycloakFixture(
         @Volatile
         private lateinit var instance: KeycloakFixture
 
-        fun getAuthorizationBearer(): Header = Header("Authorization", "Bearer ${instance.getJwtToken()}")
+        fun getAuthorizationBearer(keycloakUser: KeycloakUser = SYSTEM_TEST_USER): Header =
+            Header("Authorization", "Bearer ${instance.getJwtToken(keycloakUser)}")
     }
 
     init {
