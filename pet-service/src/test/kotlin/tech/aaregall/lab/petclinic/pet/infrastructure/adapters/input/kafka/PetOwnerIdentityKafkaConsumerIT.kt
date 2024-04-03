@@ -15,10 +15,8 @@ import jakarta.inject.Singleton
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerCommand
-import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetsByPetOwnerInputPort
-import tech.aaregall.lab.petclinic.pet.application.ports.output.PetOwnerOutputPort
-import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetOwnerCommand
+import tech.aaregall.lab.petclinic.pet.application.ports.input.DeletePetOwnerInputPort
 import java.time.Duration
 import java.util.UUID.randomUUID
 
@@ -26,12 +24,8 @@ import java.util.UUID.randomUUID
 internal class PetOwnerIdentityKafkaConsumerIT {
 
     @Singleton
-    @Replaces(PetOwnerOutputPort::class)
-    fun mockPetOwnerOutputPort(): PetOwnerOutputPort = mockk()
-
-    @Singleton
-    @Replaces(DeletePetsByPetOwnerInputPort::class)
-    fun mockUseCase(): DeletePetsByPetOwnerInputPort = mockk()
+    @Replaces(DeletePetOwnerInputPort::class)
+    fun mockDeletePetOwnerInputPort(): DeletePetOwnerInputPort = mockk()
 
     @BeforeEach
     fun beforeEach() = clearAllMocks()
@@ -45,12 +39,9 @@ internal class PetOwnerIdentityKafkaConsumerIT {
 
     @Test
     fun `Should consume records and call PetOwnerOutputPort and DeletePetsByPetOwnerUseCase when record header X-Action is DELETE`(
-        identityProducer: IdentityProducer,
-        petOwnerOutputPort: PetOwnerOutputPort,
-        deletePetsByPetOwnerInputPort: DeletePetsByPetOwnerInputPort) {
+        identityProducer: IdentityProducer, deletePetOwnerInputPort: DeletePetOwnerInputPort) {
 
-        every { petOwnerOutputPort.deletePetOwner(any()) } answers { nothing }
-        every { deletePetsByPetOwnerInputPort.deletePetsByPetOwner(any()) } answers { nothing }
+        every { deletePetOwnerInputPort.deletePetOwner(any()) } answers { nothing }
 
         val key = randomUUID()
 
@@ -58,22 +49,18 @@ internal class PetOwnerIdentityKafkaConsumerIT {
 
         await().atMost(Duration.ofSeconds(5)).until { true }
 
-        verify { petOwnerOutputPort.deletePetOwner(PetOwner(key)) }
-        verify { deletePetsByPetOwnerInputPort.deletePetsByPetOwner(DeletePetsByPetOwnerCommand(key)) }
+        verify { deletePetOwnerInputPort.deletePetOwner(DeletePetOwnerCommand(key)) }
     }
 
     @Test
     fun `Should consume records and not call PetOwnerOutputPort nor DeletePetsByPetOwnerUseCase when record header X-Action is not DELETE`(
-        identityProducer: IdentityProducer,
-        petOwnerOutputPort: PetOwnerOutputPort,
-        deletePetsByPetOwnerInputPort: DeletePetsByPetOwnerInputPort) {
+        identityProducer: IdentityProducer, deletePetOwnerInputPort: DeletePetOwnerInputPort) {
 
         identityProducer.produce(randomUUID().toString(), "ANYTHING", null)
 
         await().atMost(Duration.ofSeconds(5)).until { true }
 
-        verify (exactly = 0) { petOwnerOutputPort.deletePetOwner(any()) }
-        verify (exactly = 0) { deletePetsByPetOwnerInputPort.deletePetsByPetOwner(any()) }
+        verify (exactly = 0) { deletePetOwnerInputPort.deletePetOwner(any()) }
     }
 
 }
