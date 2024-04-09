@@ -1,7 +1,6 @@
 package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.input.http
 
 import io.micronaut.context.annotation.Value
-import io.micronaut.data.r2dbc.operations.R2dbcOperations
 import io.micronaut.http.HttpMethod.GET
 import io.micronaut.http.HttpStatus
 import io.micronaut.runtime.server.EmbeddedServer
@@ -20,7 +19,6 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -31,10 +29,10 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.JsonBody.json
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetCommand
 import tech.aaregall.lab.petclinic.pet.application.ports.input.CreatePetInputPort
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType
+import tech.aaregall.lab.petclinic.testresources.flyway.CleanDatabase
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakFixture.Companion.getAuthorizationBearer
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakPropsProvider
 import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider
@@ -43,6 +41,7 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
+@CleanDatabase
 @TestResourcesProperties(providers = [MockServerPropsProvider::class, KeycloakPropsProvider::class])
 internal class PetControllerIT(private val embeddedServer: EmbeddedServer, private val mockServerClient: MockServerClient) {
 
@@ -70,15 +69,7 @@ internal class PetControllerIT(private val embeddedServer: EmbeddedServer, priva
     }
 
     @Nested
-    inner class SearchPets(private val createPetInputPort: CreatePetInputPort, private val r2dbc: R2dbcOperations) {
-
-        // TODO Find a cleaner solution to not depend on r2dbc, maybe something more elegant like @CleanDatabase
-        @BeforeEach
-        fun beforeEach() {
-            Mono.from(r2dbc.withTransaction { status ->
-                status.connection.createStatement("truncate table pet").execute()
-            }).block()
-        }
+    inner class SearchPets(private val createPetInputPort: CreatePetInputPort) {
 
         @Test
         fun `Should return Unauthorized when no Authorization header`() {

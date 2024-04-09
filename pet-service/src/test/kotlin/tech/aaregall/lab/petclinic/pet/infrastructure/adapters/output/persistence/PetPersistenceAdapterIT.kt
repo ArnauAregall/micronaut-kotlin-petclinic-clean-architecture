@@ -3,7 +3,6 @@ package tech.aaregall.lab.petclinic.pet.infrastructure.adapters.output.persisten
 import io.micronaut.data.r2dbc.operations.R2dbcOperations
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
@@ -14,20 +13,15 @@ import tech.aaregall.lab.petclinic.pet.domain.model.PetOwner
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.BIRD
 import tech.aaregall.lab.petclinic.pet.domain.model.PetType.DOG
+import tech.aaregall.lab.petclinic.testresources.flyway.CleanDatabase
 import java.time.LocalDate
 import java.util.UUID
 
 @MicronautTest(transactional = false)
+@CleanDatabase
 internal class PetPersistenceAdapterIT(
     private val petPersistenceAdapter: PetPersistenceAdapter,
     private val r2dbc: R2dbcOperations) {
-
-    @BeforeEach
-    fun setUp() {
-        Mono.from(r2dbc.withTransaction { status ->
-            status.connection.createStatement("truncate table pet").execute()
-        }).block()
-    }
 
     @Nested
     inner class FindPets {
