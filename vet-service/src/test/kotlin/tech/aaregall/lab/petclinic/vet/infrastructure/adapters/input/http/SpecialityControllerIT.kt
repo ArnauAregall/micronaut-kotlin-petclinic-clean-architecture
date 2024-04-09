@@ -1,6 +1,5 @@
 package tech.aaregall.lab.petclinic.vet.infrastructure.adapters.input.http
 
-import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.HttpStatus.BAD_REQUEST
 import io.micronaut.http.HttpStatus.CONFLICT
@@ -18,22 +17,18 @@ import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import tech.aaregall.lab.petclinic.testresources.flyway.CleanDatabase
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakFixture.Companion.getAuthorizationBearer
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakPropsProvider
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityCommand
 import tech.aaregall.lab.petclinic.vet.application.ports.input.CreateSpecialityInputPort
 
 @MicronautTest(transactional = false)
+@CleanDatabase
 @TestResourcesProperties(providers = [KeycloakPropsProvider::class])
-internal class SpecialityControllerIT(private val embeddedServer: EmbeddedServer, private val jdbc: JdbcOperations) {
-
-    @BeforeEach
-    fun setUp() {
-        jdbc.execute { conn -> conn.prepareStatement("TRUNCATE TABLE speciality CASCADE ").execute() }
-    }
+internal class SpecialityControllerIT(private val embeddedServer: EmbeddedServer) {
 
     @Nested
     inner class SearchSpecialities {

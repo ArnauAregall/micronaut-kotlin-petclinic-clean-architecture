@@ -1,7 +1,6 @@
 package tech.aaregall.lab.petclinic.vet.infrastructure.adapters.input.http
 
 import io.micronaut.context.annotation.Value
-import io.micronaut.data.jdbc.runtime.JdbcOperations
 import io.micronaut.http.HttpMethod.GET
 import io.micronaut.http.HttpStatus.BAD_REQUEST
 import io.micronaut.http.HttpStatus.CONFLICT
@@ -20,13 +19,13 @@ import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.equalTo
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.JsonBody.json
+import tech.aaregall.lab.petclinic.testresources.flyway.CleanDatabase
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakFixture.Companion.getAuthorizationBearer
 import tech.aaregall.lab.petclinic.testresources.keycloak.KeycloakPropsProvider
 import tech.aaregall.lab.petclinic.testresources.mockserver.MockServerPropsProvider
@@ -43,22 +42,14 @@ import java.util.UUID.nameUUIDFromBytes
 import java.util.UUID.randomUUID
 
 @MicronautTest(transactional = false)
+@CleanDatabase
 @TestResourcesProperties(providers = [KeycloakPropsProvider::class, MockServerPropsProvider::class])
 internal class VetControllerIT(
     private val embeddedServer: EmbeddedServer,
-    private val jdbc: JdbcOperations,
     private val mockServerClient: MockServerClient) {
 
     @Value("\${app.ports.output.vet-id-validation.required-identity-role-name}")
     lateinit var requiredIdentityRoleName: String
-
-    @BeforeEach
-    fun setUp() {
-        jdbc.execute { conn -> conn.prepareStatement("""
-            TRUNCATE TABLE vet CASCADE;
-            TRUNCATE TABLE speciality CASCADE;
-        """.trimIndent()).execute() }
-    }
 
     fun givenValidIdentityId(identityId: UUID = randomUUID()) =
         identityId.also {
