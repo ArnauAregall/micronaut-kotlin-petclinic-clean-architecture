@@ -1,6 +1,7 @@
 package tech.aaregall.lab.petclinic.testresources.flyway
 
 import io.micronaut.context.ApplicationContext
+import io.micronaut.context.annotation.Property
 import io.micronaut.test.extensions.junit5.MicronautJunit5Extension
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtensionContext.Namespace
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(CleanDatabaseCallback::class)
+@Property(name = "flyway.datasources.default.clean-schema", value = "true")
 annotation class CleanDatabase
 
 private class CleanDatabaseCallback: BeforeEachCallback {
